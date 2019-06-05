@@ -168,11 +168,15 @@ def main():
         logger.warning('no parameters were given, using default configuration')
         args = parser.parse_args()
 
+    # setting log level
     if args.hostname:
         environment.fqdn = args.hostname
         environment.hostname = args.hostname.split('.')[0]
 
     std_handler.setLevel(args.log)
+
+    # overriding environments
+    environment.__dict__.update({k: v for k, v in args.environment})
 
     timestamp = time.time()
     conf = get_configuration(environment.fqdn, args.configuration)
