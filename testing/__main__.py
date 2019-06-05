@@ -108,6 +108,15 @@ def delete_subtree(conf, deleting_subtrees):
                 delattr(current_node, tree_path[-1])
 
 
+class CheckEnvVariable(argparse._AppendAction):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if values[0] in environment.__dict__.keys():
+            super().__call__(parser, namespace, values, option_string)
+        else:
+            raise argparse.ArgumentError(
+                self, "Provided key \"{}\" is not defined in Environment so it cannot be overridden.".format(values[0]))
+
+
 def main():
     parser = argparse.ArgumentParser(description='Script for running whole network performance test suite. This test is'
                                                  ' divided into separate phases, which take care of : setup servers,'
@@ -128,7 +137,8 @@ def main():
     parser.add_argument('--submit', action='store_true', help='[phase] Send libres package into result server.')
 
     # additional arguments
-    parser.add_argument('--hostname', type=str, action='store', help="Override system FQND.")
+    parser.add_argument('-e', '--environment', nargs=2, action=CheckEnvVariable, metavar=('ENV', 'VAR'),
+                        help='Override Environment object attribute with provided value.')
     parser.add_argument('--sync', choices=['beaker', 'perfqe', 'none'], action='store', default='none',
                         help='Specify synchronization method used before and after test execution '
                              '[Default: %(default)s].')
@@ -157,11 +167,11 @@ def main():
         logger.warning('no parameters were given, using default configuration')
         args = parser.parse_args()
 
-    if args.hostname:
-        environment.fqdn = args.hostname
-        environment.hostname = args.hostname.split('.')[0]
-
+    # setting log level
     std_handler.setLevel(args.log)
+
+    # overriding environments
+    environment.__dict__.update({k: v for k, v in args.environment})
 
     timestamp = time.time()
     conf = get_configuration(environment.fqdn, args.configuration)
