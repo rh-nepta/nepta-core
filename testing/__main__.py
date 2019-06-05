@@ -139,7 +139,6 @@ def main():
     # additional arguments
     parser.add_argument('-e', '--environment', nargs=2, action=CheckEnvVariable, metavar=('ENV', 'VAR'),
                         help='Override Environment object attribute with provided value.')
-    parser.add_argument('--hostname', type=str, action='store', help="Override system FQND.")
     parser.add_argument('--sync', choices=['beaker', 'perfqe', 'none'], action='store', default='none',
                         help='Specify synchronization method used before and after test execution '
                              '[Default: %(default)s].')
@@ -169,10 +168,6 @@ def main():
         args = parser.parse_args()
 
     # setting log level
-    if args.hostname:
-        environment.fqdn = args.hostname
-        environment.hostname = args.hostname.split('.')[0]
-
     std_handler.setLevel(args.log)
 
     # overriding environments
