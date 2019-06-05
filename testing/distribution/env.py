@@ -41,11 +41,14 @@ class Environment(components.DistributionComponent):
             match = re.search(r'(?P<src_name>.+)-(.+)-(.+)\.*\.src\.rpm', self.kernel_src_rpm)
             self.kernel = match.group('src_name') + '-' + kernel_version
         self.fqdn = components.uname.get_hostname()
-        self.hostname = self.fqdn.split('.')[0]
         self.distro = components.rhts.get_distro()
         if not self.distro:
             self.distro = 'Linux'
         self.rhel_version = rh_release.get_version()
+
+    @property
+    def hostname(self):
+        return self.fqdn.split('.')[0]
 
     def __str__(self):
         r = self.__class__.__name__
