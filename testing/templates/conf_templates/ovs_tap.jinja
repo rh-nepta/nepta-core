@@ -1,0 +1,6 @@
+{% extends "bridge_tap.jinja" %}
+{% block special_attr %}
+{{ super() }}
+  <virtualport type='openvswitch'>
+  </virtualport>
+{% endblock %}

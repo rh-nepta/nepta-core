@@ -1,0 +1,8 @@
+{% extends "generic.jinja" %}
+{% block additional_values %}
+{{ super() -}}
+DEVICETYPE=ovs
+TYPE=OVSIntPort
+OVS_BRIDGE={{ intf.ovs_switch.name }}
+NM_CONTROLLED=yes
+{% endblock %}

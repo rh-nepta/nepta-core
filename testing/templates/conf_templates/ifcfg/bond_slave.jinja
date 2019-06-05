@@ -1,0 +1,6 @@
+{% extends "ethernet.jinja" %}
+{% block additional_values %}
+{{ super() -}}
+MASTER={{ intf.master_bond }}
+SLAVE=yes
+{% endblock %}

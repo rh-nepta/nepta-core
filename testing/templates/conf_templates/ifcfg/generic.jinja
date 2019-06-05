@@ -1,0 +1,40 @@
+DEVICE={{ intf.name }}
+ONBOOT=yes
+BOOTPROTO=none
+MTU={{ intf.mtu }}
+{% block additional_values %}
+{% endblock %}
+{% block addresses %}
+{%- if intf.v4_conf %}
+	{% for ip in intf.v4_conf.addresses %}
+IPADDR{{ loop.index0 }}={{ ip.ip }}
+NETMASK{{ loop.index0 }}={{ ip.netmask }}
+	{% endfor %}
+	{% if intf.v4_conf.gw %}
+GATEWAY={{ intf.v4_conf.gw }}
+GATEWAY0={{ intf.v4_conf.gw }}
+	{% endif %}
+	{% for dns in intf.v4_conf.dns %}
+DNS{{ loop.index }}={{ dns }}
+	{% endfor %}
+{% endif %}
+
+{%- if intf.v6_conf %}
+IPV6INIT=yes
+IPV6_AUTOCONF=no
+	{% for ip in intf.v6_conf.addresses %}
+		{% if loop.first %}
+IPV6ADDR={{ ip }}
+            {% if intf.v6_conf.addresses|length > 1 %}
+IPV6ADDR_SECONDARIES="
+	        {%- endif -%}
+        {%- else -%} {{ ip }} {%- if loop.last %}"{% else %} {% endif %}
+	    {%- endif -%}
+	{% endfor %}
+
+	{%- if intf.v6_conf.gw %}
+
+IPV6_DEFAULTGW={{ intf.v6_conf.gw }}
+	{% endif %}
+{% endif %}
+{% endblock %}

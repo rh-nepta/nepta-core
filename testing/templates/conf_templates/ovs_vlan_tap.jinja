@@ -1,0 +1,7 @@
+{% extends "ovs_tap.jinja" %}
+{% block special_attr %}
+{{ super() }}  
+  <vlan>
+    <tag id='{{ tap.vlan }}'/>
+  </vlan>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "ethernet.jinja" %}
+{% block additional_values %}
+{{ super() -}}
+DEVICETYPE=TeamPort
+TEAM_MASTER={{ intf.team }}
+{% endblock %}

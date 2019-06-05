@@ -1,0 +1,11 @@
+{% extends "generic.jinja" %}
+{% block additional_values %}
+HWADDR={{ intf.mac }}
+{% endblock %}
+{% block addresses %}
+	{% if intf.master_bridge_name %}
+BRIDGE={{ intf.master_bridge_name }}
+	{% else %}
+{{ super() -}}
+	{% endif %}
+{% endblock %}

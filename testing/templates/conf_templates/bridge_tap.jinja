@@ -1,0 +1,8 @@
+<interface type='bridge'>
+  <mac address='{{ tap.mac }}'/>
+  <source bridge='{{ tap.switch.name }}'/>
+  <model type='virtio'/>
+{% block special_attr %}
+{% endblock %}
+</interface>
+

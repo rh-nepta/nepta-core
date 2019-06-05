@@ -1,0 +1,15 @@
+conn {{name}}
+	type={{type}}
+	authby=secret
+	left={{ left }}
+	right={{ right }}
+	phase2={{ phase2 }}
+	phase2alg={{ cipher }}
+	keyexchange=ike
+	pfs=yes
+	auto=start
+	encapsulation={{ nat_traversal }}
+	{% if replay_window %}
+	replay-window={{ replay_window }}
+	{% endif %}
+
