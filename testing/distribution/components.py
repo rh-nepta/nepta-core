@@ -3,9 +3,16 @@ import logging
 import shutil
 import subprocess
 import re
+
 from testing import model
 
 logger = logging.getLogger(__name__)
+
+
+try:
+    from pyattero import attero, options
+except ImportError:
+    logger.error('Pyattero library is not available in the system. Attero component cannot be used.')
 
 
 class Command(object):
@@ -979,7 +986,6 @@ class Attero(DistributionComponent):
     @staticmethod
     def clear_existing_impairments():
         logger.info("Clearing Attero existing configuration.")
-        from pyattero import attero
         controler = attero.Control()
         controler.conn()
         controler.clear_impairments()
@@ -1005,7 +1011,6 @@ class Attero(DistributionComponent):
     @staticmethod
     def set_delay(direction, delay):
         logger.info("Setting Attero to create a delay of %s ms in %s direction." % (delay, direction))
-        from pyattero import attero, options
         controller = attero.Control()
         controller.conn()
         flow_option = options.Flow(direction)
@@ -1017,7 +1022,6 @@ class Attero(DistributionComponent):
     @staticmethod
     def set_bandwidth(direction, bandwidth):
         logger.info("Setting Attero to create a bottleneck of %s kbps in %s direction." % (bandwidth, direction))
-        from pyattero import attero, options
         controller = attero.Control()
         controller.conn()
         flow_option = options.Flow(direction)
@@ -1028,7 +1032,6 @@ class Attero(DistributionComponent):
 
     @staticmethod
     def start():
-        from pyattero import attero
         controller = attero.Control()
         controller.conn()
         controller.start()
@@ -1036,7 +1039,6 @@ class Attero(DistributionComponent):
 
     @staticmethod
     def stop():
-        from pyattero import attero
         controller = attero.Control()
         controller.conn()
         controller.stop()
