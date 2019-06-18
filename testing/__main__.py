@@ -12,7 +12,7 @@ from datetime import datetime as dtdt
 from libres.store import Section, Params
 from libres.package import Pacman
 
-from testing import strategies, synchronization, model, configuration
+from testing import strategies, synchronization, model
 from testing.distribution.env import environment
 from testing.distribution.components import rhts
 
