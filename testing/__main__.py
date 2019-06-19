@@ -29,15 +29,18 @@ std_handler = logging.StreamHandler()
 std_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 std_handler.setFormatter(std_formatter)
 std_handler.setLevel(logging.INFO)
-
-# Log into log file - with DEBUG messages
-file_handler = logging.FileHandler(LOG_FILENAME)
-file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(file_formatter)
-file_handler.setLevel(logging.DEBUG)
-
 root_logger.addHandler(std_handler)
-root_logger.addHandler(file_handler)
+
+try:
+    # Log into log file - with DEBUG messages
+    file_handler = logging.FileHandler(LOG_FILENAME)
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(logging.DEBUG)
+    root_logger.addHandler(file_handler)
+except PermissionError:
+    logging.error(f"Cannot create file logger into {LOG_FILENAME}")
+
 
 # Local logger instance
 logger = logging.getLogger(__name__)
