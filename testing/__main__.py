@@ -51,11 +51,11 @@ def get_configuration(fqdn, conf):
         return conf_bundle
 
 
-def get_synchronization(sync):
+def get_synchronization(sync, conf):
     if sync == 'beaker':
         return synchronization.BeakerSynchronization()
     elif sync == 'perfqe':
-        return synchronization.PerfSynchronization(configuration.SYNC_HOSTNAME)
+        return synchronization.PerfSynchronization(conf.get_subset(model.bundles.SyncServer)[0].value)
     else:
         return synchronization.NoSynchronization()
 
@@ -184,7 +184,7 @@ def main():
 
     timestamp = time.time()
     conf = get_configuration(environment.fqdn, args.configuration)
-    sync = get_synchronization(args.sync)
+    sync = get_synchronization(args.sync, conf)
     package = init_package(args.configuration, timestamp)
     final_strategy = strategies.generic.CompoundStrategy()
     desync_strategy = strategies.generic.CompoundStrategy()  # used when exec failed to unlock opposite host
