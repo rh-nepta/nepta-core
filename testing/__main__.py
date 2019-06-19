@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # coding=utf8
 import sys
+import importlib
 import os
 import argparse
 import logging
@@ -152,6 +153,8 @@ def main():
                         help='Filter current configuration of these model object types.')
     parser.add_argument('-d', '--delete-tree', action='append', metavar='SUBTREE_PATH',
                         help='Specify which sub-tree of configuration tree will be deleted.')
+    parser.add_argument('-i', '--import', dest='imp', action='append', nargs=2,  metavar=('MODULE_NAME', 'PATH'),
+                        help='Dynamically import test configurations.')
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -169,6 +172,12 @@ def main():
 
     # setting log level
     std_handler.setLevel(args.log)
+
+    if args.imp:
+        for module, path in args.imp:
+            sys.path.insert(0, path)
+            importlib.import_module(module)
+            sys.path.pop(0)
 
     # overriding environments
     environment.__dict__.update({k: v for k, v in args.environment})
