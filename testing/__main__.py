@@ -153,6 +153,8 @@ def main():
                         help='Filter current configuration of these model object types.')
     parser.add_argument('-d', '--delete-tree', action='append', metavar='SUBTREE_PATH',
                         help='Specify which sub-tree of configuration tree will be deleted.')
+    parser.add_argument('-p', '--print', action='store_true',
+                        help='Print current configuration in tree format and exit.')
     parser.add_argument('-i', '--import', dest='imp', action='append', nargs=2,  metavar=('MODULE_NAME', 'PATH'),
                         help='Dynamically import test configurations.')
 
@@ -188,6 +190,10 @@ def main():
     package = init_package(args.configuration, timestamp)
     final_strategy = strategies.generic.CompoundStrategy()
     desync_strategy = strategies.generic.CompoundStrategy()  # used when exec failed to unlock opposite host
+
+    if args.print:
+        print(conf.str_tree())
+        return
 
     if args.filter:
         filter_conf(conf, args.filter)
