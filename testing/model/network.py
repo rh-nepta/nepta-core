@@ -40,12 +40,12 @@ class IPv6Configuration(IPBaseConfiguration):
     pass
 
 
-class NetFormatter(object):
+class NetFormatter(ipaddress._BaseNetwork):
 
     CONF_OBJ = None
 
     def __init__(self, net):
-        super(NetFormatter, self).__init__(net)
+        super().__init__(net)
         self._ip_gen = self.hosts()
 
     def new_addr(self):
