@@ -1,5 +1,6 @@
 import ipaddress
 import copy
+from testing.model.tag import SoftwareInventoryTag
 
 
 class IPBaseConfiguration(object):
@@ -301,15 +302,13 @@ class IPsecTunnel(object):
 
     @property
     def tags(self):
-        # these import have to be hidden under function, otherwise causing import cycle
-        from testing.configuration.defaults import tag
-        from testing.model.tag import SoftwareInventoryTag
 
-        tags = [tag.ipv4] if self.family == "IPv4" else [tag.ipv6]
-        tags.append(tag.ipsec)
-        tags.append(tag.ipsec_transport if self.mode == IPsecTunnel.MODE_TRANSPORT else tag.ipsec_tunnel)
+        tags = [SoftwareInventoryTag('IPv4')] if self.family == "IPv4" else [SoftwareInventoryTag('IPv6')]
+        tags.append(SoftwareInventoryTag('IPsec'))
+        tags.append(SoftwareInventoryTag('Transport') if self.mode == IPsecTunnel.MODE_TRANSPORT
+                    else SoftwareInventoryTag('Tunnel'))
         if self.nat_traversal == self.NAT_TRAVERSAL_YES:
-            tags.append(tag.nat_traversal)
+            tags.append(SoftwareInventoryTag('NatTraversal'))
         tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags

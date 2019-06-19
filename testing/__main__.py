@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # coding=utf8
 import sys
+import importlib
 import os
 import argparse
 import logging
@@ -12,7 +13,7 @@ from datetime import datetime as dtdt
 from libres.store import Section, Params
 from libres.package import Pacman
 
-from testing import strategies, synchronization, model, configuration
+from testing import strategies, synchronization, model
 from testing.distribution.env import environment
 from testing.distribution.components import rhts
 
@@ -50,11 +51,11 @@ def get_configuration(fqdn, conf):
         return conf_bundle
 
 
-def get_synchronization(sync):
+def get_synchronization(sync, conf):
     if sync == 'beaker':
         return synchronization.BeakerSynchronization()
     elif sync == 'perfqe':
-        return synchronization.PerfSynchronization(configuration.SYNC_HOSTNAME)
+        return synchronization.PerfSynchronization(conf.get_subset(model.bundles.SyncServer)[0].value)
     else:
         return synchronization.NoSynchronization()
 
@@ -152,6 +153,8 @@ def main():
                         help='Filter current configuration of these model object types.')
     parser.add_argument('-d', '--delete-tree', action='append', metavar='SUBTREE_PATH',
                         help='Specify which sub-tree of configuration tree will be deleted.')
+    parser.add_argument('-i', '--import', dest='imp', action='append', nargs=2,  metavar=('MODULE_NAME', 'PATH'),
+                        help='Dynamically import test configurations.')
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -170,12 +173,18 @@ def main():
     # setting log level
     std_handler.setLevel(args.log)
 
+    if args.imp:
+        for module, path in args.imp:
+            sys.path.insert(0, path)
+            importlib.import_module(module)
+            sys.path.pop(0)
+
     # overriding environments
     environment.__dict__.update({k: v for k, v in args.environment})
 
     timestamp = time.time()
     conf = get_configuration(environment.fqdn, args.configuration)
-    sync = get_synchronization(args.sync)
+    sync = get_synchronization(args.sync, conf)
     package = init_package(args.configuration, timestamp)
     final_strategy = strategies.generic.CompoundStrategy()
     desync_strategy = strategies.generic.CompoundStrategy()  # used when exec failed to unlock opposite host

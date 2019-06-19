@@ -1,6 +1,7 @@
 import copy
 import logging
 from collections import OrderedDict
+from testing.model.system import Value
 
 logger = logging.getLogger(__name__)
 
@@ -325,3 +326,7 @@ class SyncHost(object):
 
     def get_hostname(self):
         return self._hostname
+
+
+class SyncServer(Value):
+    pass
