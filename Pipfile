@@ -4,10 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pytest = "*"
 
 [packages]
 jinja2 = "==2.10.1"
-pytest = "*"
 xml-diff = "==0.7.0"
 
 [requires]

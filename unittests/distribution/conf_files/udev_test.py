@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from testing.model.network import EthernetInterface
-from testing.distribution.conf_files import UdevRulesFile
+from nepta.core.model.network import EthernetInterface
+from nepta.core.distribution.conf_files import UdevRulesFile
 
 
 class UdevTest(TestCase):

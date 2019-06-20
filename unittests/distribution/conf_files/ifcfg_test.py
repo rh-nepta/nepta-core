@@ -1,8 +1,8 @@
 from unittest import TestCase
 import ipaddress as ia
 
-from testing.model import network as nm
-from testing.distribution import conf_files as cf
+from nepta.core.model import network as nm
+from nepta.core.distribution import conf_files as cf
 
 
 class IfcfgTest(TestCase):
