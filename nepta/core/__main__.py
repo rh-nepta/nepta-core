@@ -185,7 +185,8 @@ def main():
             sys.path.pop(0)
 
     # overriding environments
-    environment.__dict__.update({k: v for k, v in args.environment})
+    if args.environment:
+        environment.__dict__.update({k: v for k, v in args.environment})
 
     timestamp = time.time()
     conf = get_configuration(environment.fqdn, args.configuration)
