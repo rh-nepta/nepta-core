@@ -1,9 +1,9 @@
 import urllib.request
 import logging
 
-from testing.strategies.generic import Strategy
-from testing.distribution import components
-from testing.model import attachments
+from nepta.core.strategies.generic import Strategy
+from nepta.core.distribution import components
+from nepta.core.model import attachments
 
 logger = logging.getLogger(__name__)
 

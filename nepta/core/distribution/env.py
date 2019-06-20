@@ -1,6 +1,6 @@
 import re
 
-from testing.distribution import components
+from nepta.core.distribution import components
 
 
 class RedhatRelease(components.DistributionComponent):

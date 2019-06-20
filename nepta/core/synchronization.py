@@ -1,7 +1,7 @@
 import logging
 import time
 import os
-from testing import distribution
+from nepta.core import distribution
 
 logger = logging.getLogger(__name__)
 

@@ -13,9 +13,9 @@ from datetime import datetime as dtdt
 from libres.store import Section, Params
 from libres.package import Pacman
 
-from testing import strategies, synchronization, model
-from testing.distribution.env import environment
-from testing.distribution.components import rhts
+from nepta.core import strategies, synchronization, model
+from nepta.core.distribution.env import environment
+from nepta.core.distribution.components import rhts
 
 LOG_FILENAME = '/var/log/performance-network_perftest.log'
 

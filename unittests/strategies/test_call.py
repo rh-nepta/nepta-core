@@ -4,12 +4,12 @@ import shutil
 
 from libres.package import Pacman
 
-from testing.strategies.prepare import Prepare
-from testing.strategies.setup import Rhel7
-from testing.strategies.run import RunScenarios
-from testing.strategies.save.meta import SaveMeta
-from testing.strategies.save.attachments import SaveAttachments
-from testing.model.bundles import Bundle, HostBundle
+from nepta.core.strategies.prepare import Prepare
+from nepta.core.strategies.setup import Rhel7
+from nepta.core.strategies.run import RunScenarios
+from nepta.core.strategies.save.meta import SaveMeta
+from nepta.core.strategies.save.attachments import SaveAttachments
+from nepta.core.model.bundles import Bundle, HostBundle
 
 
 class MethCallLogger(object):

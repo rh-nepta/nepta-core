@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from testing.model.network import IPsecTunnel
-from testing.distribution.conf_files import IPsecConnFile, IPsecSecretsFile, IPsecRHEL8ConnFile
+from nepta.core.model.network import IPsecTunnel
+from nepta.core.distribution.conf_files import IPsecConnFile, IPsecSecretsFile, IPsecRHEL8ConnFile
 
 from ipaddress import IPv4Interface
 

@@ -1,5 +1,5 @@
 import unittest
-from testing.strategies.generic import Strategy, CompoundStrategy
+from nepta.core.strategies.generic import Strategy, CompoundStrategy
 
 
 class JoinStrategies(unittest.TestCase):

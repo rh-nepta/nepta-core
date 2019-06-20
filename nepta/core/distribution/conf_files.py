@@ -8,7 +8,7 @@ import json
 from jinja2 import Environment, FileSystemLoader
 
 from . import components
-from testing.model import network as net_model
+from nepta.core.model import network as net_model
 
 logger = logging.getLogger(__name__)
 

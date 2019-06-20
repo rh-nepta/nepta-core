@@ -1,7 +1,7 @@
 from . import attachments
 from . import meta
 
-from testing.strategies.generic import Strategy
+from nepta.core.strategies.generic import Strategy
 
 
 class Save(Strategy):

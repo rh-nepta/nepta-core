@@ -1,7 +1,7 @@
 import copy
 import logging
 from collections import OrderedDict
-from testing.model.system import Value
+from nepta.core.model.system import Value
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ import uuid
 import logging
 
 from collections import OrderedDict
-from testing.model.tag import HardwareInventoryTag, SoftwareInventoryTag
+from nepta.core.model.tag import HardwareInventoryTag, SoftwareInventoryTag
 
 logger = logging.getLogger(__name__)
 

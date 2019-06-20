@@ -1,9 +1,9 @@
 import logging
 
-from testing import model, scenarios
-from testing.distribution import components
-from testing.tests.iperf3 import Iperf3Server
-from testing.strategies.generic import Strategy
+from nepta.core import model, scenarios
+from nepta.core.distribution import components
+from nepta.core.tests.iperf3 import Iperf3Server
+from nepta.core.strategies.generic import Strategy
 
 logger = logging.getLogger(__name__)
 

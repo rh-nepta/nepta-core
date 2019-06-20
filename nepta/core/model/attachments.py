@@ -1,4 +1,4 @@
-from testing import distribution
+from nepta.core import distribution
 
 
 class Attachment(object):

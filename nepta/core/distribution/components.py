@@ -4,7 +4,7 @@ import shutil
 import subprocess
 import re
 
-from testing import model
+from nepta.core import model
 
 logger = logging.getLogger(__name__)
 

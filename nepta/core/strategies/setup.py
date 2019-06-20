@@ -2,9 +2,9 @@ import os
 import logging
 import time
 
-from testing.strategies.generic import Strategy
-from testing import model
-from testing.distribution import components, conf_files, env
+from nepta.core.strategies.generic import Strategy
+from nepta.core import model
+from nepta.core.distribution import components, conf_files, env
 
 logger = logging.getLogger(__name__)
 

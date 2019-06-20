@@ -1,10 +1,10 @@
 from unittest import TestCase
 from ipaddress import IPv4Interface, IPv6Interface, IPv4Network, IPv6Network, IPv4Address, IPv6Address
 
-from testing.model.system import Repository
-from testing.model.network import Route4, Route6, EthernetInterface
-from testing.model.network import IPv4Configuration, IPv6Configuration
-from testing.distribution.conf_files import RepositoryFile, Route4File, Route6File
+from nepta.core.model.system import Repository
+from nepta.core.model.network import Route4, Route6, EthernetInterface
+from nepta.core.model.network import IPv4Configuration, IPv6Configuration
+from nepta.core.distribution.conf_files import RepositoryFile, Route4File, Route6File
 
 
 class MiscTest(TestCase):

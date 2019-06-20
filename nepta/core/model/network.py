@@ -1,6 +1,6 @@
 import ipaddress
 import copy
-from testing.model.tag import SoftwareInventoryTag
+from nepta.core.model.tag import SoftwareInventoryTag
 
 
 class IPBaseConfiguration(object):

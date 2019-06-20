@@ -1,5 +1,5 @@
 import logging
-from testing.tests.cmd_tool import CommandArgument, CommandTool
+from nepta.core.tests.cmd_tool import CommandArgument, CommandTool
 
 logger = logging.getLogger(__name__)
 

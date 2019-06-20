@@ -1,8 +1,8 @@
 import logging
 import time
 
-from testing.scenarios.generic.scenario import SingleStreamGeneric
-from testing.distribution.components import Attero
+from nepta.core.scenarios.generic.scenario import SingleStreamGeneric
+from nepta.core.distribution.components import Attero
 from libres.store import Section
 
 

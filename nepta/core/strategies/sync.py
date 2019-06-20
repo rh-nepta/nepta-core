@@ -1,8 +1,8 @@
 from time import sleep
 import logging
 
-from testing.strategies.generic import Strategy
-from testing.model.bundles import SyncHost
+from nepta.core.strategies.generic import Strategy
+from nepta.core.model.bundles import SyncHost
 
 logger = logging.getLogger(__name__)
 

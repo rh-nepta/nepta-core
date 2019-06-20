@@ -2,8 +2,8 @@ import logging
 
 from libres.store import Section
 
-from testing.strategies.generic import Strategy
-from testing.scenarios.generic.scenario import StreamGeneric
+from nepta.core.strategies.generic import Strategy
+from nepta.core.scenarios.generic.scenario import StreamGeneric
 
 logger = logging.getLogger(__name__)
 

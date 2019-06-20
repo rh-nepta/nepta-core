@@ -1,10 +1,10 @@
 import logging
 from collections import OrderedDict
 
-from testing.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
-from testing.scenarios.generic.congestion import NetemConstricted, StaticCongestion
+from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
+from nepta.core.scenarios.generic.congestion import NetemConstricted, StaticCongestion
 
-from testing.tests import Iperf3Test
+from nepta.core.tests import Iperf3Test
 
 logger = logging.getLogger(__name__)
 

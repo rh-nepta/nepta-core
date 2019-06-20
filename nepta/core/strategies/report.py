@@ -1,7 +1,7 @@
 import logging
 
-from testing.strategies.generic import Strategy
-from testing.distribution import components
+from nepta.core.strategies.generic import Strategy
+from nepta.core.distribution import components
 
 logger = logging.getLogger(__name__)
 

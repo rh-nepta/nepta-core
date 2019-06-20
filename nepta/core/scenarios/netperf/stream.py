@@ -1,8 +1,8 @@
 import logging
 from collections import OrderedDict
 
-from testing.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
-from testing.tests import NetperStreamfTest
+from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
+from nepta.core.tests import NetperStreamfTest
 
 logger = logging.getLogger(__name__)
 

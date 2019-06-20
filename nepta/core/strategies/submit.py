@@ -1,8 +1,8 @@
 import logging
 
-from testing.strategies.generic import Strategy
-from testing.distribution import components
-from testing.model.schedule import RsyncHost
+from nepta.core.strategies.generic import Strategy
+from nepta.core.distribution import components
+from nepta.core.model.schedule import RsyncHost
 
 logger = logging.getLogger(__name__)
 

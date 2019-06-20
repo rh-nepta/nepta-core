@@ -1,10 +1,10 @@
 import os
 import sys
 
-from testing.strategies.generic import Strategy
-from testing.distribution import components
-from testing.model import bundles
-from testing.distribution.env import environment
+from nepta.core.strategies.generic import Strategy
+from nepta.core.distribution import components
+from nepta.core.model import bundles
+from nepta.core.distribution.env import environment
 
 
 class SaveMeta(Strategy):

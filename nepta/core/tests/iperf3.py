@@ -1,5 +1,5 @@
 import json
-from testing.tests.cmd_tool import CommandTool, CommandArgument
+from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
 
 
 class Iperf3(CommandTool):
