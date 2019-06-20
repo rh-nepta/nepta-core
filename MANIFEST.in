@@ -1,2 +1,2 @@
 include versioneer.py
-include core/_version.py
+include nepta/core/_version.py
