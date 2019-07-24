@@ -3,7 +3,7 @@ import time
 
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric
 from nepta.core.distribution.components import Attero
-from libres.store import Section
+from nepta.dataformat import Section
 
 
 logger = logging.getLogger(__name__)

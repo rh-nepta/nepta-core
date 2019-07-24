@@ -1,8 +1,7 @@
 import logging
 import time
 import uuid
-from libres.store import Section
-from collections import OrderedDict
+from nepta.dataformat import Section
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +41,7 @@ class StreamGeneric(ScenarioGeneric):
         self.store_scenario(root_sec)
 
         paths_section = Section('paths')
-        root_sec.add_sub_section(paths_section)
+        root_sec.subsections.append(paths_section)
 
         for path in self.paths:
             paths_section.subsections.append(self.run_path(path))
@@ -59,7 +58,7 @@ class StreamGeneric(ScenarioGeneric):
         self.store_path(path_sec, path)
 
         test_cases_sec = Section('test_cases')
-        path_sec.add_sub_section(test_cases_sec)
+        path_sec.subsections.append(test_cases_sec)
 
         for size in self.msg_sizes:
             test_cases_sec.subsections.append(self.run_msg_size(path, size))
@@ -71,13 +70,13 @@ class StreamGeneric(ScenarioGeneric):
         sw_inv_sec = Section('software_inventory')
 
         for tag in path.hw_inventory:
-            hw_inv_sec.add_sub_section(Section('tag', value=tag))
+            hw_inv_sec.subsections.append(Section('tag', value=tag))
 
         for tag in path.sw_inventory:
-            sw_inv_sec.add_sub_section(Section('tag', value=tag))
+            sw_inv_sec.subsections.append(Section('tag', value=tag))
 
-        section.add_sub_section(hw_inv_sec)
-        section.add_sub_section(sw_inv_sec)
+        section.subsections.append(hw_inv_sec)
+        section.subsections.append(sw_inv_sec)
         return section
 
     def run_msg_size(self, path, size):
@@ -86,7 +85,7 @@ class StreamGeneric(ScenarioGeneric):
 
         cpu = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         self.store_msg_size(test_case_section, size, cpu)
-        test_case_section.add_sub_section(runs_section)
+        test_case_section.subsections.append(runs_section)
         for _ in range(self.test_runs):
             runs_section.subsections.append(self.run_instance(path, size))
         return test_case_section
@@ -94,9 +93,9 @@ class StreamGeneric(ScenarioGeneric):
     def store_msg_size(self, section, size, cpu_pinning=None):
         section.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, "msg_size=%s test_length=%s" % (size, self.test_length))
         test_settings_sec = Section('test_settings')
-        test_settings_sec.add_sub_section(Section('item', key='msg_size', value=size))
-        test_settings_sec.add_sub_section(Section('item', key='test_length', value=self.test_length))
-        section.add_sub_section(test_settings_sec)
+        test_settings_sec.subsections.append(Section('item', key='msg_size', value=size))
+        test_settings_sec.subsections.append(Section('item', key='test_length', value=self.test_length))
+        section.subsections.append(test_settings_sec)
         return section
 
     def run_instance(self, path, size):
@@ -118,8 +117,8 @@ class SingleStreamGeneric(StreamGeneric):
         super().store_msg_size(section, size)
         if cpu_pinning:
             test_settings_sec = section.subsections.filter('test_settings')[0]
-            test_settings_sec.add_sub_section(Section('item', key='local_cpu_bind', value=cpu_pinning[0][0]))
-            test_settings_sec.add_sub_section(Section('item', key='remote_cpu_bind', value=cpu_pinning[0][1]))
+            test_settings_sec.subsections.append(Section('item', key='local_cpu_bind', value=cpu_pinning[0][0]))
+            test_settings_sec.subsections.append(Section('item', key='remote_cpu_bind', value=cpu_pinning[0][1]))
 
         return section
 
@@ -131,7 +130,7 @@ class SingleStreamGeneric(StreamGeneric):
 
     def store_instance(self, section, test):
         for k, v in self.parse_results(test).items():
-            section.add_sub_section(Section('item', key=k, value=v))
+            section.subsections.append(Section('item', key=k, value=v))
         return section
 
 
@@ -152,7 +151,7 @@ class MultiStreamsGeneric(StreamGeneric):
         super().store_msg_size(section, size)
         if cpu_pinning:
             test_settings_sec = section.subsections.filter('test_settings')[0]
-            test_settings_sec.add_sub_section(Section('item', key='instances', value=len(cpu_pinning)))
+            test_settings_sec.subsections.append(Section('item', key='instances', value=len(cpu_pinning)))
         return section
 
     def run_instance(self, path, size):
@@ -185,7 +184,7 @@ class MultiStreamsGeneric(StreamGeneric):
 
     def store_instance(self, section, tests):
         for k, v in self.parse_all_results(tests).items():
-            section.add_sub_section(Section('item', key=k, value=v))
+            section.subsections.append(Section('item', key=k, value=v))
         return section
 
 
@@ -195,6 +194,6 @@ class DuplexStreamGeneric(MultiStreamsGeneric):
         super().store_msg_size(section, size)
         if cpu_pinning:
             test_settings_sec = section.subsections.filter('test_settings')[0]
-            test_settings_sec.add_sub_section(Section('item', key='bind_stream', value=cpu_pinning[0][0]))
-            test_settings_sec.add_sub_section(Section('item', key='bind_reversed', value=cpu_pinning[0][1]))
+            test_settings_sec.subsections.append(Section('item', key='bind_stream', value=cpu_pinning[0][0]))
+            test_settings_sec.subsections.append(Section('item', key='bind_reversed', value=cpu_pinning[0][1]))
         return section
