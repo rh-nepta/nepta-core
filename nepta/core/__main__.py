@@ -10,12 +10,11 @@ import time
 import uuid
 from datetime import datetime as dtdt
 
-from libres.store import Section, Params
-from libres.package import Pacman
-
 from nepta.core import strategies, synchronization, model
 from nepta.core.distribution.env import environment
 from nepta.core.distribution.components import rhts
+
+from nepta.dataformat import Section, DataPackage
 
 LOG_FILENAME = '/var/log/performance-network_perftest.log'
 
@@ -68,9 +67,8 @@ def init_package(conf_name, start_time):
         environment.hostname, conf_name, environment.distro, environment.kernel, int(start_time))
     logger.info("Creating libres package in : {}".format(pckg_path))
 
-    package = Pacman.in_path(pckg_path).assemble()
-    package.create()
-    package.store.root_section = init_root_store()
+    package = DataPackage.create(pckg_path)
+    package.store.root = init_root_store()
 
     return package
 
