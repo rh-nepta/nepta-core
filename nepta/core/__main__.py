@@ -74,10 +74,7 @@ def init_package(conf_name, start_time):
 
 
 def init_root_store():
-    store_params = Params()
-    store_params['hostname'] = environment.hostname
-    store_params['kernel'] = environment.kernel
-    store_params['distro'] = environment.distro
+    store_params = {'hostname': environment.hostname, 'kernel': environment.kernel, 'distro': environment.distro}
     return Section('host', store_params)
 
 
