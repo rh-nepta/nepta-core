@@ -1,6 +1,6 @@
 import logging
 
-from libres.store import Section
+from nepta.dataformat import Section
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.generic.scenario import StreamGeneric
@@ -33,12 +33,12 @@ class RunScenarios(Strategy):
             logger.warning('Scenarios %s are disabled by commandline options. They won\'t be run.' % excluded_names)
 
         # creating data section and running filtered scenarios
-        root_section = self.package.store.root_section
-        scenarios_section = root_section.add_sub_section(Section('scenarios'))
+        scenarios_section = Section('scenarios')
+        self.package.store.root.subsections.append(scenarios_section)
 
         run_items = [x for x in scenarios if x.__class__.__name__ in override_names]
         for item in run_items:
             logger.info('\n\nRunning scenario: %s', item)
             result = item()
             if result:
-                scenarios_section.add_sub_section(result)
+                scenarios_section.subsections.append(result)
