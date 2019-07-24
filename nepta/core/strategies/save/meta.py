@@ -17,7 +17,7 @@ class SaveMeta(Strategy):
 
     @Strategy.schedule
     def save_meta(self):
-        root = self.package.meta.root
+        root = self.package.metas
         root.update(self.meta)
         root['TestCase'] = self.conf.conf_name
         root['Kernel'] = environment.kernel
