@@ -19,9 +19,8 @@ class Submit(Strategy):
         logger.info('Starting rsync results')
         for rsync in self.configuration.get_subset(m_class=RsyncHost):
             logger.info('rsyncing results to %s', ":".join([rsync.server, rsync.destination]))
-            results_path = str(self.package.save.location)
-            cmd = 'rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X %s %s::%s' \
-                  % (results_path, rsync.server, rsync.destination)
+            cmd = f'rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X {self.package.path}' \
+                  f' {rsync.server}::{rsync.destination}'
             c = components.Command(cmd)
             c.run()
             out, ret = c.watch_output()
