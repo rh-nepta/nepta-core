@@ -16,5 +16,5 @@ class Report(Strategy):
     def report(self):
         logger.info('reporting results to beaker')
         # TODO: manager should return all results and attachments packed in a tgz archive and return here its path
-        components.rhts.submit_log(self.package.meta.location)
-        components.rhts.report_result(success=True, filename=self.package.store.location)
+        components.rhts.submit_log(self.package.metas.path)
+        components.rhts.report_result(success=True, filename=self.package.store.path)
