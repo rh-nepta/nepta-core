@@ -53,7 +53,7 @@ class BeakerSynchronization(Synchronization):
 class PerfSynchronization(Synchronization):
     
     def __init__(self, sync_server, poll_inerval=1):
-        import synchronization
+        from nepta import synchronization
         self._sync_server = sync_server
         self._poll_interval = poll_inerval
         self._client = synchronization.client.SyncClient(self._sync_server)
