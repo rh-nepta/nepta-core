@@ -27,16 +27,14 @@ class SaveAttachments(Strategy):
                     url_content = url_response.read().decode('ISO-8859-1')
                     url_attachment = self.package.attachments.new(AttachmentTypes.URL, attach.url)
                     url_attachment.path.write(url_content)
-                    with open(os.path.join(self.package.path, url_attachment.path), 'w') as f:
-                        f.write(url_content)
 
                 if isinstance(attach, attachments.Directory):
                     dir_attachment = self.package.attachments.new(AttachmentTypes.DIRECTORY, attach.d_path)
-                    components.fs.copy_dir(attach.d_path, os.path.join(self.package.path, dir_attachment.path))
+                    components.fs.copy_dir(attach.d_path, os.path.join(self.package.path, str(dir_attachment.path)))
 
                 if isinstance(attach, attachments.File):
                     file_attachment = self.package.attachments.new(AttachmentTypes.FILE, attach.f_path)
-                    components.fs.copy(attach.f_path, os.path.join(self.package.path, file_attachment.path))
+                    components.fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
 
                 if isinstance(attach, attachments.CycleCommand):
                     item_list_cmd = components.Command(attach.cmd_for_list)
@@ -48,16 +46,14 @@ class SaveAttachments(Strategy):
                         log_cmd = components.Command(log_cmd_str)
                         log_cmd.run()
                         cmd_attachment = self.package.attachments.new(AttachmentTypes.COMMAND, log_cmd_str)
-                        with open(os.path.join(self.package.path, cmd_attachment.path), 'w') as f:
-                            f.write(log_cmd.watch_output()[0])
+                        cmd_attachment.path.write(log_cmd.watch_output()[0])
 
                 if isinstance(attach, attachments.Command):
                     c = components.Command(attach.cmdline)
                     c.run()
                     output, retcode = c.watch_output()
                     command_attachment = self.package.attachments.new(AttachmentTypes.COMMAND, attach.cmdline)
-                    with open(os.path.join(self.package.path, command_attachment.path), 'w') as f:
-                        f.write(output)
+                    command_attachment.path.write(output)
 
             except Exception as e:
                 logger.error("Exception occur during execution of attachment {}. "
