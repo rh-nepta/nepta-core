@@ -25,15 +25,17 @@ class SaveAttachments(Strategy):
                 if isinstance(attach, attachments.Url):
                     url_response = urllib.request.urlopen(attach.url)
                     url_content = url_response.read().decode('ISO-8859-1')
-                    url_attachment = self.package.attachments.new(AttachmentTypes.URL, attach.url)
+                    url_attachment = self.package.attachments.new(AttachmentTypes.URL, attach.url, attach.alias)
                     url_attachment.path.write(url_content)
 
                 if isinstance(attach, attachments.Directory):
-                    dir_attachment = self.package.attachments.new(AttachmentTypes.DIRECTORY, attach.d_path)
+                    dir_attachment = self.package.attachments.new(
+                        AttachmentTypes.DIRECTORY, attach.d_path, attach.alias)
                     components.fs.copy_dir(attach.d_path, os.path.join(self.package.path, str(dir_attachment.path)))
 
                 if isinstance(attach, attachments.File):
-                    file_attachment = self.package.attachments.new(AttachmentTypes.FILE, attach.f_path)
+                    file_attachment = self.package.attachments.new(
+                        AttachmentTypes.FILE, attach.f_path, attach.alias)
                     components.fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
 
                 if isinstance(attach, attachments.CycleCommand):
@@ -52,9 +54,9 @@ class SaveAttachments(Strategy):
                     c = components.Command(attach.cmdline)
                     c.run()
                     output, retcode = c.watch_output()
-                    command_attachment = self.package.attachments.new(AttachmentTypes.COMMAND, attach.cmdline)
+                    command_attachment = self.package.attachments.new(
+                        AttachmentTypes.COMMAND, attach.cmdline, attach.alias)
                     command_attachment.path.write(output)
 
             except Exception as e:
-                logger.error("Exception occur during execution of attachment {}. "
-                             ">>> Error: {}".format(attach, e))
+                logger.error(f"Exception occur during execution of attachment {attach}. >>> Error: {e}")
