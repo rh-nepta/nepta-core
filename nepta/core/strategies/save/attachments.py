@@ -20,7 +20,7 @@ class SaveAttachments(Strategy):
 
     @Strategy.schedule
     def save_attachments(self):
-        for attach in self.conf.get_subset(attachments.Attachment):
+        for attach in self.conf.get_subset(attachments.GenericAttachment):
             try:
                 if isinstance(attach, attachments.Url):
                     url_response = urllib.request.urlopen(attach.url)
