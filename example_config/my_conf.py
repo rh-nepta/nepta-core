@@ -5,9 +5,13 @@ from nepta.core.model.network import IPv4Configuration, EthernetInterface
 from nepta.core.model.schedule import Path as P
 
 from example_config.defaults import net4, net6, dns, gw
+from example_config.host_settings import host_settings
 
 host_1 = bundles.HostBundle('host_1.testlab.org', 'Default')
+host_1.default_settings.host = host_settings.clone()
+
 host_2 = bundles.HostBundle('host_2.testlab.org', 'Default')
+host_2.default_settings.host = host_settings.clone()
 
 # Create sync configuration via SyncHost
 host_1.sync_host = bundles.SyncHost(host_2.get_hostname())
