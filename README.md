@@ -12,6 +12,7 @@ install and run **nepta** use following shell commands:
 git clone https://github.com/rh-nepta/nepta-core
 cd nepta-core
 pipenv install
+python3 setup.py install
 nepta --help
 ```
 ##### Required
