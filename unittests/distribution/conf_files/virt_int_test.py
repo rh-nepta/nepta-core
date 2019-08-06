@@ -2,9 +2,9 @@ from unittest import TestCase
 from xml_diff import compare
 import lxml.etree
 
-from testing.model.system import VirtualGuest
-from testing.model.network import OVSGuestTap, OVSGuestVlanTap, BridgeGuestTap, OVSwitch, LinuxBridge
-from testing.distribution.conf_files import GuestTap
+from nepta.core.model.system import VirtualGuest
+from nepta.core.model.network import OVSGuestTap, OVSGuestVlanTap, BridgeGuestTap, OVSwitch, LinuxBridge
+from nepta.core.distribution.conf_files import GuestTap
 
 
 class TapTest(TestCase):

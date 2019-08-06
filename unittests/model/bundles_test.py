@@ -1,5 +1,5 @@
 from unittest import TestCase, skip
-from testing.model import bundles, network, system, attachments
+from nepta.core.model import bundles, network, system, attachments
 
 
 class TestBundles(TestCase):

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from ipaddress import IPv4Interface as IPv4
 
-from testing.model.schedule import CongestedPath
+from nepta.core.model.schedule import CongestedPath
 
 
 class CongestedPathTest(TestCase):

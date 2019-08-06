@@ -1,0 +1,15 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+
+[packages]
+jinja2 = "==2.10.1"
+xml-diff = "==0.7.0"
+nepta-dataformat = {editable = true,git = "https://gitlab.cee.redhat.com/kernel-perf-net/nepta-dataformat",ref = "unstable"}
+
+[requires]
+python_version = "3.6"
