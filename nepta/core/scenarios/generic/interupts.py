@@ -63,8 +63,9 @@ class IRQBalanceCheck(ScenarioGeneric):
         for path in self.paths:
             iperf3_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=self.msg_size)
             iperf3_test.run()
-            # TODO maybe check ret code
-            iperf3_test.watch_output()
+            out, ret = iperf3_test.watch_output()
+            if ret:
+                logger.error(f"iPerf3 {iperf3_test} test failed!!!")
 
         interrupts_table = self.get_parsed_interrupts()
         sums_per_cpu = []
