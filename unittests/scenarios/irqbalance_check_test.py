@@ -25,3 +25,19 @@ class IRQBalanceScenarioTest(TestCase):
         self.assertEqual(irq_sums[1], 21738)
         self.assertEqual(irq_sums[4], 3091726)
         self.assertEqual(irq_sums[-1], 200855)
+
+    def test_scenario_core(self):
+        scenario_sec = self.scenario.run_scenario()
+        self.assertEqual(scenario_sec.params['scenario_name'], self.scenario.__class__.__name__)
+
+        res_sec = scenario_sec.subsections.filter('test_result')[0]
+        self.assertEqual(res_sec.params['value'], 'FAIL')
+
+    def test_evaluator(self):
+        self.scenario.get_parsed_interrupts = lambda: [list(range(24)) for _ in range(10)]
+
+        scenario_sec = self.scenario.run_scenario()
+        self.assertEqual(scenario_sec.params['scenario_name'], self.scenario.__class__.__name__)
+
+        res_sec = scenario_sec.subsections.filter('test_result')[0]
+        self.assertEqual(res_sec.params['value'], 'PASS')
