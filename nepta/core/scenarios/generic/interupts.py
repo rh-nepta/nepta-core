@@ -50,7 +50,7 @@ class IRQBalanceCheck(ScenarioGeneric):
 
         return int_table
 
-    def run_scenario(self):
+    def run_scenario(self) -> Section:
         """
         Steps:
             -> run iPerf3 tests without catching outputs

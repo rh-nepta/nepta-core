@@ -11,10 +11,10 @@ class ScenarioGeneric(object):
     def __str__(self):
         return self.__class__.__name__
 
-    def __call__(self):
+    def __call__(self) -> Section:
         return self.run_scenario()
 
-    def run_scenario(self):
+    def run_scenario(self) -> Section:
         raise NotImplementedError
 
 
