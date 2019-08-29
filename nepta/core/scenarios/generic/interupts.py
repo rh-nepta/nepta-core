@@ -61,8 +61,7 @@ class IRQBalanceCheck(ScenarioGeneric):
         """
 
         for path in self.paths:
-            iperf3_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=self.msg_size,
-                                     affinity='0,0')
+            iperf3_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=self.msg_size)
             iperf3_test.run()
             # TODO maybe check ret code
             iperf3_test.watch_output()
