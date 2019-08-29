@@ -34,11 +34,16 @@ class IRQBalanceCheck(ScenarioGeneric):
         # delete line with header
         lines.pop(0)
 
-        # split every line by column and delete the first and the last column
+        # split every line by column
         # -1 to columns are separated by num_of_columns - 1 spaces
+        int_table = [line.split(maxsplit=num_of_columns-1) for line in lines]
+
         # if ignore_cpu_interrupt option is enabled, it allows only interrupts which names starts with numbers
-        int_table = [line.split(maxsplit=num_of_columns-1)[1:-1] for line in lines
-                     if not ignore_cpu_interrupts or re.match(r'[0-9]+:', line.split()[0])]
+        if ignore_cpu_interrupts:
+            int_table = list(filter(lambda line: re.match(r'[0-9]+:', line[0]), int_table))
+
+        # delete the first and the last column, which contain IRQ id and description
+        int_table = [line[1:-1] for line in int_table]
 
         # convert into integer
         int_table = [list(map(int, parsed_line)) for parsed_line in int_table]
