@@ -59,6 +59,7 @@ class IRQBalanceCheck(ScenarioGeneric):
             -> evaluate results
             -> store results into dataformat package
         """
+        logger.info('Running scenario: %s' % self)
 
         for path in self.paths:
             iperf3_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=self.msg_size)
@@ -67,5 +68,11 @@ class IRQBalanceCheck(ScenarioGeneric):
             if ret:
                 logger.error(f"iPerf3 {iperf3_test} test failed!!!")
 
-        interrupts_table = self.get_parsed_interrupts()
-        sums_per_cpu = []
+        int_table = self.get_parsed_interrupts()
+        cpu_sums = [sum(int_table[y][x] for y in range(len(int_table))) for x in range(len(int_table[0]))]
+
+        test_result = 'PASS' if cpu_sums[0] < sum(cpu_sums[1:]) else 'FAIL'
+
+        logger.info(f"Sums of interrupts per CPU: {cpu_sums}")
+        logger.info(f"Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???")
+        logger.info(f"{self.__class__.__name__} test result: {test_result}.")
