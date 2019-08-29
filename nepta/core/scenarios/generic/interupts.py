@@ -15,7 +15,7 @@ class IRQBalanceCheck(ScenarioGeneric):
     are interrupts on different cores than 0.
     """
 
-    def __init__(self, paths, test_length=10, msg_size='1k'):
+    def __init__(self, paths, test_length=30, msg_size='64k'):
         self.paths = paths
         self.test_length = test_length
         self.msg_size = msg_size
