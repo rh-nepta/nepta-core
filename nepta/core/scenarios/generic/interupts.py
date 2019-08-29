@@ -22,6 +22,7 @@ class IRQBalanceCheck(ScenarioGeneric):
         self.interrupt_cmd = Command('cat /proc/interrupts')
 
     def get_parsed_interrupts(self, ignore_cpu_interrupts=True):
+        # TODO think about ignoring IRQ0: timer
         self.interrupt_cmd.run()
         cmd_out = self.interrupt_cmd.watch_output()[0].strip()
 
@@ -53,7 +54,7 @@ class IRQBalanceCheck(ScenarioGeneric):
     def run_scenario(self) -> Section:
         """
         Steps:
-            -> run iPerf3 tests without catching outputs
+            -> run iPerf3 tests without catching outputs (generating interrupts)
             -> parse /proc/interrupts file
             -> evaluate results
             -> store results into dataformat package
