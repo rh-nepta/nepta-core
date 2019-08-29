@@ -1,7 +1,8 @@
 import logging
 import re
-from collections import OrderedDict
+import uuid
 
+from nepta.dataformat import Section
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
 from nepta.core.distribution.components import Command
 from nepta.core.tests import Iperf3Test
@@ -76,3 +77,11 @@ class IRQBalanceCheck(ScenarioGeneric):
         logger.info(f"Sums of interrupts per CPU: {cpu_sums}")
         logger.info(f"Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???")
         logger.info(f"{self.__class__.__name__} test result: {test_result}.")
+
+        root_sec = Section("scenario")
+        root_sec.params['scenario_name'] = self.__class__.__name__
+        root_sec.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
+
+        root_sec.subsections.append(Section('test_result', value=test_result))
+
+        return root_sec
