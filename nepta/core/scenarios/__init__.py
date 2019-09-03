@@ -2,7 +2,7 @@ import inspect
 import sys
 
 from .generic.scenario import ScenarioGeneric
-from .generic.interupts import IRQBalanceCheck
+from .generic.interrupts import IRQBalanceCheck
 # Standard streams
 from .iperf3.stream import Iperf3TCPStream, Iperf3TCPReversed, Iperf3TCPDuplexStream, Iperf3TCPMultiStream, \
     Iperf3TCPSanity, Iperf3SCTPStream, Iperf3SCTPSanity
