@@ -30,7 +30,7 @@ class IRQBalanceScenarioTest(TestCase):
         scenario_sec = self.scenario.run_scenario()
         self.assertEqual(scenario_sec.params['scenario_name'], self.scenario.__class__.__name__)
 
-        res_sec = scenario_sec.subsections.filter('test_result')[0]
+        res_sec = scenario_sec.subsections.filter('runs')[0].subsections.filter('run')[0].subsections.filter('item')[0]
         self.assertEqual(res_sec.params['value'], 'FAIL')
 
     def test_evaluator(self):

@@ -82,6 +82,12 @@ class IRQBalanceCheck(ScenarioGeneric):
         root_sec.params['scenario_name'] = self.__class__.__name__
         root_sec.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
 
-        root_sec.subsections.append(Section('test_result', value=test_result))
+        runs = Section('runs')
+        run = Section('run')
+        item = Section('item', key='irq_balance_check', value=test_result)
+
+        root_sec.subsections.append(runs)
+        runs.subsections.append(run)
+        run.subsections.append(item)
 
         return root_sec
