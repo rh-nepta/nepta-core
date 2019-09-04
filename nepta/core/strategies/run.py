@@ -3,7 +3,7 @@ import logging
 from nepta.dataformat import Section
 
 from nepta.core.strategies.generic import Strategy
-from nepta.core.scenarios.generic.scenario import StreamGeneric
+from nepta.core.scenarios.generic.scenario import ScenarioGeneric
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class RunScenarios(Strategy):
 
     @Strategy.schedule
     def run_scenarios(self):
-        scenarios = self.conf.get_subset(m_class=StreamGeneric)
+        scenarios = self.conf.get_subset(m_class=ScenarioGeneric)
         scenario_names = [item.__class__.__name__ for item in scenarios]
         override_names = self.filter_scenarios if self.filter_scenarios is not None else scenario_names
         # these sets are informational only

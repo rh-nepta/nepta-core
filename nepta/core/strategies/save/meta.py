@@ -45,10 +45,3 @@ class SaveMeta(Strategy):
             root['TunedProfile'] = tuned_profile
 
         root['Architecture'] = components.Lscpu.architecture()
-
-        version = components.RPMTool.get_package_version('testing-performance-network_perftest')
-        devel_version = components.RPMTool.get_package_version('testing-performance-network_perftest-devel')
-        if version is not None:
-            root['NetworkPerftestVersion'] = version
-        elif devel_version is not None:
-            root['NetworkPerftestVersion'] = devel_version
