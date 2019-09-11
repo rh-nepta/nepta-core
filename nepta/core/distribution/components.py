@@ -62,7 +62,6 @@ class Command(object):
             line = line.decode()
             cont = exit_code is None or len(line) > 0
             if len(line) > 0:
-                logger.debug(line.replace('\n', ''))
                 out += line
         return (out, exit_code)
 
