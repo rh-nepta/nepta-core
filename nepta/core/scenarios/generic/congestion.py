@@ -51,9 +51,9 @@ class NetemConstricted(SingleStreamGeneric):
     def store_msg_size(self, section, size, cpu_pinning=None):
         super().store_msg_size(section, size, cpu_pinning)
         test_settings_sec = section.subsections.filter('test_settings')[0]
-        test_settings_sec.add_sub_section(Section('item', key='constricted_bw',  value=self.constricted_bw))
-        test_settings_sec.add_sub_section(Section('item', key='direction',  value=self.direction))
-        test_settings_sec.add_sub_section(Section(
+        test_settings_sec.subsections.append(Section('item', key='constricted_bw',  value=self.constricted_bw))
+        test_settings_sec.subsections.append(Section('item', key='direction',  value=self.direction))
+        test_settings_sec.subsections.append(Section(
             'item', key='constricted_time[%]',  value="{:.2f}%".format(self.constricted_time/self.test_length*100)))
         return section
 
