@@ -1,4 +1,6 @@
 import json
+
+from nepta.core.distribution.components import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
 
 
@@ -49,6 +51,13 @@ class Iperf3Test(Iperf3Server):
         CommandArgument('congestion', '--congestion'),
         CommandArgument('zerocopy', '--zerocopy', argument_type=bool)
     ]
+
+    def run(self):
+        """
+        Execute current command with no debug logs.
+        """
+        self._cmd = Command(self._make_cmd(), enable_debug_log=False)
+        self._cmd.run()
 
     def get_json_out(self):
         if self._output is None:
