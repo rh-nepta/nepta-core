@@ -24,17 +24,18 @@ except ImportError:
 
 class Command(object):
 
-    def __init__(self, cmdline):
+    def __init__(self, cmdline, enable_debug_log=True):
         self._cmdline = cmdline
         self._command_handle = None
+        self.log_debug = logger.debug if enable_debug_log else lambda *_: None
 
     def run(self):
-        logger.debug("running command: %s", self._cmdline)
+        self.log_debug("running command: %s", self._cmdline)
         self._command_handle = subprocess.Popen(self._cmdline + ' 2>&1 ', shell=True, stdout=subprocess.PIPE,
                                                 stderr=subprocess.PIPE)
 
     def wait(self):
-        logger.debug('Waiting for command to finish: %s' % self._cmdline)
+        self.log_debug('Waiting for command to finish: %s' % self._cmdline)
         self._command_handle.wait()
 
     def poll(self):
@@ -44,7 +45,7 @@ class Command(object):
         out = self._command_handle.stdout.read().decode()
         self._command_handle.wait()
         ret_code = self._command_handle.returncode
-        logger.debug("command: %s\nOutput: %sReturn code: %s", self._cmdline, out, ret_code)
+        self.log_debug("command: %s\nOutput: %sReturn code: %s", self._cmdline, out, ret_code)
         return out, ret_code
 
     def watch_output(self):
@@ -62,8 +63,9 @@ class Command(object):
             line = line.decode()
             cont = exit_code is None or len(line) > 0
             if len(line) > 0:
+                self.log_debug(line.replace('\n', ''))
                 out += line
-        return (out, exit_code)
+        return out, exit_code
 
     def terminate(self):
         self._command_handle.terminate()
