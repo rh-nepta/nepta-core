@@ -82,6 +82,13 @@ class ScenarioSettings(dict):
 
 
 class RsyncHost(object):
-    def __init__(self, server, destination):
+    def __init__(self, server, destination, attempt_delays=None):
+        """
+        This objects represents sending destination of created nepta-dataformat package.
+        :param server: URL or IP address of server
+        :param destination: system path in server to store package
+        :param attempt_delays: list of delays between rsync attempts to send data, time in minutes !!!
+        """
         self.server = server
         self.destination = destination
+        self.attempt_delays = attempt_delays if attempt_delays is not None else [0]
