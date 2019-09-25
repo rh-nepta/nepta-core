@@ -32,10 +32,8 @@ class Setup(Strategy):
 
     @Strategy.schedule
     def install_packages(self):
-        pkgs = self.conf.get_subset(m_class=model.system.Package)
-        install_cmd = 'yum -y install '
-        for p in pkgs:
-            install_cmd += ' %s' % p.get_value()
+        pkgs = self.conf.get_subset(m_type=model.system.Package)
+        install_cmd = self._INSTALLER + " ".join([str(pkg.value) for pkg in pkgs])
         c = components.Command(install_cmd)
         c.run()
         out, retcode = c.watch_output()
@@ -392,16 +390,7 @@ class Rhel7(Setup):
 
 class Rhel8(Rhel7):
 
-    @Strategy.schedule
-    def install_packages(self):
-        pkgs = self.conf.get_subset(m_class=model.system.Package)
-        install_tamplate = 'dnf -y --allowerasing install '
-        for p in pkgs:
-            install_tamplate += ' %s' % p.get_value()
-        c = components.Command(install_tamplate)
-        c.run()
-        out, retcode = c.watch_output()
-        logger.info(out)
+    _INSTALLER = 'dnf -y --allowerasing install '
 
     @Strategy.schedule
     def setup_ipsec(self):
