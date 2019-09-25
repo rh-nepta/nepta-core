@@ -1,6 +1,7 @@
 import os
 import logging
 import time
+from jinja2 import Template
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core import model
@@ -11,6 +12,11 @@ logger = logging.getLogger(__name__)
 
 class Setup(Strategy):
     SETTLE_TIME = 30
+
+    _INSTALLER = 'yum -y install '
+    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.value }} \
+{% for repo in pkg.disable_repos %}--disablerepo {{ repo.key }} {% endfor %}\
+{% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}""")
 
     def __init__(self, conf):
         super().__init__()
@@ -26,14 +32,22 @@ class Setup(Strategy):
 
     @Strategy.schedule
     def install_packages(self):
-        pkgs = self.conf.get_subset(m_class=model.system.Package)
-        install_cmd = 'yum -y install '
-        for p in pkgs:
-            install_cmd += ' %s' % p.get_value()
+        pkgs = self.conf.get_subset(m_type=model.system.Package)
+        install_cmd = self._INSTALLER + " ".join([str(pkg.value) for pkg in pkgs])
         c = components.Command(install_cmd)
         c.run()
         out, retcode = c.watch_output()
         logger.info(out)
+
+    @Strategy.schedule
+    def install_special_packages(self):
+        spec_pkgs = self.conf.get_subset(m_type=model.system.SpecialPackage)
+        for pkg in spec_pkgs:
+            install_cmd = self._INSTALLER_COMMAND_TEMPLATE.render(installer=self._INSTALLER, pkg=pkg)
+            c = components.Command(install_cmd)
+            c.run()
+            out, retcode = c.watch_output()
+            logger.info(out)
 
     @Strategy.schedule
     def configure_ssh(self):
@@ -376,16 +390,7 @@ class Rhel7(Setup):
 
 class Rhel8(Rhel7):
 
-    @Strategy.schedule
-    def install_packages(self):
-        pkgs = self.conf.get_subset(m_class=model.system.Package)
-        install_tamplate = 'dnf -y --allowerasing install '
-        for p in pkgs:
-            install_tamplate += ' %s' % p.get_value()
-        c = components.Command(install_tamplate)
-        c.run()
-        out, retcode = c.watch_output()
-        logger.info(out)
+    _INSTALLER = 'dnf -y --allowerasing install '
 
     @Strategy.schedule
     def setup_ipsec(self):

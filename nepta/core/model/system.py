@@ -13,6 +13,9 @@ class AbstractService(object):
         service_state_str = 'enabled' if self._service_state else 'disabled'
         return '%s %s %s' % (service_type_str, self._service_name, service_state_str)
 
+    def __repr__(self):
+        return self.__str__()
+
     def get_name(self):
         return self._service_name
 
@@ -50,6 +53,9 @@ class KeyValue(object):
 
     def __str__(self):
         return '%s %s=%s' % (self.__class__.__name__, self._key, self._value)
+
+    def __repr__(self):
+        return self.__str__()
 
     def get_key(self):
         return self._key
@@ -131,6 +137,18 @@ class SSHAuthorizedKey(Value):
 
 class Package(Value):
     pass
+
+
+class SpecialPackage(Package):
+
+    def __init__(self, name, enable_repos=None, disable_repos=None):
+        super().__init__(name)
+        self.disable_repos = list(disable_repos) if disable_repos else []
+        self.enable_repos = list(enable_repos) if enable_repos else []
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.value}, enable repos: {self.enable_repos}, " \
+            f"disabled repos: {self.disable_repos}"
 
 
 class NTPServer(Value):
