@@ -139,6 +139,18 @@ class Package(Value):
     pass
 
 
+class SpecialPackage(Package):
+
+    def __init__(self, name, enable_repos=None, disable_repos=None):
+        super().__init__(name)
+        self.disable_repos = list(disable_repos) if disable_repos else []
+        self.enable_repos = list(enable_repos) if enable_repos else []
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.value}, enable repos: {self.enable_repos}, " \
+            f"disabled repos: {self.disable_repos}"
+
+
 class NTPServer(Value):
     pass
 
