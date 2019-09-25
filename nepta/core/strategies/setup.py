@@ -1,6 +1,7 @@
 import os
 import logging
 import time
+from jinja2 import Template
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core import model
@@ -11,6 +12,11 @@ logger = logging.getLogger(__name__)
 
 class Setup(Strategy):
     SETTLE_TIME = 30
+
+    _INSTALLER = 'yum -y install '
+    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.value }} \
+{% for repo in pkg.disable_repos %}--disablerepo {{ repo.key }} {% endfor %}\
+{% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}""")
 
     def __init__(self, conf):
         super().__init__()
