@@ -13,6 +13,9 @@ class AbstractService(object):
         service_state_str = 'enabled' if self._service_state else 'disabled'
         return '%s %s %s' % (service_type_str, self._service_name, service_state_str)
 
+    def __repr__(self):
+        return self.__str__()
+
     def get_name(self):
         return self._service_name
 
@@ -50,6 +53,9 @@ class KeyValue(object):
 
     def __str__(self):
         return '%s %s=%s' % (self.__class__.__name__, self._key, self._value)
+
+    def __repr__(self):
+        return self.__str__()
 
     def get_key(self):
         return self._key
