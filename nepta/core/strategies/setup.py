@@ -42,6 +42,16 @@ class Setup(Strategy):
         logger.info(out)
 
     @Strategy.schedule
+    def install_special_packages(self):
+        spec_pkgs = self.conf.get_subset(m_type=model.system.SpecialPackage)
+        for pkg in spec_pkgs:
+            install_cmd = self._INSTALLER_COMMAND_TEMPLATE.render(installer=self._INSTALLER, pkg=pkg)
+            c = components.Command(install_cmd)
+            c.run()
+            out, retcode = c.watch_output()
+            logger.info(out)
+
+    @Strategy.schedule
     def configure_ssh(self):
         logger.info('Configuring SSH client')
         pubkeys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
