@@ -237,7 +237,7 @@ def main():
 
     # submit results to result server
     if args.submit:
-        final_strategy += strategies.submit.Submit(conf, package)
+        final_strategy += strategies.submit.ReliableSubmit(conf, package)
 
     # in the end of test tell beaker the test has PASSED
     if rhts.is_in_rhts():
