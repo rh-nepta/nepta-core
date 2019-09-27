@@ -92,3 +92,9 @@ class RsyncHost(object):
         self.server = server
         self.destination = destination
         self.attempt_delays = attempt_delays if attempt_delays is not None else [0]
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}: {self.__dict__}"
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: server address: {self.server}, destination: {self.destination}"
