@@ -2,7 +2,7 @@ import unittest
 import os
 import shutil
 
-from libres.package import Pacman
+from nepta import dataformat as df
 
 from nepta.core.strategies.prepare import Prepare
 from nepta.core.strategies.setup import Rhel7
@@ -41,17 +41,21 @@ class MethCallLogger(object):
 
 
 class CallFunctionTest(unittest.TestCase):
-    LIBRES_PACKAGE = '/tmp/test/test_call/libres-pacakge'
+    PACKAGE_PATH = '/tmp/test/test_call/libres-pacakge'
 
     @classmethod
     def setUpClass(cls):
-        if os.path.exists(cls.LIBRES_PACKAGE):
-            shutil.rmtree(cls.LIBRES_PACKAGE)
+        if os.path.exists(cls.PACKAGE_PATH):
+            shutil.rmtree(cls.PACKAGE_PATH)
 
     @classmethod
     def tearDownClass(cls):
-        if os.path.exists(cls.LIBRES_PACKAGE):
-            shutil.rmtree(cls.LIBRES_PACKAGE)
+        if os.path.exists(cls.PACKAGE_PATH):
+            shutil.rmtree(cls.PACKAGE_PATH)
+
+    def tearDown(self) -> None:
+        if os.path.exists(self.PACKAGE_PATH):
+            shutil.rmtree(self.PACKAGE_PATH)
 
     def test_call_with_empty_conf_on_prepare_strategy(self):
         empty_bundle = Bundle()
@@ -111,16 +115,16 @@ class CallFunctionTest(unittest.TestCase):
 
     def test_call_empty_bundle_n_package(self):
         empty_bundle = Bundle()
-        libres_package = Pacman.in_path(self.LIBRES_PACKAGE)
+        package = df.DataPackage.create(self.PACKAGE_PATH)
 
-        save_attach = SaveAttachments(empty_bundle, libres_package)
+        save_attach = SaveAttachments(empty_bundle, package)
         MethCallLogger.infect(save_attach, save_attach.save_attachments)
 
         save_attach()
 
         self.assertTrue(save_attach.save_attachments.was_called)
 
-        save_meta = SaveMeta(empty_bundle, libres_package)
+        save_meta = SaveMeta(empty_bundle, package)
         MethCallLogger.infect(save_meta, save_meta.save_meta, True)
 
         save_meta()
@@ -129,11 +133,11 @@ class CallFunctionTest(unittest.TestCase):
 
     def test_call_bundle_only_with_bundle_n_package_compound(self):
         empty_bundle = Bundle()
-        libres_package = Pacman.in_path("/tmp/package-test").assemble()
+        package = df.DataPackage.create(self.PACKAGE_PATH)
 
         prepare = Prepare(empty_bundle)
-        run = RunScenarios(empty_bundle, libres_package)
-        save_attach = SaveAttachments(empty_bundle, libres_package)
+        run = RunScenarios(empty_bundle, package)
+        save_attach = SaveAttachments(empty_bundle, package)
 
         MethCallLogger.infect(prepare, prepare.start_docker_container)
         MethCallLogger.infect(prepare, prepare.bind_irq)
@@ -165,15 +169,14 @@ class CallFunctionTest(unittest.TestCase):
 
     def test_call_save_meta_check_meta(self):
         bundle = HostBundle("klacek1", "Standard")
-        libres_package = Pacman.in_path(self.LIBRES_PACKAGE).assemble()
-        libres_package.create()
+        package = df.DataPackage.create(self.PACKAGE_PATH)
         meta = {
             'UUID': 741852963,
             'Tag': "wertyui",
             'Specific': "a;lskdjfoiqwe;lrfskdf",
         }
 
-        save_meta = SaveMeta(bundle, libres_package, meta)
+        save_meta = SaveMeta(bundle, package, meta)
 
         MethCallLogger.infect(save_meta, save_meta.save_meta)
 
@@ -181,6 +184,6 @@ class CallFunctionTest(unittest.TestCase):
 
         self.assertTrue(save_meta.save_meta.was_called)
         for k, v in meta.items():
-            self.assertEqual(v, libres_package.meta.root[k])
-        self.assertEqual('iperf3', libres_package.meta.root['BenchmarkName'])
-        self.assertEqual('net', libres_package.meta.root['Area'])
+            self.assertEqual(v, package.metas[k])
+        self.assertEqual('iperf3', package.metas['BenchmarkName'])
+        self.assertEqual('net', package.metas['Area'])
