@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+from statistics import stdev
 
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
 from nepta.core.scenarios.generic.congestion import NetemConstricted, StaticCongestion
@@ -26,6 +27,7 @@ class GenericIPerf3Stream(object):
     def str_round(num, decimal=2):
         return "{:.{}f}".format(num, decimal)
 
+
 #######################################################################################################################
 # Single stream scenarios
 #######################################################################################################################
@@ -34,7 +36,7 @@ class GenericIPerf3Stream(object):
 class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
 
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size)
+        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
         if path.cpu_pinning:
             iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
         elif self.cpu_pinning:
@@ -48,6 +50,8 @@ class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
             result_dict['throughput'] = self.mbps(test_result['end']['sum_received']['bits_per_second'])
             result_dict['local_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['host_total'])
             result_dict['remote_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['remote_total'])
+            result_dict['stdev'] = self.str_round(stdev(
+                [x['sum']['bits_per_second']/10.0**9 for x in test_result['intervals']]), 3)
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
             self.log_iperf3_error(test_result)
@@ -63,6 +67,7 @@ class Iperf3TCPReversed(Iperf3TCPStream):
 
 class Iperf3TCPSanity(Iperf3TCPStream):
     pass
+
 
 #######################################################################################################################
 # Mutli stream scenarios
