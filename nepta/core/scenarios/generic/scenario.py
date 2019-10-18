@@ -178,7 +178,7 @@ class MultiStreamsGeneric(StreamGeneric):
 
         else:  # if every attempt fails
             logger.error("Each measurement fails. Returning results with zeros.")
-            return Section('test')
+            return Section('failed-test')
 
         return self.store_instance(Section('run'), tests)
 
