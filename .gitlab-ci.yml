@@ -1,0 +1,22 @@
+image: fedora
+
+stages:
+        - test
+
+before_script:
+        - export NETWORK_PERFTEST_ARGS="--help"
+        - dnf -y install python36 python3-pytest git pipenv
+        - pip3 install pip -U
+        - git config --global http.sslVerify false
+        - pipenv install --dev
+        - pipenv run env
+        - pipenv run pip install .
+        - pipenv run pip list
+
+
+unittests:
+        tags:
+                - docker
+        stage: test
+        script: pipenv run pytest
+

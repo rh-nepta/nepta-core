@@ -6,6 +6,7 @@ MTU={{ intf.mtu }}
 {% endblock %}
 {% block addresses %}
 {%- if intf.v4_conf %}
+IPV4_FAILURE_FATAL=yes
 	{% for ip in intf.v4_conf.addresses %}
 IPADDR{{ loop.index0 }}={{ ip.ip }}
 NETMASK{{ loop.index0 }}={{ ip.netmask }}
@@ -21,6 +22,7 @@ DNS{{ loop.index }}={{ dns }}
 
 {%- if intf.v6_conf %}
 IPV6INIT=yes
+IPV6_FAILURE_FATAL=yes
 IPV6_AUTOCONF=no
 	{% for ip in intf.v6_conf.addresses %}
 		{% if loop.first %}

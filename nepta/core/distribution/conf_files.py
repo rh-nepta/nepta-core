@@ -83,7 +83,7 @@ class JinjaConfFile(ConfigFile):
 class IPsecConnFile(JinjaConfFile):
     IPSEC_CONF_DIR = '/etc/ipsec.d'
     IPSEC_CONF_PREFIX = 'conn'
-    TEMPLATE = 'ipsec_conn.jinja'
+    TEMPLATE = 'ipsec_conn.jinja2'
 
     def __init__(self, connection):
         super(IPsecConnFile, self).__init__()
@@ -111,11 +111,11 @@ class IPsecRHEL8ConnFile(IPsecConnFile):
     IPsec in RHEL8 has different libreswan version and some of old parameters are obsolete.
     (e.g.: connaddrfamily)
     """
-    TEMPLATE = 'ipsec_rhel8_conn.jinja'
+    TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 
 class IPsecSecretsFile(JinjaConfFile):
-    TEMPLATE = 'ipsec_secret.jinja'
+    TEMPLATE = 'ipsec_secret.jinja2'
 
     def __init__(self, connection):
         super(IPsecSecretsFile, self).__init__()
@@ -134,7 +134,7 @@ class IPsecSecretsFile(JinjaConfFile):
 
 class UdevRulesFile(JinjaConfFile):
     RULES_FILE = '/etc/udev/rules.d/70-persistent-net.rules'
-    TEMPLATE = 'udev_rule_line.jinja'
+    TEMPLATE = 'udev_rule_line.jinja2'
 
     def __init__(self, interfaces):
         super(UdevRulesFile, self).__init__()
@@ -151,15 +151,15 @@ class IfcfgFile(JinjaConfFile):
     IFCFG_DIRECTORY = '/etc/sysconfig/network-scripts/'
     TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'ifcfg')
     TEMPLATE_MAPPING = {
-        net_model.Interface: 'generic.jinja',
-        net_model.EthernetInterface: 'ethernet.jinja',
-        net_model.VlanInterface: 'vlan.jinja',
-        net_model.TeamMasterInterface: 'team_master.jinja',
-        net_model.TeamChildInterface: 'team_slave.jinja',
-        net_model.BondMasterInterface: 'bond_master.jinja',
-        net_model.BondChildInterface: 'bond_slave.jinja',
-        net_model.OVSIntPort: 'ovs_int_port.jinja',
-        net_model.LinuxBridge: 'bridge.jinja',
+        net_model.Interface: 'generic.jinja2',
+        net_model.EthernetInterface: 'ethernet.jinja2',
+        net_model.VlanInterface: 'vlan.jinja2',
+        net_model.TeamMasterInterface: 'team_master.jinja2',
+        net_model.TeamChildInterface: 'team_slave.jinja2',
+        net_model.BondMasterInterface: 'bond_master.jinja2',
+        net_model.BondChildInterface: 'bond_slave.jinja2',
+        net_model.OVSIntPort: 'ovs_int_port.jinja2',
+        net_model.LinuxBridge: 'bridge.jinja2',
     }
 
     def __init__(self, interface_model):
@@ -268,7 +268,7 @@ class RcLocalScriptFile(ConfigFile):
 
 class RepositoryFile(JinjaConfFile):
     REPOSITORY_DIRECTORY = '/etc/yum.repos.d/'
-    TEMPLATE = 'repo.jinja'
+    TEMPLATE = 'repo.jinja2'
 
     def __init__(self, repository):
         super(RepositoryFile, self).__init__()
@@ -285,7 +285,7 @@ class RepositoryFile(JinjaConfFile):
 
 class RouteGenericFile(JinjaConfFile):
     ROUTE_DIRECTORY = '/etc/sysconfig/network-scripts/'
-    TEMPLATE = 'route.jinja'
+    TEMPLATE = 'route.jinja2'
 
     def __init__(self, routes):
         super().__init__()
@@ -333,9 +333,9 @@ class GuestTap(JinjaConfFile):
     FILE_TEMP_DIRECTORY = '/tmp/taps/'
     TEMPLATE = None
     TEMPLATE_MAPPING = {
-        net_model.BridgeGuestTap: 'bridge_tap.jinja',
-        net_model.OVSGuestTap: 'ovs_tap.jinja',
-        net_model.OVSGuestVlanTap: 'ovs_vlan_tap.jinja',
+        net_model.BridgeGuestTap: 'bridge_tap.jinja2',
+        net_model.OVSGuestTap: 'ovs_tap.jinja2',
+        net_model.OVSGuestVlanTap: 'ovs_vlan_tap.jinja2',
     }
 
     def __init__(self, tap):
@@ -367,7 +367,7 @@ class HostnameConfFile(ConfigFile):
 
 class ChronyConf(JinjaConfFile):
     CONFIG_FILENAME = '/etc/chrony.conf'
-    TEMPLATE = 'chrony.jinja'
+    TEMPLATE = 'chrony.jinja2'
 
     def __init__(self, server):
         super().__init__()
