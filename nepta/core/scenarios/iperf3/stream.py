@@ -1,6 +1,7 @@
 import logging
 from collections import OrderedDict
 
+from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
 from nepta.core.scenarios.generic.congestion import NetemConstricted, StaticCongestion
 
@@ -41,6 +42,7 @@ class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
             iperf_test.affinity = ','.join([str(x) for x in self.cpu_pinning[0]])
         return iperf_test
 
+    @info_log_func_output
     def parse_results(self, test):
         result_dict = OrderedDict()
         test_result = test.get_json_out()
@@ -85,6 +87,7 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
 
         return stream_test, reverse_test
 
+    @info_log_func_output
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
         try:
@@ -120,6 +123,7 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
             tests.append(new_test)
         return tests
 
+    @info_log_func_output
     def parse_all_results(self, tests):
         result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0)
         try:

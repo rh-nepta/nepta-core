@@ -1,9 +1,19 @@
 import logging
 import time
 import uuid
+import functools
 from nepta.dataformat import Section
 
 logger = logging.getLogger(__name__)
+
+
+def info_log_func_output(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        output = f(*args, **kwargs)
+        logger.info(f"function output >>> {output}")
+        return output
+    return wrapper
 
 
 class ScenarioGeneric(object):
@@ -144,6 +154,7 @@ class MultiStreamsGeneric(StreamGeneric):
     def init_all_tests(self, path, size):
         raise NotImplementedError
 
+    @info_log_func_output
     def parse_all_results(self, tests):
         raise NotImplementedError
 
