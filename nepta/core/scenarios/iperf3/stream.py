@@ -105,6 +105,9 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
             result_dict['total_remote_cpu'] = self.str_round(
                 stream_test_result['cpu_utilization_percent']['remote_total'] +
                 reversed_test_result['cpu_utilization_percent']['remote_total'])
+            result_dict['total_stdev'] = self.str_round(
+                stdev([x['sum']['bits_per_second'] / 10.0 ** 9 for x in tests[0].get_json_out()['intervals']]) +
+                stdev([x['sum']['bits_per_second'] / 10.0 ** 9 for x in tests[1].get_json_out()['intervals']]), 3)
 
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
@@ -126,17 +129,20 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         return tests
 
     def parse_all_results(self, tests):
-        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0)
+        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0, total_stdev=0)
         try:
             for test in tests:  # SUM of results
                 test_result = test.get_json_out()['end']
                 result_dict['total_throughput'] += test_result['sum_received']['bits_per_second']
                 result_dict['total_local_cpu'] += test_result['cpu_utilization_percent']['host_total']
                 result_dict['total_remote_cpu'] += test_result['cpu_utilization_percent']['remote_total']
+                result_dict['total_stdev'] += stdev([x['sum']['bits_per_second'] /
+                                                     10.0 ** 9 for x in test.get_json_out()['intervals']])
             # format int to nice strings
             result_dict['total_throughput'] = self.mbps(result_dict['total_throughput'])
             result_dict['total_local_cpu'] = self.str_round(result_dict['total_local_cpu'])
             result_dict['total_remote_cpu'] = self.str_round(result_dict['total_remote_cpu'])
+            result_dict['total_stdev'] = self.str_round(result_dict['total_stdev'], 3)
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
             for test in tests:
