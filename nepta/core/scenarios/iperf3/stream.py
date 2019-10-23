@@ -78,9 +78,9 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
 
     def init_all_tests(self, path, size):
         stream_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                 port=self.base_port)
+                                 port=self.base_port, interval=0.1)
         reverse_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                  port=self.base_port + 1, reverse=True)
+                                  port=self.base_port + 1, interval=0.1, reverse=True)
         if path.cpu_pinning:
             stream_test.affinity = ",".join(map(str, path.cpu_pinning[0]))
             reverse_test.affinity = ",".join(map(str, path.cpu_pinning[1]))
@@ -123,7 +123,8 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
-            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port)
+            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port,
+                                  interval=0.1)
             new_test.affinity = ",".join([str(x) for x in cpu_pinning])
             tests.append(new_test)
         return tests
