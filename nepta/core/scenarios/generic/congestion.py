@@ -65,19 +65,15 @@ class NetemConstricted(StreamGeneric):
 
         return ret
 
+    # TODO: check stability -> try catch and more attempts if necessary
     def run_instance(self, path, size):
-        test = self.init_test(path, size)       # init testing stream
-        test.run()                              # start testing stream
+        attero_proc = Process(target=self.attero_worker)
+        attero_proc.start()
 
-        time.sleep(self.init_time)              # wait init time, after this time configure attero
-        Attero.start()                          # limit bandwidth
-        logger.debug("Attero enabled!")
-        time.sleep(self.constricted_time)
-        Attero.stop()                           # unlimit bandwidth
-        logger.debug("Attero disabled!")
+        ret = super().run_instance(path, size)
 
-        test.watch_output()                     # wait untill test ends
-        return self.store_instance(Section('run'), test)
+        attero_proc.join()
+        return ret
 
     def attero_worker(self):
         sleep(self.start_time)
