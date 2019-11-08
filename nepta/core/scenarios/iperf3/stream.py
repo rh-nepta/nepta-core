@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+from statistics import stdev
 
 from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
@@ -27,6 +28,7 @@ class GenericIPerf3Stream(object):
     def str_round(num, decimal=2):
         return "{:.{}f}".format(num, decimal)
 
+
 #######################################################################################################################
 # Single stream scenarios
 #######################################################################################################################
@@ -35,7 +37,7 @@ class GenericIPerf3Stream(object):
 class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
 
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size)
+        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
         if path.cpu_pinning:
             iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
         elif self.cpu_pinning:
@@ -50,6 +52,8 @@ class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
             result_dict['throughput'] = self.mbps(test_result['end']['sum_received']['bits_per_second'])
             result_dict['local_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['host_total'])
             result_dict['remote_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['remote_total'])
+            result_dict['stdev'] = self.str_round(stdev(
+                [x['sum']['bits_per_second']/10.0**9 for x in test_result['intervals']]), 3)
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
             self.log_iperf3_error(test_result)
@@ -66,6 +70,7 @@ class Iperf3TCPReversed(Iperf3TCPStream):
 class Iperf3TCPSanity(Iperf3TCPStream):
     pass
 
+
 #######################################################################################################################
 # Mutli stream scenarios
 #######################################################################################################################
@@ -75,9 +80,9 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
 
     def init_all_tests(self, path, size):
         stream_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                 port=self.base_port)
+                                 port=self.base_port, interval=0.1)
         reverse_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                  port=self.base_port + 1, reverse=True)
+                                  port=self.base_port + 1, interval=0.1, reverse=True)
         if path.cpu_pinning:
             stream_test.affinity = ",".join(map(str, path.cpu_pinning[0]))
             reverse_test.affinity = ",".join(map(str, path.cpu_pinning[1]))
@@ -103,6 +108,9 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
             result_dict['total_remote_cpu'] = self.str_round(
                 stream_test_result['cpu_utilization_percent']['remote_total'] +
                 reversed_test_result['cpu_utilization_percent']['remote_total'])
+            result_dict['total_stdev'] = self.str_round(
+                stdev([x['sum']['bits_per_second'] / 10.0 ** 9 for x in tests[0].get_json_out()['intervals']]) +
+                stdev([x['sum']['bits_per_second'] / 10.0 ** 9 for x in tests[1].get_json_out()['intervals']]), 3)
 
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
@@ -118,24 +126,28 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
-            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port)
+            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port,
+                                  interval=0.1)
             new_test.affinity = ",".join([str(x) for x in cpu_pinning])
             tests.append(new_test)
         return tests
 
     @info_log_func_output
     def parse_all_results(self, tests):
-        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0)
+        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0, total_stdev=0)
         try:
             for test in tests:  # SUM of results
                 test_result = test.get_json_out()['end']
                 result_dict['total_throughput'] += test_result['sum_received']['bits_per_second']
                 result_dict['total_local_cpu'] += test_result['cpu_utilization_percent']['host_total']
                 result_dict['total_remote_cpu'] += test_result['cpu_utilization_percent']['remote_total']
+                result_dict['total_stdev'] += stdev([x['sum']['bits_per_second'] /
+                                                     10.0 ** 9 for x in test.get_json_out()['intervals']])
             # format int to nice strings
             result_dict['total_throughput'] = self.mbps(result_dict['total_throughput'])
             result_dict['total_local_cpu'] = self.str_round(result_dict['total_local_cpu'])
             result_dict['total_remote_cpu'] = self.str_round(result_dict['total_remote_cpu'])
+            result_dict['total_stdev'] = self.str_round(result_dict['total_stdev'], 3)
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
             for test in tests:
