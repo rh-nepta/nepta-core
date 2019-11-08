@@ -10,7 +10,8 @@ from .netperf.stream import NetperfTCPStream, NetperfTCPMaerts, NetperfTCPDuplex
     NetperfTCPSanity, NetperfSCTPStream
 
 # impariments
-from .iperf3.stream import Iperf3NetemConstricted, Iperf3TCPStaticCongestion
+from .iperf3.stream import Iperf3TCPStaticCongestion
+from .iperf3.stream import Iperf3SingleStreamNetemConstricted, Iperf3MultiStreamNetemConstricted
 
 # zerocopy
 from .iperf3.stream import Iperf3TCPStreamZeroCopy, Iperf3TCPReversedZeroCopy, Iperf3TCPMultiStreamZeroCopy, \

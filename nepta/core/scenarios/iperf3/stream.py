@@ -206,7 +206,11 @@ class Iperf3TCPMultiStreamZeroCopy(Iperf3TCPMultiStream):
 #######################################################################################################################
 
 
-class Iperf3NetemConstricted(NetemConstricted, Iperf3TCPStream):
+class Iperf3SingleStreamNetemConstricted(NetemConstricted, Iperf3TCPStream):
+    pass
+
+
+class Iperf3MultiStreamNetemConstricted(NetemConstricted, Iperf3TCPMultiStream):
     pass
 
 
