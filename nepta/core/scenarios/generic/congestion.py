@@ -5,7 +5,6 @@ from nepta.core.scenarios.generic.scenario import SingleStreamGeneric
 from nepta.core.distribution.components import Attero
 from nepta.dataformat import Section
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -51,15 +50,13 @@ class NetemConstricted(StreamGeneric):
         super().store_msg_size(section, size, cpu_pinning)
         test_settings_sec = section.subsections.filter('test_settings')[0]
         test_settings_sec.subsections.append(Section(
-            'item', key='constrictions',  value=",".join([f"{x[1]}sec@{x[0]}Gpbs" for x in self.constrictions])))
-        test_settings_sec.subsections.append(Section('item', key='direction',  value=self.direction))
+            'item', key='constrictions', value=",".join([f"{x[1]}sec@{x[0]}Gpbs" for x in self.constrictions])))
+        test_settings_sec.subsections.append(Section('item', key='direction', value=self.direction))
         return section
 
     def run_scenario(self):
         logger.info("Clearing attero impairments")
         Attero.clear_existing_impairments()
-        logger.info("Set attero to limit bandwidth: %s kbps" % self.constricted_bw)
-        Attero.set_bandwidth(self.direction, self.constricted_bw)
 
         ret = super().run_scenario()
 
@@ -81,3 +78,19 @@ class NetemConstricted(StreamGeneric):
 
         test.watch_output()                     # wait untill test ends
         return self.store_instance(Section('run'), test)
+
+    def attero_worker(self):
+        sleep(self.start_time)
+        attero_started = False
+
+        for bw, duration in self.constrictions:
+            Attero.set_bandwidth(self.direction, bw)
+
+            if not attero_started:
+                Attero.start()
+                attero_started = True
+
+            sleep(duration)
+
+        if attero_started:
+            Attero.stop()
