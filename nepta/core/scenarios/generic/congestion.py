@@ -41,11 +41,10 @@ class NetemConstricted(SingleStreamGeneric):
     The bandwidth chart should look like this ---___--- -> '-' means untouched network; '_' turn on impairment
     """
 
-    def __init__(self, paths, constricted_bw, init_time, constricted_time, direction, **kwargs):
+    def __init__(self, paths, start_time, constrictions, direction, **kwargs):
         super().__init__(paths, **kwargs)
-        self.constricted_bw = constricted_bw
-        self.init_time = init_time
-        self.constricted_time = constricted_time
+        self.start_time = start_time
+        self.constrictions = constrictions
         self.direction = direction
 
     def store_msg_size(self, section, size, cpu_pinning=None):
