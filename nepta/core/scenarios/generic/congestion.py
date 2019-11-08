@@ -1,7 +1,8 @@
 import logging
-import time
+from time import sleep
+from multiprocessing import Process
 
-from nepta.core.scenarios.generic.scenario import SingleStreamGeneric
+from nepta.core.scenarios.generic.scenario import StreamGeneric, SingleStreamGeneric
 from nepta.core.distribution.components import Attero
 from nepta.dataformat import Section
 
