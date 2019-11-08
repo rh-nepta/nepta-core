@@ -35,10 +35,10 @@ class StaticCongestion(SingleStreamGeneric):
         return super().run_path(path)
 
 
-class NetemConstricted(SingleStreamGeneric):
+class NetemConstricted(StreamGeneric):
     """
     This scenario runs several test stream over network emulator and turns on attero emulator during execution.
-    The bandwidth chart should look like this ---___--- -> '-' means untouched network; '_' turn on impairment
+    The constricted bandwidth is changed during test and is defined by "construction" parameter.
     """
 
     def __init__(self, paths, start_time, constrictions, direction, **kwargs):
@@ -50,10 +50,9 @@ class NetemConstricted(SingleStreamGeneric):
     def store_msg_size(self, section, size, cpu_pinning=None):
         super().store_msg_size(section, size, cpu_pinning)
         test_settings_sec = section.subsections.filter('test_settings')[0]
-        test_settings_sec.subsections.append(Section('item', key='constricted_bw',  value=self.constricted_bw))
-        test_settings_sec.subsections.append(Section('item', key='direction',  value=self.direction))
         test_settings_sec.subsections.append(Section(
-            'item', key='constricted_time[%]',  value="{:.2f}%".format(self.constricted_time/self.test_length*100)))
+            'item', key='constrictions',  value=",".join([f"{x[1]}sec@{x[0]}Gpbs" for x in self.constrictions])))
+        test_settings_sec.subsections.append(Section('item', key='direction',  value=self.direction))
         return section
 
     def run_scenario(self):
