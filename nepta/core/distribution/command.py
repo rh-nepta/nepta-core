@@ -24,10 +24,12 @@ class Command(object):
         self.log_debug("Running command: %s", self._cmdline)
         self._command_handle = subprocess.Popen(
             self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        return self
 
     def wait(self):
         self.log_debug('Waiting for command to finish: %s' % self._cmdline)
         self._command_handle.wait()
+        return self
 
     def poll(self):
         return self._command_handle.poll()
