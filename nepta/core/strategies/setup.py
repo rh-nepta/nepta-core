@@ -6,6 +6,7 @@ from jinja2 import Template
 from nepta.core.strategies.generic import Strategy
 from nepta.core import model
 from nepta.core.distribution import components, conf_files, env
+from nepta.core.distribution.command import Command
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ class Setup(Strategy):
     def install_packages(self):
         pkgs = self.conf.get_subset(m_type=model.system.Package)
         install_cmd = self._INSTALLER + " ".join([str(pkg.value) for pkg in pkgs])
-        c = components.Command(install_cmd)
+        c = Command(install_cmd)
         c.run()
         out, retcode = c.watch_output()
         logger.info(out)
@@ -44,7 +45,7 @@ class Setup(Strategy):
         spec_pkgs = self.conf.get_subset(m_type=model.system.SpecialPackage)
         for pkg in spec_pkgs:
             install_cmd = self._INSTALLER_COMMAND_TEMPLATE.render(installer=self._INSTALLER, pkg=pkg)
-            c = components.Command(install_cmd)
+            c = Command(install_cmd)
             c.run()
             out, retcode = c.watch_output()
             logger.info(out)
@@ -83,7 +84,7 @@ class Setup(Strategy):
         kvars = self.conf.get_subset(m_class=model.system.SysctlVariable)
         conf_files.SysctlFile(kvars).apply()
         sysctl_cmd = 'sysctl --system'
-        c = components.Command(sysctl_cmd)
+        c = Command(sysctl_cmd)
         c.run()
         c.watch_output()
 
@@ -236,7 +237,7 @@ class Setup(Strategy):
         logger.info('Setting up hostname %s', hostname)
         cf = conf_files.HostnameConfFile(hostname)
         cf.apply()
-        c = components.Command('hostname -F %s' % cf.get_path())
+        c = Command('hostname -F %s' % cf.get_path())
         c.run()
         c.watch_output()
 
@@ -365,15 +366,15 @@ class Rhel7(Setup):
     def start_net(self):
         sysvinit_component = components.sysvinit
         sysvinit_component.start_service('NetworkManager')
-        c0 = components.Command('nmcli connection reload')
+        c0 = Command('nmcli connection reload')
         c0.run()
         c0.watch_output()
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
         for iface in ifaces:
-            c1 = components.Command('ifdown %s' % iface.name)
+            c1 = Command('ifdown %s' % iface.name)
             c1.run()
             c1.watch_output()
-            c2 = components.Command('ifup %s' % iface.name)
+            c2 = Command('ifup %s' % iface.name)
             c2.run()
             c2.watch_output()
 
@@ -409,7 +410,7 @@ class Rhel8(Rhel7):
         # FIXME: check if this WA is still necessary
         # ifdown all interfaces in the system
         for iface in components.IpCommand.Link.get_all_interfaces():
-            cmd = components.Command('ifdown %s' % iface)
+            cmd = Command('ifdown %s' % iface)
             cmd.run()
             cmd.watch_output()
 
