@@ -4,6 +4,7 @@ import os
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core.distribution import components
+from nepta.core.distribution.command import Command
 from nepta.core.model import attachments
 
 from nepta.dataformat import AttachmentTypes
@@ -39,19 +40,19 @@ class SaveAttachments(Strategy):
                     components.fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
 
                 if isinstance(attach, attachments.CycleCommand):
-                    item_list_cmd = components.Command(attach.cmd_for_list)
+                    item_list_cmd = Command(attach.cmd_for_list)
                     item_list_cmd.run()
                     item_list = [x.strip() for x in item_list_cmd.watch_output()[0].split()]
 
                     for item in item_list:
                         log_cmd_str = attach.cmdline.format(item)
-                        log_cmd = components.Command(log_cmd_str)
+                        log_cmd = Command(log_cmd_str)
                         log_cmd.run()
                         cmd_attachment = self.package.attachments.new(AttachmentTypes.COMMAND, log_cmd_str)
                         cmd_attachment.path.write(log_cmd.watch_output()[0])
 
                 if isinstance(attach, attachments.Command):
-                    c = components.Command(attach.cmdline)
+                    c = Command(attach.cmdline)
                     c.run()
                     output, retcode = c.watch_output()
                     command_attachment = self.package.attachments.new(

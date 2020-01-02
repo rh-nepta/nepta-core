@@ -1,6 +1,6 @@
 import json
 
-from nepta.core.distribution.components import Command
+from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
 
 
