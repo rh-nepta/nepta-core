@@ -31,23 +31,21 @@ class Command(object):
         return out, ret_code
 
     def watch_output(self):
-        out = ''
         logger.info('Watching output of command: %s', self._cmdline)
-        exit_code = None
+        output_buffer = ''
 
-        cont = True
-        while cont:
-            exit_code = self._command_handle.poll()
+        while self.poll() is None:
             self._command_handle.stdout.flush()
-            line = self._command_handle.stdout.readline()
-            if exit_code and line == '':
-                line = self._command_handle.stdout.read()
-            line = line.decode()
-            cont = exit_code is None or len(line) > 0
-            if len(line) > 0:
-                self.log_debug(line.replace('\n', ''))
-                out += line
-        return out, exit_code
+            line = self._command_handle.stdout.readline().decode()
+            self.log_debug(line.replace('\n', ''))
+            output_buffer += line
+        else:  # the end of the cycle
+            self._command_handle.stdout.flush()
+            line = self._command_handle.stdout.read().decode()
+            self.log_debug(line.replace('\n', ''))
+            output_buffer += line
+
+        return output_buffer, self.poll()
 
     def terminate(self):
         self._command_handle.terminate()
