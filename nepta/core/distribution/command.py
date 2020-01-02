@@ -12,7 +12,7 @@ class Command(object):
         self.log_debug = logger.debug if enable_debug_log else lambda *_: None
 
     def run(self):
-        self.log_debug("running command: %s", self._cmdline)
+        self.log_debug("Running command: %s", self._cmdline)
         self._command_handle = subprocess.Popen(
             self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -27,12 +27,12 @@ class Command(object):
         out = self._command_handle.stdout.read().decode()
         self._command_handle.wait()
         ret_code = self._command_handle.returncode
-        self.log_debug("command: %s\nOutput: %sReturn code: %s", self._cmdline, out, ret_code)
+        self.log_debug("Command: %s\nOutput: %sReturn code: %s", self._cmdline, out, ret_code)
         return out, ret_code
 
     def watch_output(self):
-        logger.info('watching output of command: %s', self._cmdline)
         out = ''
+        logger.info('Watching output of command: %s', self._cmdline)
         exit_code = None
 
         cont = True
