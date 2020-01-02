@@ -23,9 +23,17 @@ class Command(object):
     def poll(self):
         return self._command_handle.poll()
 
+    def _read_line_from_pipe(self):
+        self._command_handle.stdout.flush()
+        return self._command_handle.stdout.readline().decode()
+
+    def _read_whole_pipe(self):
+        self._command_handle.stdout.flush()
+        return self._command_handle.stdout.read().decode()
+
     def get_output(self):
         self.wait()
-        out = self._command_handle.stdout.read().decode()
+        out = self._read_whole_pipe()
         ret_code = self.poll()
         self.log_debug("Command: %s\nOutput: %sReturn code: %s", self._cmdline, out, ret_code)
         return out, ret_code
@@ -35,13 +43,11 @@ class Command(object):
         output_buffer = ''
 
         while self.poll() is None:
-            self._command_handle.stdout.flush()
-            line = self._command_handle.stdout.readline().decode()
+            line = self._read_line_from_pipe()
             self.log_debug(line.replace('\n', ''))
             output_buffer += line
         else:  # the end of the cycle
-            self._command_handle.stdout.flush()
-            line = self._command_handle.stdout.read().decode()
+            line = self._read_whole_pipe()
             self.log_debug(line.replace('\n', ''))
             output_buffer += line
 
