@@ -7,14 +7,14 @@ logger = logging.getLogger(__name__)
 class Command(object):
 
     def __init__(self, cmdline, enable_debug_log=True):
-        self._cmdline = cmdline
+        self._cmdline = cmdline.split()
         self._command_handle = None
         self.log_debug = logger.debug if enable_debug_log else lambda *_: None
 
     def run(self):
         self.log_debug("running command: %s", self._cmdline)
-        self._command_handle = subprocess.Popen(self._cmdline + ' 2>&1 ', shell=True, stdout=subprocess.PIPE,
-                                                stderr=subprocess.PIPE)
+        self._command_handle = subprocess.Popen(
+            self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     def wait(self):
         self.log_debug('Waiting for command to finish: %s' % self._cmdline)
