@@ -24,9 +24,9 @@ class Command(object):
         return self._command_handle.poll()
 
     def get_output(self):
+        self.wait()
         out = self._command_handle.stdout.read().decode()
-        self._command_handle.wait()
-        ret_code = self._command_handle.returncode
+        ret_code = self.poll()
         self.log_debug("Command: %s\nOutput: %sReturn code: %s", self._cmdline, out, ret_code)
         return out, ret_code
 
