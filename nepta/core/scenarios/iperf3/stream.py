@@ -47,16 +47,11 @@ class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
     @info_log_func_output
     def parse_results(self, test):
         result_dict = OrderedDict()
-        test_result = test.get_json_out()
         try:
-            result_dict['throughput'] = self.mbps(test_result['end']['sum_received']['bits_per_second'])
-            result_dict['local_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['host_total'])
-            result_dict['remote_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['remote_total'])
-            result_dict['stdev'] = self.str_round(stdev(
-                [x['sum']['bits_per_second']/10.0**9 for x in test_result['intervals']]), 3)
+            result_dict.update(test.get_result().format_data(self.str_round))
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
-            self.log_iperf3_error(test_result)
+            self.log_iperf3_error(test.get_json_out())
         return result_dict
 
 
@@ -96,21 +91,14 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
         try:
-            stream_test_result = tests[0].get_json_out()['end']
-            reversed_test_result = tests[1].get_json_out()['end']
-            result_dict['up_throughput'] = self.mbps(stream_test_result['sum_received']['bits_per_second'])
-            result_dict['down_throughput'] = self.mbps(reversed_test_result['sum_received']['bits_per_second'])
-            result_dict['total_throughput'] = self.mbps(stream_test_result['sum_received']['bits_per_second'] +
-                                                        reversed_test_result['sum_received']['bits_per_second'])
-            result_dict['total_local_cpu'] = self.str_round(
-                stream_test_result['cpu_utilization_percent']['host_total'] +
-                reversed_test_result['cpu_utilization_percent']['host_total'])
-            result_dict['total_remote_cpu'] = self.str_round(
-                stream_test_result['cpu_utilization_percent']['remote_total'] +
-                reversed_test_result['cpu_utilization_percent']['remote_total'])
-            result_dict['total_stdev'] = self.str_round(
-                stdev([x['sum']['bits_per_second'] / 10.0 ** 9 for x in tests[0].get_json_out()['intervals']]) +
-                stdev([x['sum']['bits_per_second'] / 10.0 ** 9 for x in tests[1].get_json_out()['intervals']]), 3)
+            stream_test_result = tests[0].get_result().format_data(self.str_round)
+            reversed_test_result = tests[1].get_result().format_data(self.str_round)
+            total = stream_test_result + reversed_test_result
+            result_dict['up_throughput'] = stream_test_result.throughput
+            result_dict['down_throughput'] = reversed_test_result.throughput
+            result_dict.update(
+                {'total_' + key: value for key, value in total}
+            )
 
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
@@ -134,20 +122,13 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
 
     @info_log_func_output
     def parse_all_results(self, tests):
-        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0, total_stdev=0)
+        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0, total_stddev=0)
         try:
-            for test in tests:  # SUM of results
-                test_result = test.get_json_out()['end']
-                result_dict['total_throughput'] += test_result['sum_received']['bits_per_second']
-                result_dict['total_local_cpu'] += test_result['cpu_utilization_percent']['host_total']
-                result_dict['total_remote_cpu'] += test_result['cpu_utilization_percent']['remote_total']
-                result_dict['total_stdev'] += stdev([x['sum']['bits_per_second'] /
-                                                     10.0 ** 9 for x in test.get_json_out()['intervals']])
-            # format int to nice strings
-            result_dict['total_throughput'] = self.mbps(result_dict['total_throughput'])
-            result_dict['total_local_cpu'] = self.str_round(result_dict['total_local_cpu'])
-            result_dict['total_remote_cpu'] = self.str_round(result_dict['total_remote_cpu'])
-            result_dict['total_stdev'] = self.str_round(result_dict['total_stdev'], 3)
+            total = sum([test.get_result() for test in tests])
+            total.format_data(self.str_round)
+            result_dict.update(
+                {'total_' + key: value for key, value in total}
+            )
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
             for test in tests:

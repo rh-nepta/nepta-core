@@ -1,7 +1,95 @@
 import json
+import numpy as np
+from statistics import stdev
+from enum import Enum
+from singledispatchmethod import singledispatchmethod
 
 from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
+
+
+class Iperf3TestResult(object):
+    """
+    This class represents parsed result of iPerf3 test based on
+    its JSON output. It also allows data formatting, result
+    objects addition and iteration.
+    """
+    class ThroughputFormat(Enum):
+        BPS = 1
+        KBPS = 10e3
+        MBPS = 10e6
+        GBPS = 10e9
+
+    @classmethod
+    def from_json(cls, json_data):
+        """
+        Parse important results from iPerf3 test output in JSON format.
+        :param json_data: parsed JSON
+        :return: Iperf3TestResult object with parsed data
+        """
+        end = json_data['end']
+        std_dev = stdev(
+            [x['sum']['bits_per_second'] for x in json_data['intervals']]
+        )
+
+        return cls(end['sum_received']['bits_per_second'],
+                   end['cpu_utilization_percent']['host_total'],
+                   end['cpu_utilization_percent']['remote_total'],
+                   std_dev)
+
+    def __init__(self, tp, local_cpu, remote_cpu, stddev):
+        self.throughput = tp
+        self.local_cpu = local_cpu
+        self.remote_cpu = remote_cpu
+        self.stddev = stddev
+
+    # decorator needed to enable polymorphism
+    @singledispatchmethod
+    def __add__(self, other):
+        """
+        Add two result objects together using numpy.add() and return new object
+        composed from numpy.add() result. Firstly, both objects are converted to
+        list of four numbers and summed together with numpy.add() as vectors.
+        :param other: Iperf3TestResultObject object
+        :return: new instance of Iperf3TestResultObject containing self + other
+        """
+        return self.__class__(
+            *np.add(
+                list(self.__dict__.values()),
+                list(other.__dict__.values()))
+        )
+
+    @__add__.register(int)
+    def _(self, other):
+        """
+        Add number to each part of Iperf3TestResult object.
+        Needed by builtin sum().
+        :param other: int
+        :return:
+        """
+        return self.__class__(
+            *np.add(list(self.__dict__.values()), other)
+        )
+
+    # addition operation is commutative
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def format_data(self, func):
+        """
+        Format each local attribute using function provided by argument.
+        :param func: Formatting function
+        :return: self
+        """
+        for key, value in self.__dict__.items():
+            self.__dict__[key] = func(value)
+        return self
+
+    def __iter__(self):
+        return iter(self.__dict__.items())
+
+    def __getitem__(self, item):
+        return self.__dict__[item]
 
 
 class Iperf3(CommandTool):
@@ -64,3 +152,7 @@ class Iperf3Test(Iperf3Server):
             self.watch_output()
         return json.loads(self._output)
 
+    def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS):
+        test = Iperf3TestResult.from_json(self.get_json_out())
+        test.throughput = test.throughput / throughput_format.value
+        return test
