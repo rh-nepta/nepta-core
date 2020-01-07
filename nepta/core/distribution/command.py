@@ -27,7 +27,7 @@ class Command(object):
         return self
 
     def wait(self):
-        self.log_debug('Waiting for command to finish: %s' % self._cmdline)
+        self.log_debug('Waiting for command to finish: %s' % " ".join(self._cmdline))
         self._command_handle.wait()
         return self
 
