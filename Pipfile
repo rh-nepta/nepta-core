@@ -10,6 +10,8 @@ pytest = "*"
 jinja2 = "==2.10.1"
 xml-diff = "==0.7.0"
 nepta-dataformat = {editable = true,git = "https://gitlab.cee.redhat.com/kernel-perf-net/nepta-dataformat",ref = "unstable"}
+numpy = "==1.18.1"
+singledispatchmethod = "==1.0"
 
 [requires]
 python_version = "3.6"
