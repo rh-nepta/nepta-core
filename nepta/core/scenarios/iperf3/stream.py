@@ -1,6 +1,5 @@
 import logging
 from collections import OrderedDict
-from statistics import stdev
 
 from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
@@ -48,7 +47,9 @@ class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
     def parse_results(self, test):
         result_dict = OrderedDict()
         try:
-            result_dict.update(test.get_result().format_data(self.str_round))
+            result = test.get_result()
+            result.set_data_formatter(self.str_round)
+            result_dict.update(result)
         except KeyError:
             logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
             self.log_iperf3_error(test.get_json_out())
@@ -91,8 +92,8 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
         try:
-            stream_test_result = tests[0].get_result().format_data(self.str_round)
-            reversed_test_result = tests[1].get_result().format_data(self.str_round)
+            stream_test_result = tests[0].get_result().set_data_formatter(self.str_round)
+            reversed_test_result = tests[1].get_result().set_data_formatter(self.str_round)
             total = stream_test_result + reversed_test_result
             result_dict['up_throughput'] = stream_test_result.throughput
             result_dict['down_throughput'] = reversed_test_result.throughput
@@ -125,7 +126,7 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0, total_stddev=0)
         try:
             total = sum([test.get_result() for test in tests])
-            total.format_data(self.str_round)
+            total.set_data_formatter(self.str_round)
             result_dict.update(
                 {'total_' + key: value for key, value in total}
             )

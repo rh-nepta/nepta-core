@@ -48,6 +48,9 @@ class Iperf3TestResultTest(TestCase):
             self.assertRegex(getattr(result, key), '[0-9]*[.][0-9]{3}$')
             self.assertRegex(result[key], '[0-9]*[.][0-9]{3}$')
 
+        for key, val in result:
+            self.assertRegex(val, '[0-9]*[.][0-9]{3}$')
+
     def test_update_dict(self):
         test = dict()
         result = Iperf3TestResult.from_json(self.json_data)
@@ -65,4 +68,4 @@ class Iperf3TestResultTest(TestCase):
         self.assertLessEqual(result.throughput, 10e4)
 
         result = test.get_result(Iperf3TestResult.ThroughputFormat.GBPS)
-        self.assertLessEqual(result.throughput, 10,)
+        self.assertLessEqual(result.throughput, 10, )

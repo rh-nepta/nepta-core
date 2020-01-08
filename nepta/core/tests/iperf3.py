@@ -14,6 +14,7 @@ class Iperf3TestResult(object):
     its JSON output. It also allows data formatting, result
     objects addition and iteration.
     """
+
     class ThroughputFormat(Enum):
         BPS = 1
         KBPS = 10e3
@@ -76,14 +77,8 @@ class Iperf3TestResult(object):
     def __radd__(self, other):
         return self.__add__(other)
 
-    def format_data(self, func):
-        """
-        Format each local attribute using function provided by argument.
-        :param func: Formatting function
-        :return: self
-        """
-        for key, value in self.__dict__.items():
-            self.__dict__[key] = func(value)
+    def set_data_formatter(self, func):
+        self._format_func = func
         return self
 
     def __iter__(self):
