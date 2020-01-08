@@ -20,6 +20,13 @@ class Iperf3TestResult(object):
         MBPS = 10e6
         GBPS = 10e9
 
+    _DIMENSIONS = {
+        'throughput': 0,
+        'local_cpu': 1,
+        'remote_cpu': 2,
+        'stddev': 3,
+    }
+
     @classmethod
     def from_json(cls, json_data):
         """
@@ -32,31 +39,27 @@ class Iperf3TestResult(object):
             [x['sum']['bits_per_second'] for x in json_data['intervals']]
         )
 
-        return cls(end['sum_received']['bits_per_second'],
-                   end['cpu_utilization_percent']['host_total'],
-                   end['cpu_utilization_percent']['remote_total'],
-                   std_dev)
+        return cls(np.array([
+            end['sum_received']['bits_per_second'],
+            end['cpu_utilization_percent']['host_total'],
+            end['cpu_utilization_percent']['remote_total'],
+            std_dev]))
 
-    def __init__(self, tp, local_cpu, remote_cpu, stddev):
-        self.throughput = tp
-        self.local_cpu = local_cpu
-        self.remote_cpu = remote_cpu
-        self.stddev = stddev
+    def __init__(self, array, formatter=None):
+        self._array = array
+        self._format_func = formatter if formatter is not None else lambda x: x
 
     # decorator needed to enable polymorphism
     @singledispatchmethod
     def __add__(self, other):
         """
-        Add two result objects together using numpy.add() and return new object
-        composed from numpy.add() result. Firstly, both objects are converted to
-        list of four numbers and summed together with numpy.add() as vectors.
+        Add two np.arrays together and create new result object. Pass the formatting
+        function ass well.
         :param other: Iperf3TestResultObject object
         :return: new instance of Iperf3TestResultObject containing self + other
         """
         return self.__class__(
-            *np.add(
-                list(self.__dict__.values()),
-                list(other.__dict__.values()))
+            self._array + other._array, self._format_func
         )
 
     @__add__.register(int)
@@ -67,9 +70,7 @@ class Iperf3TestResult(object):
         :param other: int
         :return:
         """
-        return self.__class__(
-            *np.add(list(self.__dict__.values()), other)
-        )
+        return self.__class__(self._array + other, self._format_func)
 
     # addition operation is commutative
     def __radd__(self, other):
@@ -86,10 +87,16 @@ class Iperf3TestResult(object):
         return self
 
     def __iter__(self):
-        return iter(self.__dict__.items())
+        return iter({k: v for k, v in zip(self._DIMENSIONS, self._array)}.items())
+
+    def __getattr__(self, item):
+        if item in self._DIMENSIONS:
+            return self._format_func(self._array[self._DIMENSIONS[item]])
+        else:
+            return super().__getattribute__(item)
 
     def __getitem__(self, item):
-        return self.__dict__[item]
+        return self._format_func(self._array[self._DIMENSIONS[item]])
 
 
 class Iperf3(CommandTool):
