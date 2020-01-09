@@ -82,13 +82,7 @@ class Iperf3TestResult(object):
         return self
 
     def __iter__(self):
-        return iter({k: v for k, v in zip(self._DIMENSIONS, self._array)}.items())
-
-    def __getattr__(self, item):
-        if item in self._DIMENSIONS:
-            return self._format_func(self._array[self._DIMENSIONS[item]])
-        else:
-            return super().__getattribute__(item)
+        return iter({k: self._format_func(v) for k, v in zip(self._DIMENSIONS, self._array)}.items())
 
     def __getitem__(self, item):
         return self._format_func(self._array[self._DIMENSIONS[item]])
@@ -156,5 +150,5 @@ class Iperf3Test(Iperf3Server):
 
     def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS):
         test = Iperf3TestResult.from_json(self.get_json_out())
-        test.throughput = test.throughput / throughput_format.value
+        test._array[test._DIMENSIONS['throughput']] = test['throughput'] / throughput_format.value
         return test
