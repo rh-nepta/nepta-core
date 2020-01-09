@@ -1,11 +1,14 @@
 from unittest import TestCase
 import json
+import os
 
 from nepta.core.tests.iperf3 import Iperf3TestResult, Iperf3Test
 
 
 class Iperf3TestResultTest(TestCase):
-    JSON_FILENAME = 'sample_json.json'
+    JSON_FILENAME = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), 'sample_json.json'
+    )
 
     def setUp(self) -> None:
         self.json_data = json.load(open(self.JSON_FILENAME))
