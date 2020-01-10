@@ -95,8 +95,8 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
             stream_test_result = tests[0].get_result().set_data_formatter(self.str_round)
             reversed_test_result = tests[1].get_result().set_data_formatter(self.str_round)
             total = stream_test_result + reversed_test_result
-            result_dict['up_throughput'] = stream_test_result.throughput
-            result_dict['down_throughput'] = reversed_test_result.throughput
+            result_dict['up_throughput'] = stream_test_result['throughput']
+            result_dict['down_throughput'] = reversed_test_result['throughput']
             result_dict.update(
                 {'total_' + key: value for key, value in total}
             )
