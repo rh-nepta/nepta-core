@@ -26,7 +26,7 @@ class Uname(object):
 
     @classmethod
     def get_hostname(cls):
-        return cls._exec()[2]
+        return cls._exec()[1]
 
 
 class RPMTool(object):
