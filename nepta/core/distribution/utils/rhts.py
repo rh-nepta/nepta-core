@@ -8,10 +8,11 @@ logger = logging.getLogger(__name__)
 
 class Rhts(object):
     _env = os.environ
-    whiteboard = _env['BEAKER_JOB_WHITEBOARD']
-    job_id = _env['JOBID']
-    arch = _env['ARCH']
+    whiteboard = _env.get('BEAKER_JOB_WHITEBOARD')
+    job_id = _env.get('JOBID')
+    arch = _env.get('ARCH')
     in_rhts = 'TEST' in _env.keys()
+    distro = _env.get('DISTRO')
 
     @classmethod
     def is_in_rhts(cls):
