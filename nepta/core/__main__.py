@@ -240,7 +240,7 @@ def main():
         final_strategy += strategies.submit.ReliableSubmit(conf, package)
 
     # in the end of test tell beaker the test has PASSED
-    if Rhts.in_rhts:
+    if Environment.in_rhts:
         final_strategy += strategies.report.Report(package)
 
     try:

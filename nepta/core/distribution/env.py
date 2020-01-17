@@ -1,4 +1,5 @@
 import re
+import os
 
 from nepta.core.distribution.utils.system import Uname, RPMTool
 from nepta.core.distribution.utils.rhts import Rhts
@@ -23,6 +24,7 @@ class RedhatRelease(object, metaclass=_MetaPrintedType):
 
 
 class Environment(object, metaclass=_MetaPrintedType):
+    _env = os.environ
     kernel_version = Uname.get_version()
     kernel_src_rpm = RPMTool.get_src_name('kernel-%s' % kernel_version)
     if not kernel_src_rpm:
@@ -31,8 +33,12 @@ class Environment(object, metaclass=_MetaPrintedType):
         _match = re.search(r'(?P<src_name>.+)-(.+)-(.+)\.*\.src\.rpm', kernel_src_rpm)
         kernel = _match.group('src_name') + '-' + kernel_version
     fqdn = Uname.get_hostname()
-    distro = Rhts.distro
+    distro = _env.get('DISTRO')
     if not distro:
         distro = 'Linux'
     rhel_version = RedhatRelease.version
     hostname = fqdn.split('.')[0]
+    whiteboard = _env.get('BEAKER_JOB_WHITEBOARD')
+    job_id = _env.get('JOBID')
+    arch = _env.get('ARCH')
+    in_rhts = 'TEST' in _env.keys()

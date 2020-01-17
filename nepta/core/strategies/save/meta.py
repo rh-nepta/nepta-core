@@ -3,7 +3,7 @@ import sys
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core.model import bundles
-from nepta.core.distribution.env import Environment, Rhts
+from nepta.core.distribution.env import Environment
 from nepta.core.distribution.utils.system import SELinux, RPMTool, Tuned, Lscpu
 
 
@@ -31,13 +31,10 @@ class SaveMeta(Strategy):
         root['OtherHostNames'] += [h.hostname for h in self.conf.get_subset(m_class=bundles.SyncHost)]
         root['SELinux'] = SELinux.getenforce()
 
-        # FIXME: Where is this used...?
-        root['InRHTS'] = str(Rhts.in_rhts)
-
-        if Rhts.in_rhts:
+        if Environment.in_rhts:
             root['Distribution'] = Environment.distro
-            root['WhiteBoard'] = Rhts.whiteboard
-            root['BeakerJobID'] = Rhts.job_id
+            root['WhiteBoard'] = Environment.whiteboard
+            root['BeakerJobID'] = Environment.job_id
 
         # In some special cases, tuned profile is not set (e.g.: Docker) or tuned-adm is not installed
         tuned_profile = Tuned.get_profile()

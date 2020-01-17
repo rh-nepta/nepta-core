@@ -8,19 +8,11 @@ logger = logging.getLogger(__name__)
 
 class Rhts(object):
     _env = os.environ
-    whiteboard = _env.get('BEAKER_JOB_WHITEBOARD')
-    job_id = _env.get('JOBID')
-    arch = _env.get('ARCH')
-    in_rhts = 'TEST' in _env.keys()
-    distro = _env.get('DISTRO')
 
     @classmethod
     def is_in_rhts(cls):
-        return cls.in_rhts
-
-    def get_distro(self):
-        if 'DISTRO' in self._env:
-            return self._env['DISTRO']
+        logger.warning('Deprecated method, do not use!!!')
+        return 'TEST' in cls._env.keys()
 
     @classmethod
     def report_result(cls, success=True, filename='/dev/null'):

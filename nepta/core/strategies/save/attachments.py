@@ -3,7 +3,6 @@ import logging
 import os
 
 from nepta.core.strategies.generic import Strategy
-# from nepta.core.distribution import components
 from nepta.core.distribution.utils.fs import Fs
 from nepta.core.distribution.command import Command
 from nepta.core.model import attachments
@@ -20,6 +19,7 @@ class SaveAttachments(Strategy):
         self.conf = conf
         self.package = package
 
+    # TODO use singledispatchmethod
     @Strategy.schedule
     def save_attachments(self):
         for attach in self.conf.get_subset(attachments.GenericAttachment):
