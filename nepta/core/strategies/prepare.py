@@ -1,7 +1,8 @@
 import logging
 
 from nepta.core import model, scenarios
-from nepta.core.distribution import components
+from nepta.core.distribution.utils.network import Tuna
+from nepta.core.distribution.utils.virt import Docker
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 
@@ -16,7 +17,6 @@ class Prepare(Strategy):
 
     @Strategy.schedule
     def bind_irq(self):
-        tuna = components.tuna
         interfaces = self.conf.get_subset(m_type=model.network.EthernetInterface)
 
         for intf in interfaces:
@@ -24,7 +24,7 @@ class Prepare(Strategy):
             if cores is not None:
                 cores = "".join([str(x) for x in cores])
                 logger.info('Setting all irq of %s to %s cores' % (intf.get_name(), cores))
-                tuna.set_irq_cpu_binding(intf.get_name(), cores)
+                Tuna.set_irq_cpu_binding(intf.get_name(), cores)
 
     @Strategy.schedule
     def start_iperf3_services(self):
@@ -61,4 +61,4 @@ class Prepare(Strategy):
         logging.info("Starting containers")
         containers = self.conf.get_subset(m_class=model.docker.Containter)
         for cont in containers:
-            components.Docker.run(cont)
+            Docker.run(cont)
