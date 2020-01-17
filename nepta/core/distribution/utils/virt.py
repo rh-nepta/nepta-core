@@ -96,10 +96,8 @@ class Docker(object):
 class Virsh(object):
     # TODO clean asserts and warnings -> unify
 
-    def __init__(self):
-        super(Virsh, self).__init__()
-
-    def attach_device(self, guest, dfile, persistent=True):
+    @staticmethod
+    def attach_device(guest, dfile, persistent=True):
         guest_name = guest.get_name()
         logger.info('Attaching device specified in %s to guest %s', guest_name, dfile)
         cmd = 'virsh attach-device %s %s' % (guest_name, dfile)
@@ -110,7 +108,8 @@ class Virsh(object):
         _, retcode = c.get_output()
         return retcode
 
-    def domiflist(self, guest):
+    @staticmethod
+    def domiflist(guest):
         guest_name = guest.get_name()
         cmd = 'virsh domiflist %s' % guest_name
         c = Command(cmd)
@@ -125,7 +124,8 @@ class Virsh(object):
                 {'interface': parts[0], 'type': parts[1], 'source': parts[2], 'model': parts[3], 'mac': parts[4]})
         return ret
 
-    def detach_interface(self, guest, itype, mac, persistent=True):
+    @staticmethod
+    def detach_interface(guest, itype, mac, persistent=True):
         guest_name = guest.get_name()
         logger.info('Detaching interface type %s with mac %s from guest %s', guest_name, itype, mac)
         cmd = 'virsh detach-interface %s %s' % (guest_name, itype)
@@ -138,7 +138,8 @@ class Virsh(object):
         _, retcode = c.get_output()
         return retcode
 
-    def set_persistent_max_cpus(self, guest):
+    @staticmethod
+    def set_persistent_max_cpus(guest):
         guest_name = guest.get_name()
         num_of_cpus = guest.get_cpu_count()
         logger.info('Setting persistent maximum cpus : %s on guest %s' % (num_of_cpus, guest_name))
@@ -149,7 +150,8 @@ class Virsh(object):
         assert not retcode
         return retcode
 
-    def set_cpus(self, guest):
+    @staticmethod
+    def set_cpus(guest):
         guest_name = guest.get_name()
         num_of_cpus = guest.get_cpu_count()
         logger.info('Setting number of cpus : %s on guest %s' % (num_of_cpus, guest_name))
@@ -165,7 +167,8 @@ class Virsh(object):
         assert not ret_conf
         return ret_conf and ret_live
 
-    def set_persistent_max_mem(self, guest):
+    @staticmethod
+    def set_persistent_max_mem(guest):
         guest_name = guest.get_name()
         mem_size = guest.get_mem_size() * 1024  # conversion from MB to Kb because of virsh
         logger.info('Setting persistent maximum memory size : %s kB on guest %s' % (mem_size, guest_name))
@@ -176,7 +179,8 @@ class Virsh(object):
         assert not retcode
         return retcode
 
-    def set_mem(self, guest):
+    @staticmethod
+    def set_mem(guest):
         guest_name = guest.get_name()
         mem_size = guest.get_mem_size() * 1024  # conversion from MB to Kb because of virsh
         logger.info('Setting allocated memory : %s kB on guest %s' % (mem_size, guest_name))
@@ -193,7 +197,8 @@ class Virsh(object):
         assert not ret_conf
         return ret_conf and ret_live
 
-    def set_cpu_pinning(self, guest):
+    @staticmethod
+    def set_cpu_pinning(guest):
         return_value = False
         guest_name = guest.get_name()
         cpu_pinning = guest.get_cpu_pinning()
@@ -213,7 +218,8 @@ class Virsh(object):
                 return_value = ret_conf or ret_live or return_value
         return return_value
 
-    def destroy(self, guest):
+    @staticmethod
+    def destroy(guest):
         guest_name = guest.get_name()
         logger.info('Destroying guest : %s!' % guest_name)
         cmd = 'virsh destroy %s' % guest_name
@@ -226,7 +232,8 @@ class Virsh(object):
             logger.info(output)
         return return_code
 
-    def start(self, guest):
+    @staticmethod
+    def start(guest):
         guest_name = guest.get_name()
         logger.info('Starting guest %s!' % guest_name)
         cmd = 'virsh start %s' % guest_name

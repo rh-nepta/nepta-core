@@ -117,14 +117,14 @@ class Lscpu(object):
         return Lscpu.parse_output_into_dict()['Architecture']
 
 
-def start_service(service):
-    logger.info('starting service %s', service)
-    c = Command('service %s start' % service)
-    c.run()
-    c.watch_output()
-
-
 class SysVInit(object):
+
+    @staticmethod
+    def start_service(service):
+        logger.info('starting service %s', service)
+        c = Command('service %s start' % service)
+        c.run()
+        c.watch_output()
 
     @staticmethod
     def stop_service(service):
@@ -172,7 +172,7 @@ class SysVInit(object):
                 logger.info('service %s is running at the moment, no further action required' % service_name)
             else:
                 logger.info('service %s is not running at the moment, starting' % service_name)
-                start_service(service_name)
+                cls.start_service(service_name)
         else:
             logger.info('configuring service %s to be disabled' % service_name)
             cls.disable_service(service_name)
