@@ -3,7 +3,7 @@ from time import sleep
 from multiprocessing import Process
 
 from nepta.core.scenarios.generic.scenario import StreamGeneric, SingleStreamGeneric
-from nepta.core.distribution.components import Attero
+from nepta.core.distribution.utils.attero import Attero
 from nepta.dataformat import Section
 
 logger = logging.getLogger(__name__)

@@ -7,8 +7,8 @@ import logging
 import json
 from jinja2 import Environment, FileSystemLoader
 
-from . import components
 from nepta.core.model import network as net_model
+from nepta.core.distribution.utils.fs import Fs
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +32,10 @@ class ConfigFile(object):
         return '%s, file content %s path: %s,\nFile content:\n%s' % (type_name_str, strategy_str, path_str, content_str)
 
     def _make_path(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _make_content(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_path(self):
         return self._make_path()
@@ -45,16 +45,16 @@ class ConfigFile(object):
 
     def restore_access_rights(self):
         path_str = self._make_path()
-        components.Fs.get_instance().chmod_path(path_str, self.ACESS_RIGHTS)
+        Fs.chmod_path(path_str, self.ACESS_RIGHTS)
 
     def apply(self):
         logger.info('Creating configuration file.\n%s' % str(self))
         path_str = self._make_path()
         content_str = self._make_content()
         if self.STRATEGY == self.REWRITE_STRATEGY:
-            components.Fs.get_instance().write_to_path(path_str, content_str)
+            Fs.write_to_path(path_str, content_str)
         elif self.STRATEGY == self.APPEND_STRATEGY:
-            components.Fs.get_instance().append_to_path(path_str, content_str)
+            Fs.append_to_path(path_str, content_str)
         self.restore_access_rights()
 
 
@@ -407,4 +407,4 @@ class DockerDaemonJson(ConfigFile):
     def update(self):
         logger.info('Updating docker daemon file')
         logger.info('New content: {}'.format(self._new_content))
-        components.Fs.get_instance().write_to_path(self._make_path(), self._new_content)
+        Fs.write_to_path(self._make_path(), self._new_content)
