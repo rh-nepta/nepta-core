@@ -11,8 +11,8 @@ import uuid
 from datetime import datetime as dtdt
 
 from nepta.core import strategies, synchronization, model
-from nepta.core.distribution.env import environment
-from nepta.core.distribution.components import rhts
+from nepta.core.distribution.utils.rhts import Rhts
+from nepta.core.distribution.env import Environment
 
 from nepta.dataformat import Section, DataPackage
 
@@ -64,7 +64,7 @@ def get_synchronization(sync, conf):
 
 def init_package(conf_name, start_time):
     pckg_path = '{}__{}__{}__{}__ts{}'.format(
-        environment.hostname, conf_name, environment.distro, environment.kernel, int(start_time))
+        Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time))
     logger.info("Creating libres package in : {}".format(pckg_path))
 
     package = DataPackage.create(pckg_path)
@@ -74,7 +74,7 @@ def init_package(conf_name, start_time):
 
 
 def init_root_store():
-    store_params = {'hostname': environment.hostname, 'kernel': environment.kernel, 'distro': environment.distro}
+    store_params = {'hostname': Environment.hostname, 'kernel': Environment.kernel, 'distro': Environment.distro}
     return Section('host', store_params)
 
 
@@ -109,7 +109,7 @@ def delete_subtree(conf, deleting_subtrees):
 
 class CheckEnvVariable(argparse._AppendAction):
     def __call__(self, parser, namespace, values, option_string=None):
-        if values[0] in environment.__dict__.keys():
+        if values[0] in Environment.__dict__.keys():
             super().__call__(parser, namespace, values, option_string)
         else:
             raise argparse.ArgumentError(
@@ -181,10 +181,10 @@ def main():
 
     # overriding environments
     if args.environment:
-        environment.__dict__.update({k: v for k, v in args.environment})
+        Environment.__dict__.update({k: v for k, v in args.environment})
 
     timestamp = time.time()
-    conf = get_configuration(environment.fqdn, args.configuration)
+    conf = get_configuration(Environment.fqdn, args.configuration)
     sync = get_synchronization(args.sync, conf)
     package = init_package(args.configuration, timestamp)
     final_strategy = strategies.generic.CompoundStrategy()
@@ -206,7 +206,7 @@ def main():
     }
     extra_meta.update(args.meta)
 
-    logger.info('Ours environment is:\n%s' % environment)
+    logger.info('Ours environment is:\n%s' % Environment)
     logger.info('Our configuration:\n%s' % conf)
 
     # preparing server for test without logging meta and report, which will be logged in the end of test
@@ -240,7 +240,7 @@ def main():
         final_strategy += strategies.submit.ReliableSubmit(conf, package)
 
     # in the end of test tell beaker the test has PASSED
-    if rhts.is_in_rhts():
+    if Rhts.in_rhts:
         final_strategy += strategies.report.Report(package)
 
     try:

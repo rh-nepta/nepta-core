@@ -3,7 +3,8 @@ import logging
 import os
 
 from nepta.core.strategies.generic import Strategy
-from nepta.core.distribution import components
+# from nepta.core.distribution import components
+from nepta.core.distribution.utils.fs import Fs
 from nepta.core.distribution.command import Command
 from nepta.core.model import attachments
 
@@ -32,12 +33,12 @@ class SaveAttachments(Strategy):
                 if isinstance(attach, attachments.Directory):
                     dir_attachment = self.package.attachments.new(
                         AttachmentTypes.DIRECTORY, attach.d_path, attach.alias)
-                    components.fs.copy_dir(attach.d_path, os.path.join(self.package.path, str(dir_attachment.path)))
+                    Fs.copy_dir(attach.d_path, os.path.join(self.package.path, str(dir_attachment.path)))
 
                 if isinstance(attach, attachments.File):
                     file_attachment = self.package.attachments.new(
                         AttachmentTypes.FILE, attach.f_path, attach.alias)
-                    components.fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
+                    Fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
 
                 if isinstance(attach, attachments.CycleCommand):
                     item_list_cmd = Command(attach.cmd_for_list)

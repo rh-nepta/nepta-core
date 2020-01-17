@@ -3,7 +3,7 @@ import re
 
 from nepta.core import model
 from nepta.core.distribution.command import Command
-from nepta.core.utils.system import Uname, SysVInit
+from nepta.core.distribution.utils.system import Uname, SysVInit
 
 logger = logging.getLogger(__name__)
 
