@@ -17,9 +17,9 @@ class Iperf3TestResult(object):
 
     class ThroughputFormat(Enum):
         BPS = 1
-        KBPS = 10e3
-        MBPS = 10e6
-        GBPS = 10e9
+        KBPS = 1e3
+        MBPS = 1e6
+        GBPS = 1e9
 
     _DIMENSIONS = {
         'throughput': 0,
