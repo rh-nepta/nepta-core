@@ -25,7 +25,7 @@ class SaveMeta(Strategy):
 
         root['BenchmarkName'] = 'iperf3'  # TODO : we might have more banchmarks (netperf, iPerf3, etc.)
         root['BenchmarkVersion'] = RPMTool.get_package_version('iperf3')
-        root['Arguments'] = ' '.join(sys.argv) if len(sys.argv) > 1 else os.environ['NETWORK_PERFTEST_ARGS']
+        root['Arguments'] = '-v' 
         root['HostName'] = Environment.fqdn
         root['OtherHostNames'] = [Environment.fqdn]
         root['OtherHostNames'] += [h.hostname for h in self.conf.get_subset(m_class=bundles.SyncHost)]
