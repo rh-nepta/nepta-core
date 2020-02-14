@@ -130,10 +130,10 @@ def main():
     parser.add_argument('--prepare', action='store_true', help='[phase] Prepare non-persistent settings before test.')
     parser.add_argument('--execute', action='store_true', help='[phase] Run test scenarios.')
     parser.add_argument('--store', action='store_true',
-                        help='[phase] Save test results and meta varables into libres package')
+                        help='[phase] Save test results and meta variables into dataformat package')
     parser.add_argument('--store-logs', action='store_true',
-                        help='[phase] Save additional logs from testing server into libres package.')
-    parser.add_argument('--submit', action='store_true', help='[phase] Send libres package into result server.')
+                        help='[phase] Save additional logs from testing server into dataformat package.')
+    parser.add_argument('--submit', action='store_true', help='[phase] Send dataformat package into result server.')
 
     # additional arguments
     parser.add_argument('-e', '--environment', nargs=2, action=CheckEnvVariable, metavar=('ENV', 'VAR'),
