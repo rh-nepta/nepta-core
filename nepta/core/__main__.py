@@ -234,6 +234,7 @@ def main():
 
     # closing libres package
     final_strategy += strategies.save.save_package.Save(package)
+    final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
 
 
     # submit results to result server
