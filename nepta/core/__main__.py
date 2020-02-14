@@ -133,6 +133,8 @@ def main():
                         help='[phase] Save test results and meta variables into dataformat package')
     parser.add_argument('--store-logs', action='store_true',
                         help='[phase] Save additional logs from testing server into dataformat package.')
+    parser.add_argument('--store-remote-logs', action='store_true',
+                        help='[phase] Save additional logs from remote testing servers into dataformat package.')
     parser.add_argument('--submit', action='store_true', help='[phase] Send dataformat package into result server.')
 
     # additional arguments
@@ -236,6 +238,9 @@ def main():
     final_strategy += strategies.save.save_package.Save(package)
     final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
 
+    if args.store_remote_logs:
+        final_strategy += strategies.save.logs.RemoteLogs(conf, package)
+        final_strategy += strategies.save.save_package.Save(package)
 
     # submit results to result server
     if args.submit:
