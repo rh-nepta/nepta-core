@@ -233,7 +233,8 @@ def main():
         final_strategy += strategies.save.attachments.SaveAttachments(conf, package)
 
     # closing libres package
-    final_strategy += strategies.save.Save(package)
+    final_strategy += strategies.save.save_package.Save(package)
+
 
     # submit results to result server
     if args.submit:
