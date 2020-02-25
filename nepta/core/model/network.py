@@ -28,6 +28,9 @@ class IPBaseConfiguration(object):
     def __str__(self):
         return "%s :\n\tAddresses: %s\n\tGW: %s\n\tDNS: %s" % (self.__class__, self.addresses, self.gw, self.dns)
 
+    def __iter__(self):
+        return iter(self.addresses)
+
     def __getitem__(self, item):
         return self.addresses[item] if self.addresses else None
 
