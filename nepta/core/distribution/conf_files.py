@@ -64,7 +64,8 @@ class JinjaConfFile(ConfigFile):
 
     def __init__(self):
         template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.TEMPLATE_DIR)
-        self.jinja_environment = Environment(loader=FileSystemLoader(template_dir), trim_blocks=True, lstrip_blocks=True)
+        self.jinja_environment = Environment(loader=FileSystemLoader(template_dir), trim_blocks=True,
+                                             lstrip_blocks=True)
         self.template = self.TEMPLATE
 
     def _make_jinja_context(self):
@@ -85,7 +86,7 @@ class IPsecConnFile(JinjaConfFile):
     IPSEC_CONF_PREFIX = 'conn'
     TEMPLATE = 'ipsec_conn.jinja2'
 
-    def __init__(self, connection):
+    def __init__(self, connection: net_model.IPsecTunnel):
         super(IPsecConnFile, self).__init__()
         self.connection = connection
 
@@ -101,7 +102,7 @@ class IPsecConnFile(JinjaConfFile):
             'right': self.connection.right_ip.ip,
             'phase2': self.connection.phase2,
             'cipher': self.connection.cipher,
-            'nat_traversal': self.connection.nat_traversal,
+            'encapsulation': self.connection.encapsulation,
             'replay_window': self.connection.replay_window
         }
 
@@ -280,7 +281,7 @@ class RepositoryFile(JinjaConfFile):
         return file_path
 
     def _make_jinja_context(self):
-        return {'name': self._repo.key, 'url':self._repo.value}
+        return {'name': self._repo.key, 'url': self._repo.value}
 
 
 class RouteGenericFile(JinjaConfFile):
