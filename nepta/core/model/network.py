@@ -260,11 +260,11 @@ class IPsecTunnel(object):
     PHASE2_ESP = 'esp'
     PHASE2_AH = 'ah'
 
-    NAT_TRAVERSAL_YES = 'yes'
-    NAT_TRAVERSAL_NO = 'no'
+    ENCAPSULATION_YES = 'yes'
+    ENCAPSULATION_NO = 'no'
 
     def __init__(self, left_ip, right_ip, cipher, passphrase, mode=MODE_TRANSPORT, phase2=PHASE2_ESP,
-                 replay_window=None, nat_traversal=NAT_TRAVERSAL_NO):
+                 replay_window=None, encapsulation=ENCAPSULATION_NO):
         if not isinstance(left_ip, ipaddress._BaseAddress) or not isinstance(right_ip, ipaddress._BaseAddress):
             raise TypeError('Left and Right IP address should be object from ipaddress module')
         self.left_ip = left_ip
@@ -273,7 +273,7 @@ class IPsecTunnel(object):
         self.phase2 = phase2
         self.passphrase = passphrase
         self.mode = mode
-        self.nat_traversal = nat_traversal
+        self.encapsulation = encapsulation
 
         # The default is kernel stack specific, but usually 32. Linux
         # NETKEY/XFRM allows at least up to 2048. A value of of 0 disables
@@ -284,7 +284,7 @@ class IPsecTunnel(object):
         replay_window_str = 'default' if self.replay_window is None else '%d' % self.replay_window
         return 'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s' \
                % (self.family, self.left_ip, self.right_ip, self.phase2, self.cipher, self.mode, replay_window_str,
-                  self.nat_traversal)
+                  self.encapsulation)
 
     @property
     def family(self):
@@ -310,7 +310,7 @@ class IPsecTunnel(object):
         tags.append(SoftwareInventoryTag('IPsec'))
         tags.append(SoftwareInventoryTag('Transport') if self.mode == IPsecTunnel.MODE_TRANSPORT
                     else SoftwareInventoryTag('Tunnel'))
-        if self.nat_traversal == self.NAT_TRAVERSAL_YES:
+        if self.encapsulation == self.ENCAPSULATION_YES:
             tags.append(SoftwareInventoryTag('NatTraversal'))
         tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
         tags.append(SoftwareInventoryTag(self.cipher))
