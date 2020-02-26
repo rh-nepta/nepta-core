@@ -263,8 +263,12 @@ class IPsecTunnel(object):
     ENCAPSULATION_YES = 'yes'
     ENCAPSULATION_NO = 'no'
 
+    OFFLOAD_YES = 'yes'
+    OFFLOAD_NO = 'no'
+    OFFLOAD_AUTO = 'auto'
+
     def __init__(self, left_ip, right_ip, cipher, passphrase, mode=MODE_TRANSPORT, phase2=PHASE2_ESP,
-                 replay_window=None, encapsulation=ENCAPSULATION_NO):
+                 replay_window=None, encapsulation=ENCAPSULATION_NO, nic_offload=None):
         if not isinstance(left_ip, ipaddress._BaseAddress) or not isinstance(right_ip, ipaddress._BaseAddress):
             raise TypeError('Left and Right IP address should be object from ipaddress module')
         self.left_ip = left_ip
@@ -274,6 +278,7 @@ class IPsecTunnel(object):
         self.passphrase = passphrase
         self.mode = mode
         self.encapsulation = encapsulation
+        self.nic_offload = nic_offload
 
         # The default is kernel stack specific, but usually 32. Linux
         # NETKEY/XFRM allows at least up to 2048. A value of of 0 disables

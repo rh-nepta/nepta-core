@@ -103,7 +103,8 @@ class IPsecConnFile(JinjaConfFile):
             'phase2': self.connection.phase2,
             'cipher': self.connection.cipher,
             'encapsulation': self.connection.encapsulation,
-            'replay_window': self.connection.replay_window
+            'replay_window': self.connection.replay_window,
+            'nic_offload': self.connection.nic_offload,
         }
 
 
