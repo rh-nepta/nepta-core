@@ -44,7 +44,6 @@ class IPv6Configuration(IPBaseConfiguration):
 
 
 class NetFormatter(ipaddress._BaseNetwork):
-
     CONF_OBJ = None
 
     def __init__(self, net):
@@ -287,9 +286,10 @@ class IPsecTunnel(object):
 
     def __str__(self):
         replay_window_str = 'default' if self.replay_window is None else '%d' % self.replay_window
-        return 'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s' \
-               % (self.family, self.left_ip, self.right_ip, self.phase2, self.cipher, self.mode, replay_window_str,
-                  self.encapsulation)
+        offload = 'default' if self.nic_offload is None else '%d' % self.nic_offload
+        return 'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s, ' \
+               'nic-offload %s' % (self.family, self.left_ip, self.right_ip, self.phase2, self.cipher, self.mode,
+                                   replay_window_str, self.encapsulation, offload)
 
     @property
     def family(self):
