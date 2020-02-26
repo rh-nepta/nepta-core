@@ -183,7 +183,8 @@ def main():
 
     # overriding environments
     if args.environment:
-        Environment.__dict__.update({k: v for k, v in args.environment})
+        for k, v in args.environment:
+            setattr(Environment, k, v)
 
     timestamp = time.time()
     conf = get_configuration(Environment.fqdn, args.configuration)
