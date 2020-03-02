@@ -107,8 +107,8 @@ class Lscpu(object):
         out, ret_code = cmd.watch_output()
         for line in out.split('\n'):
             if line:  # skip blank line
-                key, val = line.split(':')
-                ret_dict[key.strip()] = val.strip()
+                first_double_dot = line.find(':')
+                ret_dict[line[:first_double_dot].strip()] = line[first_double_dot+1:].strip()
 
         return ret_dict
 
