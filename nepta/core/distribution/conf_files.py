@@ -81,17 +81,25 @@ class JinjaConfFile(ConfigFile):
 # want to just add configurations for connections/secrets.
 #
 # Same thing applies to IPsec secrets files
-class IPsecConnFile(JinjaConfFile):
+class GenericIPsecFile(JinjaConfFile):
     IPSEC_CONF_DIR = '/etc/ipsec.d'
     IPSEC_CONF_PREFIX = 'conn'
-    TEMPLATE = 'ipsec_conn.jinja2'
+    SUFFIX = ''
 
     def __init__(self, connection: net_model.IPsecTunnel):
-        super(IPsecConnFile, self).__init__()
+        super().__init__()
         self.connection = connection
 
     def _make_path(self):
-        return os.path.join(self.IPSEC_CONF_DIR, '%s_%s.conf' % (self.IPSEC_CONF_PREFIX, self.connection.name))
+        return os.path.join(
+            self.IPSEC_CONF_DIR,
+            f'{self.IPSEC_CONF_PREFIX}_{self.connection.name}_{self.connection.left_ip.ip}_'
+            f'{self.connection.right_ip.ip}.{self.SUFFIX}')
+
+
+class IPsecConnFile(GenericIPsecFile):
+    TEMPLATE = 'ipsec_conn.jinja2'
+    SUFFIX = 'conf'
 
     def _make_jinja_context(self):
         return {
@@ -116,15 +124,9 @@ class IPsecRHEL8ConnFile(IPsecConnFile):
     TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 
-class IPsecSecretsFile(JinjaConfFile):
+class IPsecSecretsFile(GenericIPsecFile):
     TEMPLATE = 'ipsec_secret.jinja2'
-
-    def __init__(self, connection):
-        super(IPsecSecretsFile, self).__init__()
-        self.connection = connection
-
-    def _make_path(self):
-        return os.path.join(IPsecConnFile.IPSEC_CONF_DIR, 'conn_%s.secrets' % self.connection.name)
+    SUFFIX = 'secrets'
 
     def _make_jinja_context(self):
         return {
