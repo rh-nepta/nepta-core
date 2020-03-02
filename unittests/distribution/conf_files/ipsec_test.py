@@ -36,7 +36,7 @@ conn transport_IPv4_aes128-sha1
     def test_ipsec_with_specific_arg_test(self):
         ipsec_tunnel = IPsecTunnel(IPv4Interface('192.168.1.1/24'), IPv4Interface('192.168.1.2/24'), 'aes128-sha2',
                                    'SUPER_PASS_IPSEC', IPsecTunnel.MODE_TUNNEL, replay_window=128,
-                                   encapsulation=IPsecTunnel.ENCAPSULATION_YES)
+                                   encapsulation=IPsecTunnel.ENCAPSULATION_YES, nic_offload=IPsecTunnel.OFFLOAD_YES)
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
 
         excpexted_output = """\
@@ -53,6 +53,7 @@ conn tunnel_IPv4_aes128-sha2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128
+\tnic-offload=yes
 """
         self.assertEqual(excpexted_output, conn_file_obj._make_content())
 
@@ -60,7 +61,7 @@ conn tunnel_IPv4_aes128-sha2
     def test_ipsec_rhel8_with_specific_arg_test(self):
         ipsec_tunnel = IPsecTunnel(IPv4Interface('192.168.1.1/24'), IPv4Interface('192.168.1.2/24'), 'aes128-sha2',
                                    'SUPER_PASS_IPSEC', IPsecTunnel.MODE_TUNNEL, replay_window=128,
-                                   encapsulation=IPsecTunnel.ENCAPSULATION_YES)
+                                   encapsulation=IPsecTunnel.ENCAPSULATION_YES, nic_offload=IPsecTunnel.OFFLOAD_YES)
         conn_file_obj = IPsecRHEL8ConnFile(ipsec_tunnel)
 
         excpexted_output = """\
@@ -76,6 +77,7 @@ conn tunnel_IPv4_aes128-sha2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128
+\tnic-offload=yes
 """
         self.assertEqual(excpexted_output, conn_file_obj._make_content())
 

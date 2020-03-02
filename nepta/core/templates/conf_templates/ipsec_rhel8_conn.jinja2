@@ -12,4 +12,7 @@ conn {{name}}
 	{% if replay_window %}
 	replay-window={{ replay_window }}
 	{% endif %}
+	{% if nic_offload %}
+	nic-offload={{ nic_offload }}
+	{% endif %}
 
