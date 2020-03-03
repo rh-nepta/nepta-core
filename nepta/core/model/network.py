@@ -310,14 +310,14 @@ class IPsecTunnel(object):
 
     @property
     def tags(self):
-
-        tags = [SoftwareInventoryTag('IPv4')] if self.family == "IPv4" else [SoftwareInventoryTag('IPv6')]
-        tags.append(SoftwareInventoryTag('IPsec'))
+        tags = [SoftwareInventoryTag(self.family), SoftwareInventoryTag('IPsec')]
         tags.append(SoftwareInventoryTag('Transport') if self.mode == IPsecTunnel.MODE_TRANSPORT
                     else SoftwareInventoryTag('Tunnel'))
         if self.encapsulation == self.ENCAPSULATION_YES:
             tags.append(SoftwareInventoryTag('NatTraversal'))
-        tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
+        if self.replay_window:
+            tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
+        tags.append(SoftwareInventoryTag('NicOffload', self.nic_offload))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
 
