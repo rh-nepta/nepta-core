@@ -267,7 +267,7 @@ class IPsecTunnel(object):
     OFFLOAD_AUTO = 'auto'
 
     def __init__(self, left_ip, right_ip, cipher, passphrase, mode=MODE_TRANSPORT, phase2=PHASE2_ESP,
-                 replay_window=None, encapsulation=ENCAPSULATION_NO, nic_offload=None):
+                 replay_window=None, encapsulation=ENCAPSULATION_NO, nic_offload=OFFLOAD_NO):
         if not isinstance(left_ip, ipaddress._BaseAddress) or not isinstance(right_ip, ipaddress._BaseAddress):
             raise TypeError('Left and Right IP address should be object from ipaddress module')
         self.left_ip = left_ip
@@ -286,10 +286,9 @@ class IPsecTunnel(object):
 
     def __str__(self):
         replay_window_str = 'default' if self.replay_window is None else '%d' % self.replay_window
-        offload = 'default' if self.nic_offload is None else '%s' % self.nic_offload
         return 'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s, ' \
                'nic-offload %s' % (self.family, self.left_ip, self.right_ip, self.phase2, self.cipher, self.mode,
-                                   replay_window_str, self.encapsulation, offload)
+                                   replay_window_str, self.encapsulation, self.nic_offload)
 
     @property
     def family(self):
