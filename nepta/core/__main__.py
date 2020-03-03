@@ -193,15 +193,15 @@ def main():
     final_strategy = strategies.generic.CompoundStrategy()
     desync_strategy = strategies.generic.CompoundStrategy()  # used when exec failed to unlock opposite host
 
-    if args.print:
-        print(conf.str_tree())
-        return
-
     if args.filter:
         filter_conf(conf, args.filter)
 
     if args.delete_tree:
         delete_subtree(conf, args.delete_tree)
+
+    if args.print:
+        print(conf.str_tree())
+        return
 
     extra_meta = {
         'DateTime': dtdt.utcfromtimestamp(int(timestamp)),
