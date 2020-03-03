@@ -93,8 +93,7 @@ class GenericIPsecFile(JinjaConfFile):
     def _make_path(self):
         return os.path.join(
             self.IPSEC_CONF_DIR,
-            f'{self.IPSEC_CONF_PREFIX}_{self.connection.name}_{self.connection.left_ip.ip}_'
-            f'{self.connection.right_ip.ip}.{self.SUFFIX}')
+            f'{self.IPSEC_CONF_PREFIX}_{self.connection.name}.{self.SUFFIX}')
 
 
 class IPsecConnFile(GenericIPsecFile):
