@@ -305,7 +305,8 @@ class IPsecTunnel(object):
 
         The name of a connection is used in ipsec configuration.
         '''
-        return '%s_%s_%s' % (self.mode, self.family, self.cipher)
+        return f'{self.family}_{self.mode}_{self.cipher}_encap-{self.encapsulation}_' \
+               f'{self.left_ip.ip}_{self.right_ip.ip}'
 
     @property
     def tags(self):
