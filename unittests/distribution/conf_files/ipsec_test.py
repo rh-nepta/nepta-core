@@ -17,7 +17,7 @@ class IpsecCOonnJinjaTest(TestCase):
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
 
         excpexted_output = """\
-conn transport_IPv4_aes128-sha1
+conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
 \ttype=transport
 \tconnaddrfamily=IPv4
 \tauthby=secret
@@ -29,6 +29,7 @@ conn transport_IPv4_aes128-sha1
 \tpfs=yes
 \tauto=start
 \tencapsulation=no
+\tnic-offload=no
 """
         self.assertEqual(excpexted_output, conn_file_obj._make_content())
 
@@ -40,7 +41,7 @@ conn transport_IPv4_aes128-sha1
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
 
         excpexted_output = """\
-conn tunnel_IPv4_aes128-sha2
+conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \ttype=tunnel
 \tconnaddrfamily=IPv4
 \tauthby=secret
@@ -65,7 +66,7 @@ conn tunnel_IPv4_aes128-sha2
         conn_file_obj = IPsecRHEL8ConnFile(ipsec_tunnel)
 
         excpexted_output = """\
-conn tunnel_IPv4_aes128-sha2
+conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \ttype=tunnel
 \tauthby=secret
 \tleft=192.168.1.1
