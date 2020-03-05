@@ -236,6 +236,7 @@ def main():
         final_strategy += strategies.save.attachments.SaveAttachments(conf, package)
 
     # closing libres package
+    desync_strategy += strategies.save.save_package.Save(package)
     final_strategy += strategies.save.save_package.Save(package)
     final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
 
@@ -249,7 +250,8 @@ def main():
 
     # in the end of test tell beaker the test has PASSED
     if Environment.in_rhts:
-        final_strategy += strategies.report.Report(package)
+        final_strategy += strategies.report.Report(package, True)
+        desync_strategy += strategies.report.Report(package, False)
 
     try:
         final_strategy()
