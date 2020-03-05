@@ -45,19 +45,24 @@ class Rhts(object):
 
         c = Command('rhts-submit-log -l %s' % filename).run()
         c.watch_output()
+    @classmethod
+    def sync_set(cls, state):
+        if not cls.is_in_rstrnt():
+            logger.warning('Skipping method, NOT in rstrnt environment!!!')
+            return
 
-    @staticmethod
-    def sync_set(state):
-        logger.info('rhts synchronization: setting synchronization state: %s', state)
-        c = Command('rhts-sync-set -s %s' % state)
-        c.run()
-        c.watch_output()
+        logger.info('rstrnt synchronization: setting synchronization state: %s', state)
+        c = Command('rstrnt-sync-set -s %s' % state).run()
+        print(c.get_output())
 
-    @staticmethod
-    def sync_block(states, hosts):
-        logger.info('rhts synchronization: waiting for all hosts: %s to be in one of %s states', hosts, states)
+    @classmethod
+    def sync_block(cls, states, hosts):
+        if not cls.is_in_rstrnt():
+            logger.warning('Skipping method, NOT in rstrnt environment!!!')
+            return
+
+        logger.info('rstrnt synchronization: waiting for all hosts: %s to be in one of %s states', hosts, states)
         hosts_list = ' '.join(hosts)
         states_list = ' -s '.join([''] + states)
-        c = Command('rhts-sync-block %s %s' % (states_list, hosts_list))
-        c.run()
-        c.watch_output()
+        c = Command(f'rstrnt-sync-block {states_list} {hosts_list}').run()
+        print(c.get_output())
