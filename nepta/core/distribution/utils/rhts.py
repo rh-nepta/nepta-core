@@ -8,33 +8,25 @@ logger = logging.getLogger(__name__)
 
 class Rhts(object):
     _env = os.environ
+    _state = {
+        True: 'PASS',
+        False: 'FAIL',
+    }
 
     @classmethod
-    def is_in_rhts(cls):
+    def is_in_rstrnt(cls):
         logger.warning('Deprecated method, do not use!!!')
         return 'TEST' in cls._env.keys()
 
     @classmethod
     def report_result(cls, success=True, filename='/dev/null'):
-        if not cls.is_in_rhts():
+        if not cls.is_in_rstrnt():
+            logger.warning('Skipping method, NOT in rstrnt environment!!!')
             return
-        logger.info('reporting rhts results: %s filename: %s', success, filename)
 
-        if success:
-            result_string = 'PASS'
-        else:
-            result_string = 'FAILS'
-
-        c = Command('rhts-report-result %s %s %s' % (cls._env['TEST'], result_string, filename)).run()
-        c.get_output()
-
-        if 'RECIPETESTID' in cls._env.keys() and 'RESULT_SERVER' in cls._env.keys():
-            # FIXME: call self.submit_log here
-            # FIXME: -T and -S are deprecated when using restraint harness!
-            c2 = Command(
-                'rhts-submit-log -T %s -S %s -l %s' % (cls._env['RECIPETESTID'], cls._env['RESULT_SERVER'], filename))
-            c2.run()
-            c2.get_output()
+        logger.info(f'reporting rstrnt results: {cls._state[success]} filename: {filename}')
+        c = Command(f'rstrnt-report-result {cls._env["TEST"]} {cls._state[success]} -o {filename}').run()
+        print(c.get_output())
 
     @classmethod
     def submit_log(cls, filename):
