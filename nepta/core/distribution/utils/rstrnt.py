@@ -6,7 +6,7 @@ from nepta.core.distribution.command import Command
 logger = logging.getLogger(__name__)
 
 
-class Rhts(object):
+class Rstrnt(object):
     _env = os.environ
     _state = {
         True: 'PASS',

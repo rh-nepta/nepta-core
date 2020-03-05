@@ -2,7 +2,7 @@ import re
 import os
 
 from nepta.core.distribution.utils.system import Uname, RPMTool
-from nepta.core.distribution.utils.rhts import Rhts
+from nepta.core.distribution.utils.rstrnt import Rstrnt
 
 
 class _MetaPrintedType(type):

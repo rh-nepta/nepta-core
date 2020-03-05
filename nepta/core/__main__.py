@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime as dtdt
 
 from nepta.core import strategies, synchronization, model
-from nepta.core.distribution.utils.rhts import Rhts
+from nepta.core.distribution.utils.rstrnt import Rstrnt
 from nepta.core.distribution.env import Environment
 
 from nepta.dataformat import Section, DataPackage
