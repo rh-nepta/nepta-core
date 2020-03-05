@@ -38,13 +38,14 @@ class Rhts(object):
 
     @classmethod
     def submit_log(cls, filename):
-        if not cls.is_in_rhts():
+        if not cls.is_in_rstrnt():
+            logger.warning('Skipping method, NOT in rstrnt environment!!!')
             return
 
-        logger.info('submiting log using rhts: %s', filename)
+        logger.info(f'submiting log using rstrnt: {filename}')
+        c = Command(f'rstrnt-report-log --filename {filename}').run()
+        print(c.get_output())
 
-        c = Command('rhts-submit-log -l %s' % filename).run()
-        c.watch_output()
     @classmethod
     def sync_set(cls, state):
         if not cls.is_in_rstrnt():
