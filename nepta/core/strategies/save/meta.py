@@ -31,7 +31,7 @@ class SaveMeta(Strategy):
         root['OtherHostNames'] += [h.hostname for h in self.conf.get_subset(m_class=bundles.SyncHost)]
         root['SELinux'] = SELinux.getenforce()
 
-        if Environment.in_rhts:
+        if Environment.in_rstrnt:
             root['Distribution'] = Environment.distro
             root['WhiteBoard'] = Environment.whiteboard
             root['BeakerJobID'] = Environment.job_id

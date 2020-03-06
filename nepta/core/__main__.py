@@ -249,7 +249,7 @@ def main():
         final_strategy += strategies.submit.ReliableSubmit(conf, package)
 
     # in the end of test tell beaker the test has PASSED
-    if Environment.in_rhts:
+    if Environment.in_rstrnt:
         final_strategy += strategies.report.Report(package, True)
         desync_strategy += strategies.report.Report(package, False)
 

@@ -2,7 +2,6 @@ import re
 import os
 
 from nepta.core.distribution.utils.system import Uname, RPMTool
-from nepta.core.distribution.utils.rstrnt import Rstrnt
 
 
 class _MetaPrintedType(type):
@@ -33,12 +32,13 @@ class Environment(object, metaclass=_MetaPrintedType):
         _match = re.search(r'(?P<src_name>.+)-(.+)-(.+)\.*\.src\.rpm', kernel_src_rpm)
         kernel = _match.group('src_name') + '-' + kernel_version
     fqdn = Uname.get_hostname()
-    distro = _env.get('DISTRO')
-    if not distro:
-        distro = 'Linux'
+    distro = _env.get('RSTRNT_OSDISTRO', 'Linux')
     rhel_version = RedhatRelease.version
     hostname = fqdn.split('.')[0]
     whiteboard = _env.get('BEAKER_JOB_WHITEBOARD')
-    job_id = _env.get('JOBID')
-    arch = _env.get('ARCH')
-    in_rhts = 'TEST' in _env.keys()
+    job_id = _env.get('RSTRNT_JOBID')
+    recipe_id = _env.get('RSTRNT_RECIPESETID')
+    arch = _env.get('RSTRNT_OSARCH')
+    lab_controler = _env.get('LAB_CONTROLLER')
+    test_name = _env.get('TEST')
+    in_rstrnt = test_name is not None
