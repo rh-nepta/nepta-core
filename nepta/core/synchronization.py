@@ -1,7 +1,7 @@
 import logging
 import time
-import os
 from nepta.core.distribution.utils.rstrnt import Rstrnt
+from nepta.core.distribution.env import Environment
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +57,9 @@ class PerfSynchronization(Synchronization):
         self._sync_server = sync_server
         self._poll_interval = poll_inerval
         self._client = synchronization.client.SyncClient(self._sync_server)
-        if 'JOBID' not in os.environ:
+        if Environment.job_id is None:
             raise ValueError('JOBID environment variable must be specified when using PerfSynchonization')
-        self._jobid = os.environ['JOBID']
+        self._jobid = Environment.job_id
         logger.info('PerfSync synchronization enabled, sync server is %s', sync_server)
 
     def set_sync_condition(self, condition):
