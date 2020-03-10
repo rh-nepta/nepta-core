@@ -2,6 +2,7 @@ import os
 import logging
 
 from nepta.core.distribution.command import Command
+from nepta.core.distribution.env import Environment
 
 logger = logging.getLogger(__name__)
 
@@ -14,13 +15,8 @@ class Rstrnt(object):
     }
 
     @classmethod
-    def is_in_rstrnt(cls):
-        logger.warning('Deprecated method, do not use!!!')
-        return 'TEST' in cls._env.keys()
-
-    @classmethod
     def report_result(cls, success=True, filename='/dev/null'):
-        if not cls.is_in_rstrnt():
+        if not Environment.in_rstrnt:
             logger.warning('Skipping method, NOT in rstrnt environment!!!')
             return
 
@@ -30,7 +26,7 @@ class Rstrnt(object):
 
     @classmethod
     def submit_log(cls, filename):
-        if not cls.is_in_rstrnt():
+        if not Environment.in_rstrnt:
             logger.warning('Skipping method, NOT in rstrnt environment!!!')
             return
 
@@ -40,7 +36,7 @@ class Rstrnt(object):
 
     @classmethod
     def sync_set(cls, state):
-        if not cls.is_in_rstrnt():
+        if not Environment.in_rstrnt:
             logger.warning('Skipping method, NOT in rstrnt environment!!!')
             return
 
@@ -50,7 +46,7 @@ class Rstrnt(object):
 
     @classmethod
     def sync_block(cls, states, hosts):
-        if not cls.is_in_rstrnt():
+        if not Environment.in_rstrnt:
             logger.warning('Skipping method, NOT in rstrnt environment!!!')
             return
 
