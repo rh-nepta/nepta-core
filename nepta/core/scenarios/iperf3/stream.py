@@ -1,4 +1,7 @@
 import logging
+import traceback
+import sys
+from functools import wraps
 from collections import OrderedDict
 
 from nepta.core.scenarios.generic.scenario import info_log_func_output
@@ -8,6 +11,24 @@ from nepta.core.scenarios.generic.congestion import NetemConstricted, StaticCong
 from nepta.core.tests import Iperf3Test
 
 logger = logging.getLogger(__name__)
+
+
+def catch_and_log_exception(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error("An error occurred during test execution. iPerf3 output is :")
+            if hasattr(args[1], "__iter__"):
+                for test in args[1]:
+                    logger.error(test.get_json_out())
+            else:
+                logger.error(args[1].get_json_out())
+            logger.error("Traceback of catch exception :")
+            traceback.print_exc(file=sys.stdout)
+        return OrderedDict()
+    return wrapper
 
 
 class GenericIPerf3Stream(object):
