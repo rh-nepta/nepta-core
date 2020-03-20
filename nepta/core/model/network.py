@@ -317,7 +317,8 @@ class IPsecTunnel(object):
             tags.append(SoftwareInventoryTag('NatTraversal'))
         if self.replay_window:
             tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
-        tags.append(SoftwareInventoryTag('NicOffload', self.nic_offload))
+        if self.nic_offload != self.OFFLOAD_NO:
+            tags.append(SoftwareInventoryTag('NicOffload', self.nic_offload))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
 
