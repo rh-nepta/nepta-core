@@ -311,8 +311,7 @@ class IPsecTunnel(object):
     @property
     def tags(self):
         tags = [SoftwareInventoryTag(self.family), SoftwareInventoryTag('IPsec')]
-        tags.append(SoftwareInventoryTag('Transport') if self.mode == IPsecTunnel.MODE_TRANSPORT
-                    else SoftwareInventoryTag('Tunnel'))
+        tags.append(SoftwareInventoryTag(self.mode.capitalize()))
         if self.encapsulation == self.ENCAPSULATION_YES:
             tags.append(SoftwareInventoryTag('NatTraversal'))
         if self.replay_window:
