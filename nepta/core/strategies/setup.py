@@ -80,7 +80,8 @@ class Setup(Strategy):
     def configure_kdump(self):
         logger.info('Configuring KDump')
         confs = self.conf.get_subset(m_class=model.system.KDumpOption)
-        conf_files.KDump(confs).apply()
+        if len(confs):
+            conf_files.KDump(confs).apply()
 
     @Strategy.schedule
     def configure_kernel_variables(self):
