@@ -10,6 +10,7 @@ print(find_namespace_packages())
 setup(
     name='nepta-core',
     version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='Core of NePTA framework for network testing.',
     long_description=readme,
     author='Adrian Tomasov',
