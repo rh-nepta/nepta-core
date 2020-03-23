@@ -202,6 +202,25 @@ class VirtualGuest(object):
         return self._cpu_pinning
 
 
+class _VariousOptions:
+    def __init__(self, **kwargs):
+        self.options = kwargs
+
+
+class _NamedOptions(_VariousOptions):
+
+    def __init__(self, name, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+
+    def __str__(self):
+        return f"{self.__class__.__name__} {self.name} [{self.options}]"
+
+
+class KernelModule(_NamedOptions):
+    pass
+
+
 if __name__ == '__main__':
     print(SystemdService('Network', SystemdService.ENABLED))
     print(SysVInitService('Network', SysVInitService.ENABLED))
