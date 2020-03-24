@@ -114,6 +114,14 @@ class Setup(Strategy):
         for vs in sysv_services + systemd_services:
             SysVInit.configure_service(vs)
 
+    @Strategy.schedule
+    def configure_kernel_modules(self):
+        logger.info("Configuring kernel modules")
+        for mod in self.conf.get_subset(m_class=model.system.KernelModule):
+            logger.info(f'Configuring module {mod}')
+            conf_files.KernelLoadModuleConfig(mod).apply()
+            conf_files.KernelModuleOptions(mod).apply()
+
     def stop_net(self):
         raise NotImplementedError
 

@@ -5,7 +5,6 @@ from nepta.core.distribution.utils.network import Tuna
 from nepta.core.distribution.utils.virt import Docker
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
-from nepta.core.distribution.command import Command
 
 logger = logging.getLogger(__name__)
 
@@ -63,13 +62,3 @@ class Prepare(Strategy):
         containers = self.conf.get_subset(m_class=model.docker.Containter)
         for cont in containers:
             Docker.run(cont)
-
-    @Strategy.schedule
-    def insert_kernel_modules(self):
-        logger.info("Inserting kernel modules")
-        modules = self.conf.get_subset(m_class=model.system.KernelModule)
-        for mod in modules:
-            logger.info(f"Inserting {mod}")
-            options = " ".join([f"{k}={v}" for k, v in mod.options.items()])
-            cmd = Command(f"modprobe {mod.name} {options}").run()
-            logger.info(cmd.get_output())
