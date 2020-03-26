@@ -70,3 +70,19 @@ class Command(object):
 
     def terminate(self):
         self._command_handle.terminate()
+
+
+class ShellCommand(Command):
+    """
+    This class extends behaviour of Command class. It executes provided command inside unix shell environment, which
+    is necessary for command with unix pipes or other shell utilities.
+    """
+    def __init__(self, cmdline, enable_debug_log=True):
+        super().__init__(cmdline, enable_debug_log)
+        self._cmdline = cmdline
+
+    def run(self):
+        self.log_debug("Running command: %s", self._cmdline)
+        self._command_handle = subprocess.Popen(
+            self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        return self
