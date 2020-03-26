@@ -1,5 +1,7 @@
 import ipaddress
 import copy
+from typing import List
+
 from nepta.core.model.tag import SoftwareInventoryTag
 
 
@@ -265,6 +267,10 @@ class IPsecTunnel(object):
     OFFLOAD_YES = 'yes'
     OFFLOAD_NO = 'no'
     OFFLOAD_AUTO = 'auto'
+
+    @classmethod
+    def generate_tunnels(cls, addrs1: IPBaseConfiguration, addrs2: IPBaseConfiguration, properties: List[dict]):
+        return [cls(addr1, addr2, **prop) for addr1, addr2, prop in zip(addrs1, addrs2, properties)]
 
     def __init__(self, left_ip, right_ip, cipher, passphrase, mode=MODE_TRANSPORT, phase2=PHASE2_ESP,
                  replay_window=None, encapsulation=ENCAPSULATION_NO, nic_offload=OFFLOAD_NO):

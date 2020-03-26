@@ -411,3 +411,29 @@ class DockerDaemonJson(ConfigFile):
         logger.info('Updating docker daemon file')
         logger.info('New content: {}'.format(self._new_content))
         Fs.write_to_path(self._make_path(), self._new_content)
+
+
+class _KernelModuleConf(ConfigFile):
+    CONF_DIR = None
+
+    def __init__(self, mod):
+        super().__init__()
+        self.mod = mod
+
+    def _make_path(self):
+        return os.path.join(self.CONF_DIR, f"{self.mod.name}.conf")
+
+
+class KernelLoadModuleConfig(_KernelModuleConf):
+    CONF_DIR = '/etc/modules-load.d/'
+
+    def _make_content(self):
+        return self.mod.name
+
+
+class KernelModuleOptions(_KernelModuleConf, JinjaConfFile):
+    CONF_DIR = '/etc/modprobe.d/'
+    TEMPLATE = 'kernel_options.jinja2'
+
+    def _make_jinja_context(self):
+        return {'mod': self.mod}
