@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    import pyattero
+    import atteroclt
 except ImportError:
     logger.error('Pyattero library is not available in the system. Attero component cannot be used.')
 
@@ -14,7 +14,7 @@ except ImportError:
                               'install pyattero library.')
 
 
-    pyattero = Null()
+    atteroctl = Null()
 
 
 class Attero(object):
@@ -23,7 +23,7 @@ class Attero(object):
     @staticmethod
     def clear_existing_impairments():
         logger.info("Clearing Attero existing configuration.")
-        controler = pyattero.attero.Control()
+        controler = atteroctl.attero.Control()
         controler.conn()
         controler.clear_impairments()
         controler.configure()
@@ -49,10 +49,10 @@ class Attero(object):
     @staticmethod
     def set_delay(direction, delay):
         logger.info("Setting Attero to create a delay of %s ms in %s direction." % (delay, direction))
-        controller = pyattero.attero.Control()
+        controller = atteroctl.attero.Control()
         controller.conn()
-        flow_option = pyattero.options.Flow(direction)
-        flow_option.set_option(pyattero.options.Latency(delay))
+        flow_option = atteroctl.options.Flow(direction)
+        flow_option.set_option(atteroctl.options.Latency(delay))
         controller.set_option(flow_option)
         controller.configure()
         controller.end()
@@ -60,24 +60,24 @@ class Attero(object):
     @staticmethod
     def set_bandwidth(direction, bandwidth):
         logger.info("Setting Attero to create a bottleneck of %s kbps in %s direction." % (bandwidth, direction))
-        controller = pyattero.attero.Control()
+        controller = atteroctl.attero.Control()
         controller.conn()
-        flow_option = pyattero.options.Flow(direction)
-        flow_option.set_option(pyattero.options.Bandwidth(bandwidth))
+        flow_option = atteroctl.options.Flow(direction)
+        flow_option.set_option(atteroctl.options.Bandwidth(bandwidth))
         controller.set_option(flow_option)
         controller.configure()
         controller.end()
 
     @staticmethod
     def start():
-        controller = pyattero.attero.Control()
+        controller = atteroctl.attero.Control()
         controller.conn()
         controller.start()
         controller.end()
 
     @staticmethod
     def stop():
-        controller = pyattero.attero.Control()
+        controller = atteroctl.attero.Control()
         controller.conn()
         controller.stop()
         controller.end()
