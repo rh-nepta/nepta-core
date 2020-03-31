@@ -17,6 +17,10 @@ from .iperf3.stream import Iperf3SingleStreamNetemConstricted, Iperf3MultiStream
 from .iperf3.stream import Iperf3TCPStreamZeroCopy, Iperf3TCPReversedZeroCopy, Iperf3TCPMultiStreamZeroCopy, \
     Iperf3TCPDuplexStreamZeroCopy
 
+# UDP
+from .iperf3.stream import Iperf3UDPStream, Iperf3UDPReversed, Iperf3UDPMultiStream, Iperf3UDPDuplexStream, \
+    Iperf3UDPSanity
+
 
 def get_scenario_by_name(scenario_name):
     scenario_class = None
