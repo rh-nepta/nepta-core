@@ -111,7 +111,7 @@ class Iperf3UDPTestResult(Iperf3TestResult):
 
         return cls(np.array([
             end['sum']['bits_per_second'],
-            end['sum']['bits_per_second'] * (1 - end['sum']['lost_percent']*100),
+            end['sum']['bits_per_second'] * (1 - end['sum']['lost_percent']/100),
             end['cpu_utilization_percent']['host_total'],
             end['cpu_utilization_percent']['remote_total'],
             std_dev,
