@@ -1,4 +1,4 @@
-from nepta.core.distribution.components import Command
+from nepta.core.distribution.command import Command
 
 
 class CommandToolException(Exception):
