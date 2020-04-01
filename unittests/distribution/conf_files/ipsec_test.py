@@ -17,7 +17,7 @@ class IpsecCOonnJinjaTest(TestCase):
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
 
         excpexted_output = """\
-conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
+conn transport_IPv4_aes128-sha1
 \ttype=transport
 \tconnaddrfamily=IPv4
 \tauthby=secret
@@ -29,7 +29,6 @@ conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
 \tpfs=yes
 \tauto=start
 \tencapsulation=no
-\tnic-offload=no
 """
         self.assertEqual(excpexted_output, conn_file_obj._make_content())
 
@@ -37,11 +36,11 @@ conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
     def test_ipsec_with_specific_arg_test(self):
         ipsec_tunnel = IPsecTunnel(IPv4Interface('192.168.1.1/24'), IPv4Interface('192.168.1.2/24'), 'aes128-sha2',
                                    'SUPER_PASS_IPSEC', IPsecTunnel.MODE_TUNNEL, replay_window=128,
-                                   encapsulation=IPsecTunnel.ENCAPSULATION_YES, nic_offload=IPsecTunnel.OFFLOAD_YES)
+                                   nat_traversal=IPsecTunnel.NAT_TRAVERSAL_YES)
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
 
         excpexted_output = """\
-conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
+conn tunnel_IPv4_aes128-sha2
 \ttype=tunnel
 \tconnaddrfamily=IPv4
 \tauthby=secret
@@ -54,7 +53,6 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128
-\tnic-offload=yes
 """
         self.assertEqual(excpexted_output, conn_file_obj._make_content())
 
@@ -62,11 +60,11 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
     def test_ipsec_rhel8_with_specific_arg_test(self):
         ipsec_tunnel = IPsecTunnel(IPv4Interface('192.168.1.1/24'), IPv4Interface('192.168.1.2/24'), 'aes128-sha2',
                                    'SUPER_PASS_IPSEC', IPsecTunnel.MODE_TUNNEL, replay_window=128,
-                                   encapsulation=IPsecTunnel.ENCAPSULATION_YES, nic_offload=IPsecTunnel.OFFLOAD_YES)
+                                   nat_traversal=IPsecTunnel.NAT_TRAVERSAL_YES)
         conn_file_obj = IPsecRHEL8ConnFile(ipsec_tunnel)
 
         excpexted_output = """\
-conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
+conn tunnel_IPv4_aes128-sha2
 \ttype=tunnel
 \tauthby=secret
 \tleft=192.168.1.1
@@ -78,7 +76,6 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128
-\tnic-offload=yes
 """
         self.assertEqual(excpexted_output, conn_file_obj._make_content())
 

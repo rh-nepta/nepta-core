@@ -1,7 +1,5 @@
 import ipaddress
 import copy
-from typing import List
-
 from nepta.core.model.tag import SoftwareInventoryTag
 
 
@@ -30,9 +28,6 @@ class IPBaseConfiguration(object):
     def __str__(self):
         return "%s :\n\tAddresses: %s\n\tGW: %s\n\tDNS: %s" % (self.__class__, self.addresses, self.gw, self.dns)
 
-    def __iter__(self):
-        return iter(self.addresses)
-
     def __getitem__(self, item):
         return self.addresses[item] if self.addresses else None
 
@@ -46,6 +41,7 @@ class IPv6Configuration(IPBaseConfiguration):
 
 
 class NetFormatter(ipaddress._BaseNetwork):
+
     CONF_OBJ = None
 
     def __init__(self, net):
@@ -261,19 +257,11 @@ class IPsecTunnel(object):
     PHASE2_ESP = 'esp'
     PHASE2_AH = 'ah'
 
-    ENCAPSULATION_YES = 'yes'
-    ENCAPSULATION_NO = 'no'
-
-    OFFLOAD_YES = 'yes'
-    OFFLOAD_NO = 'no'
-    OFFLOAD_AUTO = 'auto'
-
-    @classmethod
-    def generate_tunnels(cls, addrs1: IPBaseConfiguration, addrs2: IPBaseConfiguration, properties: List[dict]):
-        return [cls(addr1, addr2, **prop) for addr1, addr2, prop in zip(addrs1, addrs2, properties)]
+    NAT_TRAVERSAL_YES = 'yes'
+    NAT_TRAVERSAL_NO = 'no'
 
     def __init__(self, left_ip, right_ip, cipher, passphrase, mode=MODE_TRANSPORT, phase2=PHASE2_ESP,
-                 replay_window=None, encapsulation=ENCAPSULATION_NO, nic_offload=OFFLOAD_NO):
+                 replay_window=None, nat_traversal=NAT_TRAVERSAL_NO):
         if not isinstance(left_ip, ipaddress._BaseAddress) or not isinstance(right_ip, ipaddress._BaseAddress):
             raise TypeError('Left and Right IP address should be object from ipaddress module')
         self.left_ip = left_ip
@@ -282,8 +270,7 @@ class IPsecTunnel(object):
         self.phase2 = phase2
         self.passphrase = passphrase
         self.mode = mode
-        self.encapsulation = encapsulation
-        self.nic_offload = nic_offload
+        self.nat_traversal = nat_traversal
 
         # The default is kernel stack specific, but usually 32. Linux
         # NETKEY/XFRM allows at least up to 2048. A value of of 0 disables
@@ -292,9 +279,9 @@ class IPsecTunnel(object):
 
     def __str__(self):
         replay_window_str = 'default' if self.replay_window is None else '%d' % self.replay_window
-        return 'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s, ' \
-               'nic-offload %s' % (self.family, self.left_ip, self.right_ip, self.phase2, self.cipher, self.mode,
-                                   replay_window_str, self.encapsulation, self.nic_offload)
+        return 'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s' \
+               % (self.family, self.left_ip, self.right_ip, self.phase2, self.cipher, self.mode, replay_window_str,
+                  self.nat_traversal)
 
     @property
     def family(self):
@@ -311,19 +298,18 @@ class IPsecTunnel(object):
 
         The name of a connection is used in ipsec configuration.
         '''
-        return f'{self.family}_{self.mode}_{self.cipher}_encap-{self.encapsulation}_' \
-               f'{self.left_ip.ip}_{self.right_ip.ip}'
+        return '%s_%s_%s' % (self.mode, self.family, self.cipher)
 
     @property
     def tags(self):
-        tags = [SoftwareInventoryTag(self.family), SoftwareInventoryTag('IPsec')]
-        tags.append(SoftwareInventoryTag(self.mode.capitalize()))
-        if self.encapsulation == self.ENCAPSULATION_YES:
+
+        tags = [SoftwareInventoryTag('IPv4')] if self.family == "IPv4" else [SoftwareInventoryTag('IPv6')]
+        tags.append(SoftwareInventoryTag('IPsec'))
+        tags.append(SoftwareInventoryTag('Transport') if self.mode == IPsecTunnel.MODE_TRANSPORT
+                    else SoftwareInventoryTag('Tunnel'))
+        if self.nat_traversal == self.NAT_TRAVERSAL_YES:
             tags.append(SoftwareInventoryTag('NatTraversal'))
-        if self.replay_window:
-            tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
-        if self.nic_offload != self.OFFLOAD_NO:
-            tags.append(SoftwareInventoryTag('NicOffload', self.nic_offload))
+        tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
 

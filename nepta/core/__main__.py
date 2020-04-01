@@ -11,8 +11,8 @@ import uuid
 from datetime import datetime as dtdt
 
 from nepta.core import strategies, synchronization, model
-from nepta.core.distribution.utils.rstrnt import Rstrnt
-from nepta.core.distribution.env import Environment
+from nepta.core.distribution.env import environment
+from nepta.core.distribution.components import rhts
 
 from nepta.dataformat import Section, DataPackage
 
@@ -64,7 +64,7 @@ def get_synchronization(sync, conf):
 
 def init_package(conf_name, start_time):
     pckg_path = '{}__{}__{}__{}__ts{}'.format(
-        Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time))
+        environment.hostname, conf_name, environment.distro, environment.kernel, int(start_time))
     logger.info("Creating libres package in : {}".format(pckg_path))
 
     package = DataPackage.create(pckg_path)
@@ -74,7 +74,7 @@ def init_package(conf_name, start_time):
 
 
 def init_root_store():
-    store_params = {'hostname': Environment.hostname, 'kernel': Environment.kernel, 'distro': Environment.distro}
+    store_params = {'hostname': environment.hostname, 'kernel': environment.kernel, 'distro': environment.distro}
     return Section('host', store_params)
 
 
@@ -109,7 +109,7 @@ def delete_subtree(conf, deleting_subtrees):
 
 class CheckEnvVariable(argparse._AppendAction):
     def __call__(self, parser, namespace, values, option_string=None):
-        if values[0] in Environment.__dict__.keys():
+        if values[0] in environment.__dict__.keys():
             super().__call__(parser, namespace, values, option_string)
         else:
             raise argparse.ArgumentError(
@@ -130,12 +130,10 @@ def main():
     parser.add_argument('--prepare', action='store_true', help='[phase] Prepare non-persistent settings before test.')
     parser.add_argument('--execute', action='store_true', help='[phase] Run test scenarios.')
     parser.add_argument('--store', action='store_true',
-                        help='[phase] Save test results and meta variables into dataformat package')
+                        help='[phase] Save test results and meta varables into libres package')
     parser.add_argument('--store-logs', action='store_true',
-                        help='[phase] Save additional logs from testing server into dataformat package.')
-    parser.add_argument('--store-remote-logs', action='store_true',
-                        help='[phase] Save additional logs from remote testing servers into dataformat package.')
-    parser.add_argument('--submit', action='store_true', help='[phase] Send dataformat package into result server.')
+                        help='[phase] Save additional logs from testing server into libres package.')
+    parser.add_argument('--submit', action='store_true', help='[phase] Send libres package into result server.')
 
     # additional arguments
     parser.add_argument('-e', '--environment', nargs=2, action=CheckEnvVariable, metavar=('ENV', 'VAR'),
@@ -183,15 +181,18 @@ def main():
 
     # overriding environments
     if args.environment:
-        for k, v in args.environment:
-            setattr(Environment, k, v)
+        environment.__dict__.update({k: v for k, v in args.environment})
 
     timestamp = time.time()
-    conf = get_configuration(Environment.fqdn, args.configuration)
+    conf = get_configuration(environment.fqdn, args.configuration)
     sync = get_synchronization(args.sync, conf)
     package = init_package(args.configuration, timestamp)
     final_strategy = strategies.generic.CompoundStrategy()
     desync_strategy = strategies.generic.CompoundStrategy()  # used when exec failed to unlock opposite host
+
+    if args.print:
+        print(conf.str_tree())
+        return
 
     if args.filter:
         filter_conf(conf, args.filter)
@@ -199,17 +200,13 @@ def main():
     if args.delete_tree:
         delete_subtree(conf, args.delete_tree)
 
-    if args.print:
-        print(conf.str_tree())
-        return
-
     extra_meta = {
         'DateTime': dtdt.utcfromtimestamp(int(timestamp)),
         'UUID': uuid.uuid4(),
     }
     extra_meta.update(args.meta)
 
-    logger.info('Ours environment is:\n%s' % Environment)
+    logger.info('Ours environment is:\n%s' % environment)
     logger.info('Our configuration:\n%s' % conf)
 
     # preparing server for test without logging meta and report, which will be logged in the end of test
@@ -236,22 +233,15 @@ def main():
         final_strategy += strategies.save.attachments.SaveAttachments(conf, package)
 
     # closing libres package
-    desync_strategy += strategies.save.save_package.Save(package)
-    final_strategy += strategies.save.save_package.Save(package)
-    final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
-
-    if args.store_remote_logs:
-        final_strategy += strategies.save.logs.RemoteLogs(conf, package)
-        final_strategy += strategies.save.save_package.Save(package)
+    final_strategy += strategies.save.Save(package)
 
     # submit results to result server
     if args.submit:
         final_strategy += strategies.submit.ReliableSubmit(conf, package)
 
     # in the end of test tell beaker the test has PASSED
-    if Environment.in_rstrnt:
-        final_strategy += strategies.report.Report(package, True)
-        desync_strategy += strategies.report.Report(package, False)
+    if rhts.is_in_rhts():
+        final_strategy += strategies.report.Report(package)
 
     try:
         final_strategy()

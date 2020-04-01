@@ -1,15 +1,12 @@
 import copy
 import logging
-import itertools
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from nepta.core.model.system import Value
 
 logger = logging.getLogger(__name__)
 
 
-class BundleException(Exception): pass
-class MergeBundleException(BundleException): pass
-class DupliciteConfException(BundleException): pass
+class MergeBundleException(Exception): pass
 
 
 class Bundle(object):
@@ -277,45 +274,25 @@ class DisplayableNode(object):
 
 
 class HostBundle(Bundle):
-    _all_confs_register = defaultdict(dict)
+    _all_confs_register = []
     _properties = Bundle._properties + ['_hostname', "_conf_name"]
 
     @classmethod
     def find(cls, hostname, conf_name):
-        if hostname in cls._all_confs_register and conf_name in cls._all_confs_register[hostname]:
-            return cls._all_confs_register[hostname][conf_name]
+        for conf in cls._all_confs_register:
+            if conf.get_hostname() == hostname and conf.get_conf_name() == conf_name:
+                return conf
 
-    @classmethod
-    def filter_conf(cls, hostname=None, conf_name=None) -> list:
-        if hostname is not None:
-            if conf_name is None:
-                return list(cls._all_confs_register[hostname].values())
-            else:
-                conf = cls.find(hostname, conf_name)
-                return [conf] if conf is not None else []
-        else:
-            # get lists of conf list
-            all_confs = [list(host_conf.values()) for host_conf in cls._all_confs_register.values()]
-            # convert it into single list
-            all_confs = itertools.chain.from_iterable(all_confs)
-            if conf_name is None:
-                return list(all_confs)
-            else:
-                return [conf for conf in all_confs if conf.conf_name == conf_name]
-
-    @classmethod
-    def _add_configuration(cls, conf):
-        if cls.find(conf.hostname, conf.conf_name) is None:
-            cls._all_confs_register[conf.hostname][conf.conf_name] = conf
-        else:
-            raise DupliciteConfException(f'Configuration {conf.conf_name} {conf.conf_name} already exists')
+        return None
 
     def __init__(self, hostname, conf_name, clone=None):
         self._hostname = hostname
         self._conf_name = conf_name
         super(HostBundle, self).__init__(clone)
+        if HostBundle.find(hostname, conf_name) is not None:
+            raise ValueError('Configuration %s %s already exists' % (hostname, conf_name))
 
-        self._add_configuration(self)
+        HostBundle._all_confs_register.append(self)
 
     def __str__(self):
         return 'Host configuration bundle : \n' + "\n".join([str(x) for x in self.get_all_components()])
