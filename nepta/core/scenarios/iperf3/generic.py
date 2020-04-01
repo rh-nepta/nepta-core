@@ -94,7 +94,7 @@ class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
     @info_log_func_output
     @catch_and_log_exception
     def parse_all_results(self, tests):
-        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0, total_stddev=0)
+        result_dict = OrderedDict()
         total = sum([test.get_result() for test in tests])
         total.set_data_formatter(self.str_round)
         result_dict.update(
@@ -104,6 +104,13 @@ class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
 
 
 class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
+
+    def init_all_tests(self, path, size):
+        tests = super().init_all_tests(path, size)
+        if len(tests) > 2:
+            logger.error("Too much tests defined in DuplexStream configuration. Cutting excesses !!!")
+        tests[1].reverse = True
+        return tests[:2]
 
     @info_log_func_output
     @catch_and_log_exception
