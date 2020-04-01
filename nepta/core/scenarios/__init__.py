@@ -4,7 +4,7 @@ import sys
 from .generic.scenario import ScenarioGeneric
 from .generic.interrupts import IRQBalanceCheck
 # Standard streams
-from .iperf3.stream import Iperf3TCPStream, Iperf3TCPReversed, Iperf3TCPDuplexStream, Iperf3TCPMultiStream, \
+from .iperf3.tcp import Iperf3TCPStream, Iperf3TCPReversed, Iperf3TCPDuplexStream, Iperf3TCPMultiStream, \
     Iperf3TCPSanity
 from .netperf.stream import NetperfTCPStream, NetperfTCPMaerts, NetperfTCPDuplexStream, NetperfTCPMultiStream, \
     NetperfTCPSanity, NetperfSCTPStream

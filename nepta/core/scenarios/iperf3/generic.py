@@ -6,7 +6,6 @@ from collections import OrderedDict
 
 from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
-from nepta.core.scenarios.generic.congestion import NetemConstricted, StaticCongestion
 
 from nepta.core.tests import Iperf3Test
 
@@ -55,7 +54,7 @@ class GenericIPerf3Stream(object):
 #######################################################################################################################
 
 
-class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
+class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
 
     def init_test(self, path, size):
         iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
@@ -75,54 +74,12 @@ class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
         return result_dict
 
 
-class Iperf3TCPReversed(Iperf3TCPStream):
-    def init_test(self, path, size):
-        iperf_test = super().init_test(path, size)
-        iperf_test.reverse = True
-        return iperf_test
-
-
-class Iperf3TCPSanity(Iperf3TCPStream):
-    pass
-
-
 #######################################################################################################################
 # Mutli stream scenarios
 #######################################################################################################################
 
 
-class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
-
-    def init_all_tests(self, path, size):
-        stream_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                 port=self.base_port, interval=0.1)
-        reverse_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                  port=self.base_port + 1, interval=0.1, reverse=True)
-        if path.cpu_pinning:
-            stream_test.affinity = ",".join(map(str, path.cpu_pinning[0]))
-            reverse_test.affinity = ",".join(map(str, path.cpu_pinning[1]))
-        elif self.cpu_pinning:
-            stream_test.affinity = ",".join(map(str, self.cpu_pinning[0]))
-            reverse_test.affinity = ",".join(map(str, self.cpu_pinning[1]))
-
-        return stream_test, reverse_test
-
-    @info_log_func_output
-    @catch_and_log_exception
-    def parse_all_results(self, tests):
-        result_dict = OrderedDict()
-        stream_test_result = tests[0].get_result().set_data_formatter(self.str_round)
-        reversed_test_result = tests[1].get_result().set_data_formatter(self.str_round)
-        total = stream_test_result + reversed_test_result
-        result_dict['up_throughput'] = stream_test_result['throughput']
-        result_dict['down_throughput'] = reversed_test_result['throughput']
-        result_dict.update(
-            {'total_' + key: value for key, value in total}
-        )
-        return result_dict
-
-
-class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
+class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
 
     def init_all_tests(self, path, size):
         tests = []
@@ -145,3 +102,19 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         )
         return result_dict
 
+
+class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
+
+    @info_log_func_output
+    @catch_and_log_exception
+    def parse_all_results(self, tests):
+        result_dict = OrderedDict()
+        stream_test_result = tests[0].get_result().set_data_formatter(self.str_round)
+        reversed_test_result = tests[1].get_result().set_data_formatter(self.str_round)
+        total = stream_test_result + reversed_test_result
+        result_dict['up_throughput'] = stream_test_result['throughput']
+        result_dict['down_throughput'] = reversed_test_result['throughput']
+        result_dict.update(
+            {'total_' + key: value for key, value in total}
+        )
+        return result_dict

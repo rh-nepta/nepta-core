@@ -1,6 +1,5 @@
 from nepta.core.scenarios.generic.congestion import NetemConstricted, StaticCongestion
-from nepta.core.scenarios.iperf3.stream import Iperf3TCPStream, Iperf3TCPReversed, Iperf3TCPMultiStream, \
-    Iperf3TCPDuplexStream
+from nepta.core.scenarios.iperf3.tcp import Iperf3TCPStream, Iperf3TCPMultiStream
 
 
 class Iperf3SingleStreamNetemConstricted(NetemConstricted, Iperf3TCPStream):
