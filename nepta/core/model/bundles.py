@@ -1,5 +1,6 @@
 import copy
 import logging
+import itertools
 from collections import OrderedDict, defaultdict
 from nepta.core.model.system import Value
 
@@ -283,6 +284,24 @@ class HostBundle(Bundle):
     def find(cls, hostname, conf_name):
         if hostname in cls._all_confs_register and conf_name in cls._all_confs_register[hostname]:
             return cls._all_confs_register[hostname][conf_name]
+
+    @classmethod
+    def filter_conf(cls, hostname=None, conf_name=None) -> list:
+        if hostname is not None:
+            if conf_name is None:
+                return list(cls._all_confs_register[hostname].values())
+            else:
+                conf = cls.find(hostname, conf_name)
+                return [conf] if conf is not None else []
+        else:
+            # get lists of conf list
+            all_confs = [list(host_conf.values()) for host_conf in cls._all_confs_register.values()]
+            # convert it into single list
+            all_confs = itertools.chain.from_iterable(all_confs)
+            if conf_name is None:
+                return list(all_confs)
+            else:
+                return [conf for conf in all_confs if conf.conf_name == conf_name]
 
     @classmethod
     def _add_configuration(cls, conf):
