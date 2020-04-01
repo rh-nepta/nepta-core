@@ -8,11 +8,8 @@ conn {{name}}
 	keyexchange=ike
 	pfs=yes
 	auto=start
-	encapsulation={{ encapsulation }}
+	encapsulation={{ nat_traversal }}
 	{% if replay_window %}
 	replay-window={{ replay_window }}
-	{% endif %}
-	{% if nic_offload %}
-	nic-offload={{ nic_offload }}
 	{% endif %}
 

@@ -7,8 +7,8 @@ import logging
 import json
 from jinja2 import Environment, FileSystemLoader
 
+from . import components
 from nepta.core.model import network as net_model
-from nepta.core.distribution.utils.fs import Fs
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +32,10 @@ class ConfigFile(object):
         return '%s, file content %s path: %s,\nFile content:\n%s' % (type_name_str, strategy_str, path_str, content_str)
 
     def _make_path(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def _make_content(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_path(self):
         return self._make_path()
@@ -45,16 +45,16 @@ class ConfigFile(object):
 
     def restore_access_rights(self):
         path_str = self._make_path()
-        Fs.chmod_path(path_str, self.ACESS_RIGHTS)
+        components.Fs.get_instance().chmod_path(path_str, self.ACESS_RIGHTS)
 
     def apply(self):
         logger.info('Creating configuration file.\n%s' % str(self))
         path_str = self._make_path()
         content_str = self._make_content()
         if self.STRATEGY == self.REWRITE_STRATEGY:
-            Fs.write_to_path(path_str, content_str)
+            components.Fs.get_instance().write_to_path(path_str, content_str)
         elif self.STRATEGY == self.APPEND_STRATEGY:
-            Fs.append_to_path(path_str, content_str)
+            components.Fs.get_instance().append_to_path(path_str, content_str)
         self.restore_access_rights()
 
 
@@ -64,8 +64,7 @@ class JinjaConfFile(ConfigFile):
 
     def __init__(self):
         template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.TEMPLATE_DIR)
-        self.jinja_environment = Environment(loader=FileSystemLoader(template_dir), trim_blocks=True,
-                                             lstrip_blocks=True)
+        self.jinja_environment = Environment(loader=FileSystemLoader(template_dir), trim_blocks=True, lstrip_blocks=True)
         self.template = self.TEMPLATE
 
     def _make_jinja_context(self):
@@ -81,24 +80,17 @@ class JinjaConfFile(ConfigFile):
 # want to just add configurations for connections/secrets.
 #
 # Same thing applies to IPsec secrets files
-class GenericIPsecFile(JinjaConfFile):
+class IPsecConnFile(JinjaConfFile):
     IPSEC_CONF_DIR = '/etc/ipsec.d'
     IPSEC_CONF_PREFIX = 'conn'
-    SUFFIX = ''
+    TEMPLATE = 'ipsec_conn.jinja2'
 
-    def __init__(self, connection: net_model.IPsecTunnel):
-        super().__init__()
+    def __init__(self, connection):
+        super(IPsecConnFile, self).__init__()
         self.connection = connection
 
     def _make_path(self):
-        return os.path.join(
-            self.IPSEC_CONF_DIR,
-            f'{self.IPSEC_CONF_PREFIX}_{self.connection.name}.{self.SUFFIX}')
-
-
-class IPsecConnFile(GenericIPsecFile):
-    TEMPLATE = 'ipsec_conn.jinja2'
-    SUFFIX = 'conf'
+        return os.path.join(self.IPSEC_CONF_DIR, '%s_%s.conf' % (self.IPSEC_CONF_PREFIX, self.connection.name))
 
     def _make_jinja_context(self):
         return {
@@ -109,9 +101,8 @@ class IPsecConnFile(GenericIPsecFile):
             'right': self.connection.right_ip.ip,
             'phase2': self.connection.phase2,
             'cipher': self.connection.cipher,
-            'encapsulation': self.connection.encapsulation,
-            'replay_window': self.connection.replay_window,
-            'nic_offload': self.connection.nic_offload,
+            'nat_traversal': self.connection.nat_traversal,
+            'replay_window': self.connection.replay_window
         }
 
 
@@ -123,9 +114,15 @@ class IPsecRHEL8ConnFile(IPsecConnFile):
     TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 
-class IPsecSecretsFile(GenericIPsecFile):
+class IPsecSecretsFile(JinjaConfFile):
     TEMPLATE = 'ipsec_secret.jinja2'
-    SUFFIX = 'secrets'
+
+    def __init__(self, connection):
+        super(IPsecSecretsFile, self).__init__()
+        self.connection = connection
+
+    def _make_path(self):
+        return os.path.join(IPsecConnFile.IPSEC_CONF_DIR, 'conn_%s.secrets' % self.connection.name)
 
     def _make_jinja_context(self):
         return {
@@ -283,7 +280,7 @@ class RepositoryFile(JinjaConfFile):
         return file_path
 
     def _make_jinja_context(self):
-        return {'name': self._repo.key, 'url': self._repo.value}
+        return {'name': self._repo.key, 'url':self._repo.value}
 
 
 class RouteGenericFile(JinjaConfFile):
@@ -410,30 +407,4 @@ class DockerDaemonJson(ConfigFile):
     def update(self):
         logger.info('Updating docker daemon file')
         logger.info('New content: {}'.format(self._new_content))
-        Fs.write_to_path(self._make_path(), self._new_content)
-
-
-class _KernelModuleConf(ConfigFile):
-    CONF_DIR = None
-
-    def __init__(self, mod):
-        super().__init__()
-        self.mod = mod
-
-    def _make_path(self):
-        return os.path.join(self.CONF_DIR, f"{self.mod.name}.conf")
-
-
-class KernelLoadModuleConfig(_KernelModuleConf):
-    CONF_DIR = '/etc/modules-load.d/'
-
-    def _make_content(self):
-        return self.mod.name
-
-
-class KernelModuleOptions(_KernelModuleConf, JinjaConfFile):
-    CONF_DIR = '/etc/modprobe.d/'
-    TEMPLATE = 'kernel_options.jinja2'
-
-    def _make_jinja_context(self):
-        return {'mod': self.mod}
+        components.Fs.get_instance().write_to_path(self._make_path(), self._new_content)

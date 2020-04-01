@@ -1,7 +1,4 @@
 import logging
-import traceback
-import sys
-from functools import wraps
 from collections import OrderedDict
 
 from nepta.core.scenarios.generic.scenario import info_log_func_output
@@ -11,24 +8,6 @@ from nepta.core.scenarios.generic.congestion import NetemConstricted, StaticCong
 from nepta.core.tests import Iperf3Test
 
 logger = logging.getLogger(__name__)
-
-
-def catch_and_log_exception(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            logger.error("An error occurred during test execution. iPerf3 output is :")
-            if hasattr(args[1], "__iter__"):
-                for test in args[1]:
-                    logger.error(test.get_json_out())
-            else:
-                logger.error(args[1].get_json_out())
-            logger.error("Traceback of catch exception :")
-            traceback.print_exc(file=sys.stdout)
-        return OrderedDict()
-    return wrapper
 
 
 class GenericIPerf3Stream(object):
@@ -48,7 +27,6 @@ class GenericIPerf3Stream(object):
     def str_round(num, decimal=2):
         return "{:.{}f}".format(num, decimal)
 
-
 #######################################################################################################################
 # Single stream scenarios
 #######################################################################################################################
@@ -57,7 +35,7 @@ class GenericIPerf3Stream(object):
 class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
 
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
+        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size)
         if path.cpu_pinning:
             iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
         elif self.cpu_pinning:
@@ -65,12 +43,16 @@ class Iperf3TCPStream(SingleStreamGeneric, GenericIPerf3Stream):
         return iperf_test
 
     @info_log_func_output
-    @catch_and_log_exception
     def parse_results(self, test):
         result_dict = OrderedDict()
-        result = test.get_result()
-        result.set_data_formatter(self.str_round)
-        result_dict.update(result)
+        test_result = test.get_json_out()
+        try:
+            result_dict['throughput'] = self.mbps(test_result['end']['sum_received']['bits_per_second'])
+            result_dict['local_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['host_total'])
+            result_dict['remote_cpu'] = self.str_round(test_result['end']['cpu_utilization_percent']['remote_total'])
+        except KeyError:
+            logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
+            self.log_iperf3_error(test_result)
         return result_dict
 
 
@@ -84,7 +66,6 @@ class Iperf3TCPReversed(Iperf3TCPStream):
 class Iperf3TCPSanity(Iperf3TCPStream):
     pass
 
-
 #######################################################################################################################
 # Mutli stream scenarios
 #######################################################################################################################
@@ -94,9 +75,9 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
 
     def init_all_tests(self, path, size):
         stream_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                 port=self.base_port, interval=0.1)
+                                 port=self.base_port)
         reverse_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size,
-                                  port=self.base_port + 1, interval=0.1, reverse=True)
+                                  port=self.base_port + 1, reverse=True)
         if path.cpu_pinning:
             stream_test.affinity = ",".join(map(str, path.cpu_pinning[0]))
             reverse_test.affinity = ",".join(map(str, path.cpu_pinning[1]))
@@ -107,17 +88,27 @@ class Iperf3TCPDuplexStream(DuplexStreamGeneric, GenericIPerf3Stream):
         return stream_test, reverse_test
 
     @info_log_func_output
-    @catch_and_log_exception
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
-        stream_test_result = tests[0].get_result().set_data_formatter(self.str_round)
-        reversed_test_result = tests[1].get_result().set_data_formatter(self.str_round)
-        total = stream_test_result + reversed_test_result
-        result_dict['up_throughput'] = stream_test_result['throughput']
-        result_dict['down_throughput'] = reversed_test_result['throughput']
-        result_dict.update(
-            {'total_' + key: value for key, value in total}
-        )
+        try:
+            stream_test_result = tests[0].get_json_out()['end']
+            reversed_test_result = tests[1].get_json_out()['end']
+            result_dict['up_throughput'] = self.mbps(stream_test_result['sum_received']['bits_per_second'])
+            result_dict['down_throughput'] = self.mbps(reversed_test_result['sum_received']['bits_per_second'])
+            result_dict['total_throughput'] = self.mbps(stream_test_result['sum_received']['bits_per_second'] +
+                                                        reversed_test_result['sum_received']['bits_per_second'])
+            result_dict['total_local_cpu'] = self.str_round(
+                stream_test_result['cpu_utilization_percent']['host_total'] +
+                reversed_test_result['cpu_utilization_percent']['host_total'])
+            result_dict['total_remote_cpu'] = self.str_round(
+                stream_test_result['cpu_utilization_percent']['remote_total'] +
+                reversed_test_result['cpu_utilization_percent']['remote_total'])
+
+        except KeyError:
+            logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
+            self.log_iperf3_error(tests[0].get_json_out())
+            self.log_iperf3_error(tests[1].get_json_out())
+
         return result_dict
 
 
@@ -127,21 +118,29 @@ class Iperf3TCPMultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
-            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port,
-                                  interval=0.1)
+            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port)
             new_test.affinity = ",".join([str(x) for x in cpu_pinning])
             tests.append(new_test)
         return tests
 
     @info_log_func_output
-    @catch_and_log_exception
     def parse_all_results(self, tests):
-        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0, total_stddev=0)
-        total = sum([test.get_result() for test in tests])
-        total.set_data_formatter(self.str_round)
-        result_dict.update(
-            {'total_' + key: value for key, value in total}
-        )
+        result_dict = OrderedDict(total_throughput=0, total_local_cpu=0, total_remote_cpu=0)
+        try:
+            for test in tests:  # SUM of results
+                test_result = test.get_json_out()['end']
+                result_dict['total_throughput'] += test_result['sum_received']['bits_per_second']
+                result_dict['total_local_cpu'] += test_result['cpu_utilization_percent']['host_total']
+                result_dict['total_remote_cpu'] += test_result['cpu_utilization_percent']['remote_total']
+            # format int to nice strings
+            result_dict['total_throughput'] = self.mbps(result_dict['total_throughput'])
+            result_dict['total_local_cpu'] = self.str_round(result_dict['total_local_cpu'])
+            result_dict['total_remote_cpu'] = self.str_round(result_dict['total_remote_cpu'])
+        except KeyError:
+            logging.error("Parsed JSON has different structure than %s test except!!!" % self.__class__.__name__)
+            for test in tests:
+                self.log_iperf3_error(test.get_json_out())
+
         return result_dict
 
 
@@ -195,11 +194,7 @@ class Iperf3TCPMultiStreamZeroCopy(Iperf3TCPMultiStream):
 #######################################################################################################################
 
 
-class Iperf3SingleStreamNetemConstricted(NetemConstricted, Iperf3TCPStream):
-    pass
-
-
-class Iperf3MultiStreamNetemConstricted(NetemConstricted, Iperf3TCPMultiStream):
+class Iperf3NetemConstricted(NetemConstricted, Iperf3TCPStream):
     pass
 
 

@@ -5,7 +5,7 @@ from multiprocessing import Pool
 from time import sleep
 
 from nepta.core.strategies.generic import Strategy
-from nepta.core.distribution.command import Command
+from nepta.core.distribution.components import Command
 from nepta.core.model.schedule import RsyncHost
 
 logger = logging.getLogger(__name__)
