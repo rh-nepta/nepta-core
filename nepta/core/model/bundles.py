@@ -1,6 +1,6 @@
 import copy
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from nepta.core.model.system import Value
 
 logger = logging.getLogger(__name__)
@@ -276,25 +276,27 @@ class DisplayableNode(object):
 
 
 class HostBundle(Bundle):
-    _all_confs_register = []
+    _all_confs_register = defaultdict(dict)
     _properties = Bundle._properties + ['_hostname', "_conf_name"]
 
     @classmethod
     def find(cls, hostname, conf_name):
-        for conf in cls._all_confs_register:
-            if conf.get_hostname() == hostname and conf.get_conf_name() == conf_name:
-                return conf
+        if hostname in cls._all_confs_register and conf_name in cls._all_confs_register[hostname]:
+            return cls._all_confs_register[hostname][conf_name]
 
-        return None
+    @classmethod
+    def _add_configuration(cls, conf):
+        if cls.find(conf.hostname, conf.conf_name) is None:
+            cls._all_confs_register[conf.hostname][conf.conf_name] = conf
+        else:
+            raise DupliciteConfException(f'Configuration {conf.conf_name} {conf.conf_name} already exists')
 
     def __init__(self, hostname, conf_name, clone=None):
         self._hostname = hostname
         self._conf_name = conf_name
         super(HostBundle, self).__init__(clone)
-        if HostBundle.find(hostname, conf_name) is not None:
-            raise ValueError('Configuration %s %s already exists' % (hostname, conf_name))
 
-        HostBundle._all_confs_register.append(self)
+        self._add_configuration(self)
 
     def __str__(self):
         return 'Host configuration bundle : \n' + "\n".join([str(x) for x in self.get_all_components()])
