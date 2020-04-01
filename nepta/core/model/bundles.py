@@ -6,7 +6,9 @@ from nepta.core.model.system import Value
 logger = logging.getLogger(__name__)
 
 
-class MergeBundleException(Exception): pass
+class BundleException(Exception): pass
+class MergeBundleException(BundleException): pass
+class DupliciteConfException(BundleException): pass
 
 
 class Bundle(object):
