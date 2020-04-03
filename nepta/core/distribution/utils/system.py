@@ -135,7 +135,7 @@ class SysVInit(object):
 
     @staticmethod
     def restart_service(service):
-        logger.info('stopping service %s', service)
+        logger.info('restarting service %s', service)
         c = Command('service %s restart' % service)
         c.run()
         c.watch_output()
