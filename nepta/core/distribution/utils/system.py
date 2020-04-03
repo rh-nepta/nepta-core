@@ -2,7 +2,7 @@ import logging
 import re
 
 from nepta.core.distribution.command import Command
-from nepta.core.model.system import AbstractService
+from nepta.core.model.system import AbstractService, KernelModule
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +108,7 @@ class Lscpu(object):
         for line in out.split('\n'):
             if line:  # skip blank line
                 first_double_dot = line.find(':')
-                ret_dict[line[:first_double_dot].strip()] = line[first_double_dot+1:].strip()
+                ret_dict[line[:first_double_dot].strip()] = line[first_double_dot + 1:].strip()
 
         return ret_dict
 
@@ -181,3 +181,15 @@ class SysVInit(object):
                 cls.stop_service(service_name)
             else:
                 logger.info('service %s is not running at the moment, no further action required' % service_name)
+
+
+class KernelModuleUtils:
+
+    @staticmethod
+    def modprobe(module: KernelModule):
+        opts = " ".join([f"{k}={v}" for k, v in module.options.items()])
+        cmd = Command(f"modprobe {module.name} {opts}")
+        cmd.run()
+        out, ret = cmd.get_output()
+        if ret:
+            logger.error(f"Error during modprobe module {module.name} with options {module.options}")
