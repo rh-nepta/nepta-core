@@ -16,6 +16,5 @@ class Report(Strategy):
     @Strategy.schedule
     def report(self):
         logger.info('reporting results to beaker')
-        # TODO: manager should return all results and attachments packed in a tgz archive and return here its path
         Rstrnt.submit_log(self.package.metas._xml_file.path)
         Rstrnt.report_result(success=self.success, filename=self.package.store.path)
