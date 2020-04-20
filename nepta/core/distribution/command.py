@@ -49,11 +49,15 @@ class Command(object):
         return self._command_handle.stdout.read().decode()
 
     def get_output(self):
-        self.wait()
-        out = self._read_whole_pipe()
-        ret_code = self.poll()
-        self.log_debug(f"Command: {self}\nOutput: {out} Return code: {ret_code}")
-        return out, ret_code
+        """
+        Do not read output as whole block. Output has to be read line by line due to buffer over fill. To see problem
+        explanation see references below.
+
+        [0] https://docs.python.org/3/library/subprocess.html#subprocess.Popen.stderr
+        [1] https://stackoverflow.com/questions/48161117/subprocess-calling-rsync-hangs-after-possible-buffer-fill
+        :return: output, return code
+        """
+        return self.watch_output()
 
     def watch_output(self):
         """
