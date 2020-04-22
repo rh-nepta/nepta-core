@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    import atteroclt
+    import atteroctl
 except ImportError:
     logger.error('Pyattero library is not available in the system. Attero component cannot be used.')
 
