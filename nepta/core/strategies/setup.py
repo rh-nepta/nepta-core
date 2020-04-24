@@ -7,7 +7,7 @@ from nepta.core.strategies.generic import Strategy
 from nepta.core import model
 from nepta.core.distribution import conf_files, env
 from nepta.core.distribution.command import Command
-from nepta.core.distribution.utils.system import Tuned, SysVInit
+from nepta.core.distribution.utils.system import Tuned, SysVInit, KernelModuleUtils
 from nepta.core.distribution.utils.fs import Fs
 from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl
 from nepta.core.distribution.utils.virt import Docker, Virsh
@@ -121,6 +121,8 @@ class Setup(Strategy):
             logger.info(f'Configuring module {mod}')
             conf_files.KernelLoadModuleConfig(mod).apply()
             conf_files.KernelModuleOptions(mod).apply()
+            logger.info(f"Inserting module {mod}")
+            KernelModuleUtils.modprobe(mod)
 
     def stop_net(self):
         raise NotImplementedError
@@ -387,7 +389,6 @@ class Rhel7(Setup):
 
 
 class Rhel8(Rhel7):
-
     _INSTALLER = 'dnf -y --allowerasing --skip-broken install '
 
     @Strategy.schedule

@@ -1,10 +1,12 @@
 import logging
 
-from nepta.core import model, scenarios
+from nepta.core import model
 from nepta.core.distribution.utils.network import Tuna
 from nepta.core.distribution.utils.virt import Docker
+from nepta.core.distribution.utils.system import SysVInit
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
+from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ class Prepare(Strategy):
 
         oposite_host_hostname = sync_objs[0].hostname
         oposite_host_configuration = model.bundles.HostBundle.find(oposite_host_hostname, self.conf.conf_name)
-        oposite_scenarios = oposite_host_configuration.get_subset(m_class=scenarios.iperf3.stream.GenericIPerf3Stream)
+        oposite_scenarios = oposite_host_configuration.get_subset(m_class=GenericIPerf3Stream)
 
         max_iperf3_instances = 0
         base_port = 0
@@ -62,3 +64,12 @@ class Prepare(Strategy):
         containers = self.conf.get_subset(m_class=model.docker.Containter)
         for cont in containers:
             Docker.run(cont)
+
+    @Strategy.schedule
+    def restart_ipsec_service(self):
+        """
+        This is hotfix for issue, when ipsec service stars earlier than IP addresses are assigned. This causes ipsec
+        tunnels malfunctions. As a simple solution is just restart IPsec service before test.
+        Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
+        """
+        SysVInit.restart_service('ipsec')

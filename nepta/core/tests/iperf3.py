@@ -1,4 +1,5 @@
 import json
+import abc
 import numpy as np
 from statistics import stdev
 from enum import Enum
@@ -21,30 +22,18 @@ class Iperf3TestResult(object):
         MBPS = 1e6
         GBPS = 1e9
 
-    _DIMENSIONS = {
-        'throughput': 0,
-        'local_cpu': 1,
-        'remote_cpu': 2,
-        'stddev': 3,
-    }
+    # _DIMENSIONS variables stores mapping key -> variable in object numpy array
+    _DIMENSIONS = {}
 
     @classmethod
+    @abc.abstractmethod
     def from_json(cls, json_data):
         """
         Parse important results from iPerf3 test output in JSON format.
         :param json_data: parsed JSON
         :return: Iperf3TestResult object with parsed data
         """
-        end = json_data['end']
-        std_dev = stdev(
-            [x['sum']['bits_per_second'] for x in json_data['intervals']]
-        )
-
-        return cls(np.array([
-            end['sum_received']['bits_per_second'],
-            end['cpu_utilization_percent']['host_total'],
-            end['cpu_utilization_percent']['remote_total'],
-            std_dev]))
+        pass
 
     def __init__(self, array, formatter=None):
         self._array = array
@@ -86,6 +75,47 @@ class Iperf3TestResult(object):
 
     def __getitem__(self, item):
         return self._format_func(self._array[self._DIMENSIONS[item]])
+
+
+class Iperf3TCPTestResult(Iperf3TestResult):
+    _DIMENSIONS = {name: order for order, name in enumerate(
+        ['throughput', 'local_cpu', 'remote_cpu', 'stddev']
+    )}
+
+    @classmethod
+    def from_json(cls, json_data):
+        end = json_data['end']
+        std_dev = stdev(
+            [x['sum']['bits_per_second'] for x in json_data['intervals']]
+        )
+
+        return cls(np.array([
+            end['sum_received']['bits_per_second'],
+            end['cpu_utilization_percent']['host_total'],
+            end['cpu_utilization_percent']['remote_total'],
+            std_dev
+        ]))
+
+
+class Iperf3UDPTestResult(Iperf3TestResult):
+    _DIMENSIONS = {name: order for order, name in enumerate(
+        ['sender_throughput', 'receiver_throughput', 'local_cpu', 'remote_cpu', 'stddev']
+    )}
+
+    @classmethod
+    def from_json(cls, json_data):
+        end = json_data['end']
+        std_dev = stdev(
+            [x['sum']['bits_per_second'] for x in json_data['intervals']]
+        )
+
+        return cls(np.array([
+            end['sum']['bits_per_second'],
+            end['sum']['bits_per_second'] * (1 - end['sum']['lost_percent']/100),
+            end['cpu_utilization_percent']['host_total'],
+            end['cpu_utilization_percent']['remote_total'],
+            std_dev,
+        ]))
 
 
 class Iperf3(CommandTool):
@@ -146,9 +176,16 @@ class Iperf3Test(Iperf3Server):
     def get_json_out(self):
         if self._output is None:
             self.watch_output()
-        return json.loads(self._output)
+        json_start = self._output.find('{')
+        return json.loads(self._output[json_start:])
 
     def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS):
-        test = Iperf3TestResult.from_json(self.get_json_out())
-        test._array[test._DIMENSIONS['throughput']] = test['throughput'] / throughput_format.value
+        if self.udp:
+            test = Iperf3UDPTestResult.from_json(self.get_json_out())
+            test._array[test._DIMENSIONS['sender_throughput']] = test['sender_throughput'] / throughput_format.value
+            test._array[test._DIMENSIONS['receiver_throughput']] = test['receiver_throughput'] / throughput_format.value
+        else:
+            test = Iperf3TCPTestResult.from_json(self.get_json_out())
+            test._array[test._DIMENSIONS['throughput']] = test['throughput'] / throughput_format.value
+        test._array[test._DIMENSIONS['stddev']] = test['stddev'] / throughput_format.value
         return test

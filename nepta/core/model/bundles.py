@@ -308,7 +308,7 @@ class HostBundle(Bundle):
         if cls.find(conf.hostname, conf.conf_name) is None:
             cls._all_confs_register[conf.hostname][conf.conf_name] = conf
         else:
-            raise DupliciteConfException(f'Configuration {conf.conf_name} {conf.conf_name} already exists')
+            raise DupliciteConfException(f'Configuration {conf.hostname} {conf.conf_name} already exists')
 
     def __init__(self, hostname, conf_name, clone=None):
         self._hostname = hostname

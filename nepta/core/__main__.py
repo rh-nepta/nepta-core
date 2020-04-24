@@ -95,7 +95,8 @@ def delete_subtree(conf, deleting_subtrees):
     for full_sub_tree_path in deleting_subtrees:
         current_node = conf
         tree_path = full_sub_tree_path.split('.')
-        for subtree in tree_path[1:-1]:  # ignoring first and last node name
+        for subtree in tree_path[1:-1]:  # ignoring the first and the last node name,
+            # the last name is used after for cycle
             if current_node.has_node(subtree):
                 current_node = getattr(current_node, subtree)
             else:  # if there is a wrong name of subtree, end searching
@@ -175,6 +176,7 @@ def main():
     # setting log level
     std_handler.setLevel(args.log)
 
+    # import modules defined on CLI
     if args.imp:
         for module, path in args.imp:
             sys.path.insert(0, path)
@@ -235,13 +237,16 @@ def main():
     if args.store_logs:
         final_strategy += strategies.save.attachments.SaveAttachments(conf, package)
 
-    # closing libres package
-    desync_strategy += strategies.save.save_package.Save(package)
+    # store dataformat package
     final_strategy += strategies.save.save_package.Save(package)
+    desync_strategy += strategies.save.save_package.Save(package)
+
     final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
+    desync_strategy += strategies.sync.EndSyncBarriers(conf, sync, 'log')
 
     if args.store_remote_logs:
         final_strategy += strategies.save.logs.RemoteLogs(conf, package)
+        # store dataformat package once again after adding remote packages
         final_strategy += strategies.save.save_package.Save(package)
 
     # submit results to result server

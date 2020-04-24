@@ -2,7 +2,7 @@ from unittest import TestCase
 import json
 import os
 
-from nepta.core.tests.iperf3 import Iperf3TestResult, Iperf3Test
+from nepta.core.tests.iperf3 import Iperf3TCPTestResult, Iperf3Test
 
 
 class Iperf3TestResultTest(TestCase):
@@ -14,29 +14,29 @@ class Iperf3TestResultTest(TestCase):
         self.json_data = json.load(open(self.JSON_FILENAME))
 
     def test_parse(self):
-        result = Iperf3TestResult.from_json(self.json_data)
+        result = Iperf3TCPTestResult.from_json(self.json_data)
 
-        self.assertIsInstance(result, Iperf3TestResult)
+        self.assertIsInstance(result, Iperf3TCPTestResult)
 
     def test_add(self):
-        result1 = Iperf3TestResult.from_json(self.json_data)
-        result2 = Iperf3TestResult.from_json(self.json_data)
+        result1 = Iperf3TCPTestResult.from_json(self.json_data)
+        result2 = Iperf3TCPTestResult.from_json(self.json_data)
 
         result3 = result1 + result2
 
-        self.assertIsInstance(result3, Iperf3TestResult)
+        self.assertIsInstance(result3, Iperf3TCPTestResult)
         self.assertEqual(result3['throughput'], result1['throughput'] + result2['throughput'])
         self.assertEqual(result3['stddev'], result1['stddev'] + result2['stddev'])
 
     def test_sum(self):
-        result1 = Iperf3TestResult.from_json(self.json_data)
-        result2 = Iperf3TestResult.from_json(self.json_data)
-        result3 = Iperf3TestResult.from_json(self.json_data)
+        result1 = Iperf3TCPTestResult.from_json(self.json_data)
+        result2 = Iperf3TCPTestResult.from_json(self.json_data)
+        result3 = Iperf3TCPTestResult.from_json(self.json_data)
         result4 = result1 + result2
 
         result5 = sum([result1, result2, result3, result4])
 
-        self.assertIsInstance(result5, Iperf3TestResult)
+        self.assertIsInstance(result5, Iperf3TCPTestResult)
         self.assertAlmostEqual(result5['throughput'], result1['throughput'] * 5, places=5)
         self.assertAlmostEqual(result5['stddev'], result1['stddev'] * 5, places=5)
 
@@ -44,7 +44,7 @@ class Iperf3TestResultTest(TestCase):
         def str_round(num, decimal=3):
             return "{:.{}f}".format(num, decimal)
 
-        result = Iperf3TestResult.from_json(self.json_data)
+        result = Iperf3TCPTestResult.from_json(self.json_data)
         result.set_data_formatter(str_round)
 
         for key in result._DIMENSIONS:
@@ -55,7 +55,7 @@ class Iperf3TestResultTest(TestCase):
 
     def test_update_dict(self):
         test = dict()
-        result = Iperf3TestResult.from_json(self.json_data)
+        result = Iperf3TCPTestResult.from_json(self.json_data)
 
         test.update(result)
 
@@ -69,5 +69,5 @@ class Iperf3TestResultTest(TestCase):
         result = test.get_result()
         self.assertLessEqual(result['throughput'], 10e4)
 
-        result = test.get_result(Iperf3TestResult.ThroughputFormat.GBPS)
+        result = test.get_result(Iperf3TCPTestResult.ThroughputFormat.GBPS)
         self.assertLessEqual(result['throughput'], 100, )

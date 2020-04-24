@@ -27,5 +27,5 @@ class ModelTest(TestCase):
 
         self.assertEqual(KernelModuleOptions(b.chcr).get_content(), '')
         self.assertEqual(KernelModuleOptions(b.chcr).get_path(), '/etc/modprobe.d/chcr.conf')
-        self.assertEqual(KernelModuleOptions(b.cryptd).get_content(), 'options cryptd_max_cpu_qlen=2048\n')
+        self.assertEqual(KernelModuleOptions(b.cryptd).get_content(), 'options cryptd cryptd_max_cpu_qlen=2048\n')
 

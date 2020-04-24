@@ -62,15 +62,17 @@ class PathList(list):
     def clone(self):
         return copy.deepcopy(self)
 
-    def set_all_cpu_pinning(self, cpu_pinning):
-        for path in self:
+    def set_all_cpu_pinning(self, cpu_pinning, clone=True):
+        new = self.clone() if clone else self
+        for path in new:
             path.cpu_pinning = cpu_pinning
-        return self
+        return new
 
-    def set_dynamic_duplex_stream_pinning(self):
-        for path in self:
+    def set_dynamic_duplex_stream_pinning(self, clone=True):
+        new = self.clone() if clone else self
+        for path in new:
             path.cpu_pinning = (path.cpu_pinning[0], [path.cpu_pinning[0][0] + 1, path.cpu_pinning[0][1] + 1])
-        return self
+        return new
 
     def __add__(self, other):
         return self.__class__(super().__add__(other))
