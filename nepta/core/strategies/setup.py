@@ -5,7 +5,12 @@ from jinja2 import Template
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core import model
-from nepta.core.distribution import components, conf_files, env
+from nepta.core.distribution import conf_files, env
+from nepta.core.distribution.command import Command
+from nepta.core.distribution.utils.system import Tuned, SysVInit
+from nepta.core.distribution.utils.fs import Fs
+from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl
+from nepta.core.distribution.utils.virt import Docker, Virsh
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +39,7 @@ class Setup(Strategy):
     def install_packages(self):
         pkgs = self.conf.get_subset(m_type=model.system.Package)
         install_cmd = self._INSTALLER + " ".join([str(pkg.value) for pkg in pkgs])
-        c = components.Command(install_cmd)
+        c = Command(install_cmd)
         c.run()
         out, retcode = c.watch_output()
         logger.info(out)
@@ -44,7 +49,7 @@ class Setup(Strategy):
         spec_pkgs = self.conf.get_subset(m_type=model.system.SpecialPackage)
         for pkg in spec_pkgs:
             install_cmd = self._INSTALLER_COMMAND_TEMPLATE.render(installer=self._INSTALLER, pkg=pkg)
-            c = components.Command(install_cmd)
+            c = Command(install_cmd)
             c.run()
             out, retcode = c.watch_output()
             logger.info(out)
@@ -84,7 +89,7 @@ class Setup(Strategy):
         kvars = self.conf.get_subset(m_class=model.system.SysctlVariable)
         conf_files.SysctlFile(kvars).apply()
         sysctl_cmd = 'sysctl --system'
-        c = components.Command(sysctl_cmd)
+        c = Command(sysctl_cmd)
         c.run()
         c.watch_output()
 
@@ -96,22 +101,26 @@ class Setup(Strategy):
                 logger.warning('Too many tuned profiles in configuration \n%s' % self.conf)
             profile = profile[0]
             logger.info("Setting tuned-adm profile: %s" % profile)
-            out, retcode = components.Tuned.set_profile(profile.value)
+            out, retcode = Tuned.set_profile(profile.value)
             if retcode:
                 logger.error(out)
 
     @Strategy.schedule
     def configure_services(self):
+        # TODO systemD style config
         sysv_services = self.conf.get_subset(model.system.SysVInitService)
         systemd_services = self.conf.get_subset(model.system.SystemdService)
-        sysvinit_component = components.sysvinit
 
-        for vs in sysv_services:
-            sysvinit_component.configure_service(vs)
+        for vs in sysv_services + systemd_services:
+            SysVInit.configure_service(vs)
 
-        # to be rewrited using systemd component
-        for ss in systemd_services:
-            sysvinit_component.configure_service(ss)
+    @Strategy.schedule
+    def configure_kernel_modules(self):
+        logger.info("Configuring kernel modules")
+        for mod in self.conf.get_subset(m_class=model.system.KernelModule):
+            logger.info(f'Configuring module {mod}')
+            conf_files.KernelLoadModuleConfig(mod).apply()
+            conf_files.KernelModuleOptions(mod).apply()
 
     def stop_net(self):
         raise NotImplementedError
@@ -127,50 +136,47 @@ class Setup(Strategy):
         logging.info('Deleting old ipsec tunnel conf-files')
 
         if os.path.exists(conf_files.IPsecConnFile.IPSEC_CONF_DIR):
-            ls_dir = components.fs.list_path(conf_files.IPsecConnFile.IPSEC_CONF_DIR)
+            ls_dir = Fs.list_path(conf_files.IPsecConnFile.IPSEC_CONF_DIR)
             for conn_file in [x for x in ls_dir if x.startswith(conf_files.IPsecConnFile.IPSEC_CONF_PREFIX)]:
                 logging.debug("Deleting : {}".format(conn_file))
-                components.fs.rm(os.path.join(conf_files.IPsecConnFile.IPSEC_CONF_DIR, conn_file))
+                Fs.rm(os.path.join(conf_files.IPsecConnFile.IPSEC_CONF_DIR, conn_file))
 
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        sysvinit_component = components.sysvinit
-        sysvinit_component.stop_service('ipsec')
+        SysVInit.stop_service('ipsec')
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        sysvinit_component.start_service('ipsec')
+        SysVInit.start_service('ipsec')
 
     @staticmethod
     def wipe_interfaces_config():
         logger.info('Wiping old interfaces configuration')
         wipe_list = []
         ifcfg_dir = conf_files.IfcfgFile.IFCFG_DIRECTORY
-        fs_component = components.fs
-        ifcfg_files = fs_component.list_path(ifcfg_dir)
+        ifcfg_files = Fs.list_path(ifcfg_dir)
         for f in ifcfg_files:
             if f.startswith('ifcfg-') and not f.startswith('ifcfg-lo'):
                 wipe_list.append(os.path.join(ifcfg_dir, f))
-        if fs_component.path_exists(conf_files.UdevRulesFile.RULES_FILE):
+        if Fs.path_exists(conf_files.UdevRulesFile.RULES_FILE):
             wipe_list.append(conf_files.UdevRulesFile.RULES_FILE)
         logger.info('Files to be wiped: %s', wipe_list)
         for w in wipe_list:
-            fs_component.rm_path(w)
+            Fs.rm_path(w)
 
     def rename_ifaces_runtime(self):
-        ip_tool = components.ip
         ifaces = self.conf.get_subset(m_type=model.network.EthernetInterface)
         for iface in ifaces:
-            old_name = ip_tool.link.get_interface_name(iface.mac)
+            old_name = IpCommand.Link.get_interface_name(iface.mac)
             new_name = iface.name
             if old_name is not None and old_name != new_name:
-                ip_tool.link.down_interface(old_name)
-                ip_tool.link.rename_interface(old_name, new_name)
-                ip_tool.link.up_interface(new_name)
+                IpCommand.Link.down_interface(old_name)
+                IpCommand.Link.rename_interface(old_name, new_name)
+                IpCommand.Link.up_interface(new_name)
 
     def store_persistent_cfg(self):
         ifaces = self.conf.get_subset(m_class=model.network.EthernetInterface)
@@ -195,16 +201,16 @@ class Setup(Strategy):
         logger.info('Wiping old routes configuration')
         wipe_list = []
         ifcfg_dir = conf_files.Route4File.ROUTE_DIRECTORY
-        fs_component = components.fs
-        ifcfg_files = fs_component.list_path(ifcfg_dir)
+        ifcfg_files = Fs.list_path(ifcfg_dir)
         for f in ifcfg_files:
             if f.startswith('route-') or f.startswith('route6-'):
                 wipe_list.append(os.path.join(ifcfg_dir, f))
         logger.info('Files to be wiped: %s', wipe_list)
         for w in wipe_list:
-            fs_component.rm_path(w)
+            Fs.rm_path(w)
 
     def setup_routes(self):
+        # TODO default dict ?
         logger.info('Setting up routes')
         self.wipe_routes()
         routes4 = self.conf.get_subset(m_class=model.network.Route4)
@@ -237,7 +243,7 @@ class Setup(Strategy):
         logger.info('Setting up hostname %s', hostname)
         cf = conf_files.HostnameConfFile(hostname)
         cf.apply()
-        c = components.Command('hostname -F %s' % cf.get_path())
+        c = Command('hostname -F %s' % cf.get_path())
         c.run()
         c.watch_output()
 
@@ -245,64 +251,60 @@ class Setup(Strategy):
     def setup_ovswitch(self):
         logger.info('Setting up ovswitch configuration')
         ovswitches = self.conf.get_subset(m_class=model.network.OVSwitch)
-        vsctl_component = components.ovs_vsctl
         for ovs in ovswitches:
             interfaces = ovs.interfaces
             tunnels = ovs.tunnel_interfaces
-            vsctl_component.add_bridge(ovs)
+            OvsVsctl.add_bridge(ovs)
             for iface in interfaces:
-                vsctl_component.add_port(ovs, iface)
+                OvsVsctl.add_port(ovs, iface)
             for tun in tunnels:
-                vsctl_component.add_tunnel_port(ovs, tun)
+                OvsVsctl.add_tunnel_port(ovs, tun)
 
     @Strategy.schedule
     def setup_lldpad(self):
         logger.info('Enabling lldp on all ethernet interfaces')
         ethernet_masters = self.conf.get_subset(m_type=model.network.EthernetInterface)
-        components.lldptool.restart_lldpad()
-        components.lldptool.enable_on_interfaces(ethernet_masters)
-        logger.info(components.lldptool.discover_topology(ethernet_masters))
+        LldpTool.restart_lldpad()
+        LldpTool.enable_on_interfaces(ethernet_masters)
+        logger.info(LldpTool.discover_topology(ethernet_masters))
 
     @Strategy.schedule
     def setup_virtual_guest(self):
         logger.info('Configuring virtual hardware for virtual guests')
         virtual_guests = self.conf.get_subset(m_class=model.system.VirtualGuest)
-        virsh_component = components.virsh
 
         for guest in virtual_guests:
             logger.info('Configuring guest %s' % str(guest))
 
-            virsh_component.destroy(guest)
+            Virsh.destroy(guest)
 
-            virsh_component.set_persistent_max_cpus(guest)
-            virsh_component.set_cpus(guest)
-            virsh_component.set_persistent_max_mem(guest)
-            virsh_component.set_mem(guest)
-            virsh_component.set_cpu_pinning(guest)
+            Virsh.set_persistent_max_cpus(guest)
+            Virsh.set_cpus(guest)
+            Virsh.set_persistent_max_mem(guest)
+            Virsh.set_mem(guest)
+            Virsh.set_cpu_pinning(guest)
 
     @Strategy.schedule
     def delete_guest_interfaces(self):
         logger.info('Deleting interfaces of virtual guests')
-        virsh_component = components.virsh
         guests = self.conf.get_subset(m_class=model.system.VirtualGuest)
         for g in guests:
-            ifaces = virsh_component.domiflist(g)
+            ifaces = Virsh.domiflist(g)
             for i in ifaces:
-                virsh_component.detach_interface(g, i['type'], i['mac'])
+                Virsh.detach_interface(g, i['type'], i['mac'])
 
     @Strategy.schedule
     def setup_virt_taps(self):
         logger.info('Setting up virtual guest taps')
         tap_interfaces = self.conf.get_subset(m_class=model.network.GenericGuestTap)
         logger.info(tap_interfaces)
-        virsh = components.virsh
 
         for tap_int in tap_interfaces:
             logger.info(str(tap_int))
             tap_conf = conf_files.GuestTap(tap_int)
             tap_conf.apply()
             tap_conf_path = tap_conf.get_path()
-            virsh.attach_device(tap_int.guest, tap_conf_path)
+            Virsh.attach_device(tap_int.guest, tap_conf_path)
 
     @Strategy.schedule
     def setup_ntp(self):
@@ -311,26 +313,25 @@ class Setup(Strategy):
     @Strategy.schedule
     def setup_docker(self):
         logger.info('Configuring docker components')
-        docker = components.docker
 
         docker_settings = self.conf.get_subset(m_type=model.docker.DockerDaemonSettings)
         for setting in docker_settings:
             docker_conf_file = conf_files.DockerDaemonJson(setting)
             docker_conf_file.update()
         # after changing docker settings, daemon needs to be restarted
-        components.sysvinit.restart_service('docker')
+        SysVInit.restart_service('docker')
 
         images = self.conf.get_subset(m_type=model.docker.Image)
         for img in images:
-            docker.build(img)
+            Docker.build(img)
 
         docker_networks = self.conf.get_subset(m_type=model.docker.Network)
         for net in docker_networks:
-            docker.network.create(net)
+            Docker.Network.create(net)
 
         docker_volumes = self.conf.get_subset(m_type=model.docker.Volume)
         for vol in docker_volumes:
-            docker.volume.create(vol)
+            Docker.Volume.create(vol)
 
     @Strategy.schedule
     def wait(self):
@@ -341,12 +342,10 @@ class Setup(Strategy):
 class Rhel6(Setup):
 
     def stop_net(self):
-        sysvinit_component = components.sysvinit
-        sysvinit_component.stop_service('network')
+        SysVInit.stop_service('network')
 
     def start_net(self):
-        sysvinit_component = components.sysvinit
-        sysvinit_component.start_service('network')
+        SysVInit.start_service('network')
 
     def setup_udev_rules(self):
         return  # no udev rules needed on rhel6
@@ -360,21 +359,19 @@ class Rhel6(Setup):
 class Rhel7(Setup):
 
     def stop_net(self):
-        sysvinit_component = components.sysvinit
-        sysvinit_component.stop_service('NetworkManager')
+        SysVInit.stop_service('NetworkManager')
 
     def start_net(self):
-        sysvinit_component = components.sysvinit
-        sysvinit_component.start_service('NetworkManager')
-        c0 = components.Command('nmcli connection reload')
+        SysVInit.start_service('NetworkManager')
+        c0 = Command('nmcli connection reload')
         c0.run()
         c0.watch_output()
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
         for iface in ifaces:
-            c1 = components.Command('ifdown %s' % iface.name)
+            c1 = Command('ifdown %s' % iface.name)
             c1.run()
             c1.watch_output()
-            c2 = components.Command('ifup %s' % iface.name)
+            c2 = Command('ifup %s' % iface.name)
             c2.run()
             c2.watch_output()
 
@@ -391,26 +388,25 @@ class Rhel7(Setup):
 
 class Rhel8(Rhel7):
 
-    _INSTALLER = 'dnf -y --allowerasing install '
+    _INSTALLER = 'dnf -y --allowerasing --skip-broken install '
 
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        sysvinit_component = components.sysvinit
-        sysvinit_component.stop_service('ipsec')
+        SysVInit.stop_service('ipsec')
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecRHEL8ConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        sysvinit_component.start_service('ipsec')
+        SysVInit.start_service('ipsec')
 
     def stop_net(self):
         # FIXME: check if this WA is still necessary
         # ifdown all interfaces in the system
-        for iface in components.IpCommand.Link.get_all_interfaces():
-            cmd = components.Command('ifdown %s' % iface)
+        for iface in IpCommand.Link.get_all_interfaces():
+            cmd = Command('ifdown %s' % iface)
             cmd.run()
             cmd.watch_output()
 
@@ -418,9 +414,9 @@ class Rhel8(Rhel7):
 
 
 def get_strategy(conf):
-    if env.rh_release.get_version().startswith('6'):
+    if env.RedhatRelease.version.startswith('6'):
         return Rhel6(conf)
-    elif env.rh_release.get_version().startswith('7'):
+    elif env.RedhatRelease.version.startswith('7'):
         return Rhel7(conf)
     else:
         return Rhel8(conf)

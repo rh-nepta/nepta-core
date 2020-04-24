@@ -1,7 +1,7 @@
 import logging
 import time
-import os
-from nepta.core import distribution
+from nepta.core.distribution.utils.rstrnt import Rstrnt
+from nepta.core.distribution.env import Environment
 
 logger = logging.getLogger(__name__)
 
@@ -36,14 +36,14 @@ class BeakerSynchronization(Synchronization):
     
     def __init__(self):
         logger.info('Beaker synchronization enabled')
-        self._rhts_component = distribution.components.rhts
+        self._rstrnt = Rstrnt
 
     def set_sync_condition(self, condition):
         logger.info('setting my sychronization condition to %s' % condition)
-        self._rhts_component.sync_set(condition)
+        self._rstrnt.sync_set(condition)
 
     def sync_for_condition(self, hosts, condition):
-        self._rhts_component.sync_block(condition, hosts)
+        self._rstrnt.sync_block(condition, hosts)
 
     def barier(self, hosts, condition):
         self.set_sync_condition(condition)
@@ -57,9 +57,9 @@ class PerfSynchronization(Synchronization):
         self._sync_server = sync_server
         self._poll_interval = poll_inerval
         self._client = synchronization.client.SyncClient(self._sync_server)
-        if 'JOBID' not in os.environ:
+        if Environment.job_id is None:
             raise ValueError('JOBID environment variable must be specified when using PerfSynchonization')
-        self._jobid = os.environ['JOBID']
+        self._jobid = Environment.job_id
         logger.info('PerfSync synchronization enabled, sync server is %s', sync_server)
 
     def set_sync_condition(self, condition):

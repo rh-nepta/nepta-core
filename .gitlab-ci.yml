@@ -6,6 +6,7 @@ stages:
 before_script:
         - export NETWORK_PERFTEST_ARGS="--help"
         - dnf -y install python36 python3-pytest git pipenv
+        - dnf -y install libselinux-utils tuned
         - pip3 install pip -U
         - git config --global http.sslVerify false
         - pipenv install --dev

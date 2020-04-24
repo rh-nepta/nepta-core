@@ -4,7 +4,7 @@ import uuid
 
 from nepta.dataformat import Section
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
-from nepta.core.distribution.components import Command
+from nepta.core.distribution.command import Command
 from nepta.core.tests import Iperf3Test
 
 logger = logging.getLogger(__name__)

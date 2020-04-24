@@ -1,6 +1,5 @@
-
+# TODO dataclasses, delete getters/setters
 class AbstractService(object):
-
     ENABLED = True
     DISABLED = False
 
@@ -24,15 +23,15 @@ class AbstractService(object):
 
     def is_enabled(self):
         return self._service_state
-    
+
     @property
     def name(self):
         return self._service_name
-    
+
     @property
     def state(self):
         return self._service_state
-    
+
     @property
     def enabled(self):
         return self._service_state
@@ -62,11 +61,11 @@ class KeyValue(object):
 
     def get_value(self):
         return self._value
-    
+
     @property
     def key(self):
         return self._key
-    
+
     @property
     def value(self):
         return self._value
@@ -98,18 +97,18 @@ class SSHIdentity(object):
 
     def get_private_key(self):
         return self._priv_key
-    
+
     @property
     def identity(self):
         return self._priv_key
-    
+
     @property
     def pubkey(self):
         return self._pub_key
-        
+
     def get_public_key(self):
         return self._pub_key
-    
+
 
 class Value(object):
 
@@ -121,7 +120,7 @@ class Value(object):
 
     def get_value(self):
         return self._value
-    
+
     @property
     def value(self):
         return self._value
@@ -148,7 +147,7 @@ class SpecialPackage(Package):
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self.value}, enable repos: {self.enable_repos}, " \
-            f"disabled repos: {self.disable_repos}"
+               f"disabled repos: {self.disable_repos}"
 
 
 class NTPServer(Value):
@@ -161,6 +160,7 @@ class TunedAdmProfile(Value):
 
 class VirtualGuest(object):
 
+    # TODO : refactor to dataclass
     def __init__(self, name, cpu_count=4, mem_size=8192, cpu_pinning=None):
         self._name = name
         self._cpu_count = cpu_count
@@ -172,25 +172,25 @@ class VirtualGuest(object):
     def __str__(self):
         return 'Virtual guest %s >> num of pcu : %s, memory : %s MB, cpu pinning : %s ' \
                % (self._name, self._cpu_count, self._mem_size, self._cpu_pinning)
-               
+
     @property
     def name(self):
         return self._name
-    
+
     def get_name(self):
         return self._name
 
     @property
     def cpu_count(self):
         return self._cpu_count
-    
+
     def get_cpu_count(self):
         return self._cpu_count
 
     @property
     def mem_size(self):
         return self._mem_size
-    
+
     def get_mem_size(self):
         return self._mem_size
 
@@ -200,6 +200,25 @@ class VirtualGuest(object):
 
     def get_cpu_pinning(self):
         return self._cpu_pinning
+
+
+class _VariousOptions:
+    def __init__(self, **kwargs):
+        self.options = kwargs
+
+
+class _NamedOptions(_VariousOptions):
+
+    def __init__(self, name, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+
+    def __str__(self):
+        return f"{self.__class__.__name__} {self.name} [{self.options}]"
+
+
+class KernelModule(_NamedOptions):
+    pass
 
 
 if __name__ == '__main__':
