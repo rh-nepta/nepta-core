@@ -254,6 +254,47 @@ class BondChildInterface(EthernetInterface):
         return "Bond child interface: %s, master: %s" % (self.name, self.master_bond)
 
 
+class WireGuardPeer:
+    def __init__(self, public_key, allowed_ips, endpoint=None):
+        self.public_key = public_key
+        self.endpoint = endpoint
+        self.allowed_ips = allowed_ips
+
+    def __str__(self):
+        return f'WireGuard peer: (public_key={self.public_key}, endpoint={self.endpoint}, allowed_ips={self.allowed_ips})'
+
+
+class WireGuardTunnel:
+    DEFAULT_PORT = 51820
+
+    def __init__(self, local_ip, private_key, local_port=DEFAULT_PORT, peers=None):
+        if peers is None:
+            peers = []
+
+        self.local_ip = local_ip
+        self.private_key = private_key
+        self.local_port = local_port
+        self.peers = peers
+
+    def __str__(self):
+        return f'WireGuard tunnel (name={self.name}): {self.local_ip} <=> {self.peers}'
+
+    @property
+    def name(self):
+        '''
+        Returned connection name must be unique accross all connections.
+        '''
+        # FIXME: get ID from configuration
+        return "wg0"
+
+    @property
+    def tags(self):
+        return [
+            SoftwareInventoryTag('WireGuard'),
+            SoftwareInventoryTag(self.name),
+        ]
+
+
 class IPsecTunnel(object):
     MODE_TRANSPORT = 'transport'
     MODE_TUNNEL = 'tunnel'
