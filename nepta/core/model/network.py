@@ -256,8 +256,9 @@ class BondChildInterface(EthernetInterface):
 
 
 class WireGuardPeer:
-    def __init__(self, public_key, allowed_ips, endpoint=None):
+    def __init__(self, public_key, private_key, allowed_ips, endpoint=None):
         self.public_key = public_key
+        self.private_key = private_key
         self.endpoint = endpoint
         self.allowed_ips = allowed_ips
 
