@@ -1,3 +1,4 @@
+import itertools
 import ipaddress
 import copy
 from typing import List
@@ -265,7 +266,12 @@ class WireGuardPeer:
 
 
 class WireGuardTunnel:
+    """
+    Also called wireguard interface.
+    """
+
     DEFAULT_PORT = 51820
+    METHOD_COUNTER = itertools.count()
 
     def __init__(self, local_ip, private_key, local_port=DEFAULT_PORT, peers=None):
         if peers is None:
@@ -276,6 +282,8 @@ class WireGuardTunnel:
         self.local_port = local_port
         self.peers = peers
 
+        self.index = next(WireGuardTunnel.METHOD_COUNTER)
+
     def __str__(self):
         return f'WireGuard tunnel (name={self.name}): {self.local_ip} <=> {self.peers}'
 
@@ -284,8 +292,7 @@ class WireGuardTunnel:
         '''
         Returned connection name must be unique accross all connections.
         '''
-        # FIXME: get ID from configuration
-        return "wg0"
+        return f"wg{self.index}"
 
     @property
     def tags(self):
