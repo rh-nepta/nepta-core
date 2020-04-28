@@ -40,7 +40,6 @@ try:
 except PermissionError:
     logging.error(f"Cannot create file logger into {LOG_FILENAME}")
 
-
 # Local logger instance
 logger = logging.getLogger(__name__)
 
@@ -106,6 +105,22 @@ def delete_subtree(conf, deleting_subtrees):
             if current_node.has_node(tree_path[-1]):
                 logger.info("Deleting: %s", full_sub_tree_path)
                 delattr(current_node, tree_path[-1])
+
+
+def create_desynchronize_strategy(strategy: strategies.generic.CompoundStrategy, package: DataPackage):
+    desync_strategy = strategies.generic.CompoundStrategy()
+    for strat in strategy.strategies:
+        if isinstance(strat, strategies.sync.Synchronize):
+            desync_strategy += strategies.sync.EndSyncBarriers(
+                strat.configuration, strat.synchronizer, strat.condition
+            )
+
+    desync_strategy += strategies.save.save_package.Save(package)
+
+    if Environment.in_rstrnt:
+        desync_strategy += strategies.report.Report(package, False)
+
+    return desync_strategy
 
 
 class CheckEnvVariable(argparse._AppendAction):
@@ -193,7 +208,6 @@ def main():
     sync = get_synchronization(args.sync, conf)
     package = init_package(args.configuration, timestamp)
     final_strategy = strategies.generic.CompoundStrategy()
-    desync_strategy = strategies.generic.CompoundStrategy()  # used when exec failed to unlock opposite host
 
     if args.filter:
         filter_conf(conf, args.filter)
@@ -224,12 +238,8 @@ def main():
     # Run test code path, saving attachments only if running test
     if args.execute:
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
-        desync_strategy += strategies.sync.EndSyncBarriers(conf, sync, 'ready')
-
         final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios)
-
         final_strategy += strategies.sync.Synchronize(conf, sync, 'done')
-        desync_strategy += strategies.sync.EndSyncBarriers(conf, sync, 'done')
 
     if args.store:
         final_strategy += strategies.save.meta.SaveMeta(conf, package, extra_meta)
@@ -239,10 +249,8 @@ def main():
 
     # store dataformat package
     final_strategy += strategies.save.save_package.Save(package)
-    desync_strategy += strategies.save.save_package.Save(package)
 
     final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
-    desync_strategy += strategies.sync.EndSyncBarriers(conf, sync, 'log')
 
     if args.store_remote_logs:
         final_strategy += strategies.save.logs.RemoteLogs(conf, package)
@@ -256,13 +264,13 @@ def main():
     # in the end of test tell beaker the test has PASSED
     if Environment.in_rstrnt:
         final_strategy += strategies.report.Report(package, True)
-        desync_strategy += strategies.report.Report(package, False)
 
     try:
         final_strategy()
     except BaseException as e:
         logger.warning("Setting pass to all barriers")
-        desync_strategy()
+        desync = create_desynchronize_strategy(final_strategy, package)
+        desync()
         raise e
 
     logger.info('bye bye world...')
