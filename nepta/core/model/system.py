@@ -95,8 +95,8 @@ class TunedAdmProfile(Value):
 @dataclass(frozen=True)
 class VirtualGuest:
     name: str
-    cpu_count: int
-    mem_size: int
+    cpu_count: int = 4
+    mem_size: int = 8192
     cpu_pinning: Tuple[Tuple[int, int], ...]
     # cpu_pinning is a tuple of tuples example :  [(0,0),(1,1)]
     # tuple consist of (real cpu, virtual cpu)
