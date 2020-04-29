@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class _AbstractService:
     name: str
-    enable: bool
+    enable: bool = True
 
 
 class SysVInitService(_AbstractService):

@@ -193,7 +193,7 @@ class SysVInit(_GenericServiceHandler):
         return c.watch_output()
 
 
-class SystemDInit(_GenericServiceHandler):
+class SystemdInit(_GenericServiceHandler):
     @staticmethod
     def _run_service_cmd(action, service):
         c = Command(f"sytemctl {action} {service.name}")
