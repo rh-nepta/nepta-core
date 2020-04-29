@@ -93,48 +93,14 @@ class TunedAdmProfile(Value):
     pass
 
 
-class VirtualGuest(object):
-
-    # TODO : refactor to dataclass
-    def __init__(self, name, cpu_count=4, mem_size=8192, cpu_pinning=None):
-        self._name = name
-        self._cpu_count = cpu_count
-        self._mem_size = mem_size
-        self._cpu_pinning = cpu_pinning
-        # self._cpu_pinning is list of tuples example :  [(0,0),(1,1)]
-        # tuple consist of (real cpu, virtual cpu)
-
-    def __str__(self):
-        return 'Virtual guest %s >> num of pcu : %s, memory : %s MB, cpu pinning : %s ' \
-               % (self._name, self._cpu_count, self._mem_size, self._cpu_pinning)
-
-    @property
-    def name(self):
-        return self._name
-
-    def get_name(self):
-        return self._name
-
-    @property
-    def cpu_count(self):
-        return self._cpu_count
-
-    def get_cpu_count(self):
-        return self._cpu_count
-
-    @property
-    def mem_size(self):
-        return self._mem_size
-
-    def get_mem_size(self):
-        return self._mem_size
-
-    @property
-    def cpu_pinning(self):
-        return self._cpu_pinning
-
-    def get_cpu_pinning(self):
-        return self._cpu_pinning
+@dataclass(frozen=True)
+class VirtualGuest:
+    name: str
+    cpu_count: int
+    mem_size: int
+    cpu_count: List[Tuple[int, int], ...] = None
+    # cpu_pinning is list of tuples example :  [(0,0),(1,1)]
+    # tuple consist of (real cpu, virtual cpu)
 
 
 class _VariousOptions:
