@@ -1,47 +1,17 @@
-# TODO dataclasses, delete getters/setters
-class AbstractService(object):
-    ENABLED = True
-    DISABLED = False
-
-    def __init__(self, service_name, service_state):
-        self._service_name = service_name
-        self._service_state = service_state
-
-    def __str__(self):
-        service_type_str = self.__class__.__name__
-        service_state_str = 'enabled' if self._service_state else 'disabled'
-        return '%s %s %s' % (service_type_str, self._service_name, service_state_str)
-
-    def __repr__(self):
-        return self.__str__()
-
-    def get_name(self):
-        return self._service_name
-
-    def get_state(self):
-        return self._service_state
-
-    def is_enabled(self):
-        return self._service_state
-
-    @property
-    def name(self):
-        return self._service_name
-
-    @property
-    def state(self):
-        return self._service_state
-
-    @property
-    def enabled(self):
-        return self._service_state
+from dataclasses import dataclass
 
 
-class SysVInitService(AbstractService):
+@dataclass(frozen=True)
+class _AbstractService:
+    name: str
+    enable: bool
+
+
+class SysVInitService(_AbstractService):
     pass
 
 
-class SystemdService(AbstractService):
+class SystemdService(_AbstractService):
     pass
 
 
