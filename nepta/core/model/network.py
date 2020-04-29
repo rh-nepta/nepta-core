@@ -4,6 +4,7 @@ from typing import List
 
 from nepta.core.model.tag import SoftwareInventoryTag
 
+# TODO: create a network generator yielding NetPerfNet v4/6 objects
 
 class IPBaseConfiguration(object):
 
