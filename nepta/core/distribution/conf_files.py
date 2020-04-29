@@ -153,6 +153,7 @@ class WireGuardConnectionFile(JinjaConfFile):
                 {
                     "public_key": peer.public_key,
                     "allowed_ips": peer.allowed_ips,
+                    "endpoint": peer.endpoint,
                 } for peer in self.connection.peers
             ],
         }
