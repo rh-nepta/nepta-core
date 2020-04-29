@@ -175,6 +175,7 @@ class Setup(Strategy):
             SysVInit.stop_service(f'wg-quick@{tun.name}')
             conf_files.WireGuardConnectionFile(tun).apply()
             SysVInit.start_service(f'wg-quick@{tun.name}')
+            SysVInit.enable_service(f'wg-quick@{tun.name}')
 
     @staticmethod
     def wipe_interfaces_config():
