@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime as dtdt
 
 from nepta.core import strategies, synchronization, model
+from nepta.core.strategies.generic import CompoundStrategy
 from nepta.core.distribution.utils.rstrnt import Rstrnt
 from nepta.core.distribution.env import Environment
 
@@ -107,8 +108,15 @@ def delete_subtree(conf, deleting_subtrees):
                 delattr(current_node, tree_path[-1])
 
 
-def create_desynchronize_strategy(strategy: strategies.generic.CompoundStrategy, package: DataPackage):
-    desync_strategy = strategies.generic.CompoundStrategy()
+def create_desynchronize_strategy(strategy: CompoundStrategy, package: DataPackage) -> CompoundStrategy:
+    """
+    From running strategies filter Synchronization strategies and generate a new compound strategy containing
+    de-synchronizations functions to prevent servers deadlock.
+    :param strategy: running compound strategy
+    :param package: dataformat result package
+    :return: de-synchronization strategy
+    """
+    desync_strategy = CompoundStrategy()
     for strat in strategy.strategies:
         if isinstance(strat, strategies.sync.Synchronize):
             desync_strategy += strategies.sync.EndSyncBarriers(
@@ -207,7 +215,7 @@ def main():
     conf = get_configuration(Environment.fqdn, args.configuration)
     sync = get_synchronization(args.sync, conf)
     package = init_package(args.configuration, timestamp)
-    final_strategy = strategies.generic.CompoundStrategy()
+    final_strategy = CompoundStrategy()
 
     if args.filter:
         filter_conf(conf, args.filter)
