@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any, List, Tuple
 
 
 @dataclass(frozen=True)
@@ -15,30 +16,10 @@ class SystemdService(_AbstractService):
     pass
 
 
-class KeyValue(object):
-    def __init__(self, key, value):
-        self._key = key
-        self._value = value
-
-    def __str__(self):
-        return '%s %s=%s' % (self.__class__.__name__, self._key, self._value)
-
-    def __repr__(self):
-        return self.__str__()
-
-    def get_key(self):
-        return self._key
-
-    def get_value(self):
-        return self._value
-
-    @property
-    def key(self):
-        return self._key
-
-    @property
-    def value(self):
-        return self._value
+@dataclass(frozen=True)
+class KeyValue:
+    key: str
+    value: Any
 
 
 class Repository(KeyValue):
@@ -80,20 +61,9 @@ class SSHIdentity(object):
         return self._pub_key
 
 
-class Value(object):
-
-    def __init__(self, value):
-        self._value = value
-
-    def __str__(self):
-        return '%s: %s' % (self.__class__.__name__, self._value)
-
-    def get_value(self):
-        return self._value
-
-    @property
-    def value(self):
-        return self._value
+@dataclass(frozen=True)
+class Value:
+    value: Any
 
 
 class RcLocalScript(Value):
