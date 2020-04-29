@@ -38,8 +38,7 @@ class KDumpOption(KeyValue):
     pass
 
 
-# This class can basically inherit from KeyValue... but it does not because
-# of readability
+@dataclass(frozen=True)
 class SSHIdentity(object):
 
     def __init__(self, priv_key, pub_key):
@@ -98,8 +97,8 @@ class VirtualGuest:
     name: str
     cpu_count: int
     mem_size: int
-    cpu_count: List[Tuple[int, int], ...] = None
-    # cpu_pinning is list of tuples example :  [(0,0),(1,1)]
+    cpu_pinning: Tuple[Tuple[int, int], ...]
+    # cpu_pinning is a tuple of tuples example :  [(0,0),(1,1)]
     # tuple consist of (real cpu, virtual cpu)
 
 
