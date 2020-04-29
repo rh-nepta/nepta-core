@@ -140,16 +140,20 @@ class WireGuardConnectionFile(JinjaConfFile):
     CONF_DIR = '/etc/wireguard/'
     SUFFIX = '.conf'
 
+    def __init__(self, connection: net_model.WireGuardTunnel):
+        super().__init__()
+        self.connection = connection
+
     def _make_jinja_context(self):
         return {
-            "local_ip": "",
-            "local_port": "",
-            "private_key": "",
+            "local_ip": self.connection.local_ip,
+            "local_port": self.connection.local_port,
+            "private_key": self.connection.private_key,
             "peers": [
                 {
-                    "public_key": "",
-                    "allowed_ips": "",
-                },
+                    "public_key": peer.public_key,
+                    "allowed_ips": peer.allowed_ips,
+                } for peer in self.connection.peers
             ],
         }
 
