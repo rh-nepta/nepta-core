@@ -120,10 +120,3 @@ class _NamedOptions(_VariousOptions):
 
 class KernelModule(_NamedOptions):
     pass
-
-
-if __name__ == '__main__':
-    print(SystemdService('Network', SystemdService.ENABLED))
-    print(SysVInitService('Network', SysVInitService.ENABLED))
-    print(SysctlVariable('net.ipv4.ip_forward', 1))
-    print(VirtualGuest('virt0'))
