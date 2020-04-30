@@ -3,7 +3,7 @@ import logging
 from nepta.core import model
 from nepta.core.distribution.utils.network import Tuna
 from nepta.core.distribution.utils.virt import Docker
-from nepta.core.distribution.utils.system import SystemdInit
+from nepta.core.distribution.utils.system import SystemD
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
@@ -72,4 +72,4 @@ class Prepare(Strategy):
         tunnels malfunctions. As a simple solution is just restart IPsec service before test.
         Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
         """
-        SystemdInit.restart_service(model.system.SystemdService('ipsec'))
+        SystemD.restart_service(model.system.SystemdService('ipsec'))

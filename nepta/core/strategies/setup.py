@@ -7,7 +7,7 @@ from nepta.core.strategies.generic import Strategy
 from nepta.core import model
 from nepta.core.distribution import conf_files, env
 from nepta.core.distribution.command import Command
-from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemdInit, KernelModuleUtils
+from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemD, KernelModuleUtils
 from nepta.core.distribution.utils.fs import Fs
 from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl
 from nepta.core.distribution.utils.virt import Docker, Virsh
@@ -107,14 +107,8 @@ class Setup(Strategy):
 
     @Strategy.schedule
     def configure_services(self):
-        sysv_services = self.conf.get_subset(model.system.SysVInitService)
-        systemd_services = self.conf.get_subset(model.system.SystemdService)
-
-        for sv in sysv_services:
-            SysVInit.configure_service(sv)
-
-        for sv in systemd_services:
-            SystemdInit.configure_service(sv)
+        for service in self.conf.get_subset(model.system.SystemService):
+            SysVInit.configure_service(service)
 
     @Strategy.schedule
     def configure_kernel_modules(self):
@@ -148,14 +142,14 @@ class Setup(Strategy):
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        SystemdInit.stop_service(model.system.SystemdService('ipsec'))
+        SystemD.stop_service(model.system.SystemdService('ipsec'))
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        SystemdInit.start_service(model.system.SystemdService('ipsec'))
+        SystemD.start_service(model.system.SystemdService('ipsec'))
 
     @staticmethod
     def wipe_interfaces_config():
@@ -323,7 +317,7 @@ class Setup(Strategy):
             docker_conf_file = conf_files.DockerDaemonJson(setting)
             docker_conf_file.update()
         # after changing docker settings, daemon needs to be restarted
-        SystemdInit.restart_service(model.system.SystemdService('docker'))
+        SystemD.restart_service(model.system.SystemService('docker'))
 
         images = self.conf.get_subset(m_type=model.docker.Image)
         for img in images:
@@ -346,10 +340,10 @@ class Setup(Strategy):
 class Rhel6(Setup):
 
     def stop_net(self):
-        SysVInit.stop_service(model.system.SysVInitService('network'))
+        SysVInit.stop_service(model.system.SystemService('network'))
 
     def start_net(self):
-        SysVInit.start_service(model.system.SysVInitService('network'))
+        SysVInit.start_service(model.system.SystemService('network'))
 
     def setup_udev_rules(self):
         return  # no udev rules needed on rhel6
@@ -361,12 +355,16 @@ class Rhel6(Setup):
 
 
 class Rhel7(Setup):
+    @Strategy.schedule
+    def configure_services(self):
+        for service in self.conf.get_subset(model.system.SystemService):
+            SystemD.configure_service(service)
 
     def stop_net(self):
-        SystemdInit.stop_service(model.system.SystemdService('NetworkManager'))
+        SystemD.stop_service(model.system.SystemService('NetworkManager'))
 
     def start_net(self):
-        SystemdInit.start_service(model.system.SystemdService('NetworkManager'))
+        SystemD.start_service(model.system.SystemService('NetworkManager'))
         c0 = Command('nmcli connection reload')
         c0.run()
         c0.watch_output()
@@ -396,14 +394,14 @@ class Rhel8(Rhel7):
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        SystemdInit.stop_service(model.system.SystemdService('ipsec'))
+        SystemD.stop_service(model.system.SystemService('ipsec'))
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecRHEL8ConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        SystemdInit.start_service(model.system.SystemdService('ipsec'))
+        SystemD.start_service(model.system.SystemService('ipsec'))
 
     def stop_net(self):
         # FIXME: check if this WA is still necessary

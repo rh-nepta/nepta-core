@@ -3,17 +3,9 @@ from typing import Any, List, Tuple
 
 
 @dataclass(frozen=True)
-class _AbstractService:
+class SystemService:
     name: str
     enable: bool = True
-
-
-class SysVInitService(_AbstractService):
-    pass
-
-
-class SystemdService(_AbstractService):
-    pass
 
 
 @dataclass(frozen=True)
