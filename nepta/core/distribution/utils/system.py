@@ -119,7 +119,7 @@ class Lscpu(object):
         return Lscpu.parse_output_into_dict()['Architecture']
 
 
-class _GenericServiceHandler(abc.ABC):
+class GenericServiceHandler(abc.ABC):
     class Actions(Enum):
         START = 'start'
         STOP = 'stop'
@@ -128,23 +128,23 @@ class _GenericServiceHandler(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def _run_service_cmd(action: Actions, service: _AbstractService) -> (str, int):
+    def run_service_cmd(action: Actions, service: _AbstractService) -> (str, int):
         pass
 
     @classmethod
     def start_service(cls, service: _AbstractService):
         logger.info('starting service %s', service)
-        cls._run_service_cmd(cls.Actions.START, service)
+        cls.run_service_cmd(cls.Actions.START, service)
 
     @classmethod
     def stop_service(cls, service: _AbstractService):
         logger.info('stopping service %s', service)
-        cls._run_service_cmd(cls.Actions.STOP, service)
+        cls.run_service_cmd(cls.Actions.STOP, service)
 
     @classmethod
     def restart_service(cls, service: _AbstractService):
         logger.info('restarting service %s', service)
-        cls._run_service_cmd(cls.Actions.RESTART, service)
+        cls.run_service_cmd(cls.Actions.RESTART, service)
 
     @staticmethod
     def enable_service(service: _AbstractService):
@@ -162,7 +162,7 @@ class _GenericServiceHandler(abc.ABC):
 
     @classmethod
     def is_running(cls, service: _AbstractService) -> bool:
-        _, exit_code = cls._run_service_cmd(cls.Actions.STATUS, service)
+        _, exit_code = cls.run_service_cmd(cls.Actions.STATUS, service)
         return not exit_code
 
     @classmethod
@@ -185,17 +185,17 @@ class _GenericServiceHandler(abc.ABC):
                 logger.info('service %s is not running at the moment, no further action required' % service)
 
 
-class SysVInit(_GenericServiceHandler):
+class SysVInit(GenericServiceHandler):
     @staticmethod
-    def _run_service_cmd(action, service):
+    def run_service_cmd(action, service):
         c = Command(f"service {service.name} {action}")
         c.run()
         return c.watch_output()
 
 
-class SystemdInit(_GenericServiceHandler):
+class SystemdInit(GenericServiceHandler):
     @staticmethod
-    def _run_service_cmd(action, service):
+    def run_service_cmd(action, service):
         c = Command(f"sytemctl {action} {service.name}")
         c.run()
         return c.watch_output()
