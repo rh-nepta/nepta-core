@@ -97,7 +97,7 @@ class VirtualGuest:
     name: str
     cpu_count: int = 4
     mem_size: int = 8192
-    cpu_pinning: Tuple[Tuple[int, int], ...]
+    cpu_pinning: Tuple[Tuple[int, int], ...] = field(default_factory=tuple)
     # cpu_pinning is a tuple of tuples example :  [(0,0),(1,1)]
     # tuple consist of (real cpu, virtual cpu)
 
