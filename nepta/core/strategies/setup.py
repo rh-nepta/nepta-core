@@ -57,9 +57,8 @@ class Setup(Strategy):
     @Strategy.schedule
     def configure_ssh(self):
         logger.info('Configuring SSH client')
-        pubkeys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
-        if len(pubkeys) > 0:
-            conf_files.SSHAuthorizedKeysFile(pubkeys).apply()
+        pub_keys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
+        conf_files.SSHAuthorizedKeysFile(pub_keys).apply()
 
         identities = self.conf.get_subset(m_class=model.system.SSHIdentity)
         if len(identities) > 0:

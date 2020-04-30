@@ -6,7 +6,9 @@ import os
 import logging
 import json
 from jinja2 import Environment, FileSystemLoader
+from typing import List
 
+from nepta.core import model
 from nepta.core.model import network as net_model
 from nepta.core.distribution.utils.fs import Fs
 
@@ -200,7 +202,7 @@ class SSHPrivateKey(ConfigFile):
     PRIVATE_KEY_FILENAME = '/root/.ssh/id_rsa'
     ACESS_RIGHTS = 0o600
 
-    def __init__(self, identity):
+    def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPrivateKey, self).__init__()
         self._identity = identity
 
@@ -208,14 +210,14 @@ class SSHPrivateKey(ConfigFile):
         return self.PRIVATE_KEY_FILENAME
 
     def _make_content(self):
-        return self._identity.get_private_key()
+        return self._identity.private_key
 
 
 class SSHPublicKey(ConfigFile):
     PUBLIC_KEY_FILENAME = '/root/.ssh/id_rsa.pub'
     ACESS_RIGHTS = 0o644
 
-    def __init__(self, identity):
+    def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPublicKey, self).__init__()
         self._identity = identity
 
@@ -223,14 +225,14 @@ class SSHPublicKey(ConfigFile):
         return self.PUBLIC_KEY_FILENAME
 
     def _make_content(self):
-        return self._identity.get_public_key()
+        return self._identity.public_key
 
 
 class SSHAuthorizedKeysFile(ConfigFile):
     AUTHORIZED_KEYS_FILE = '/root/.ssh/authorized_keys'
     STRATEGY = ConfigFile.APPEND_STRATEGY
 
-    def __init__(self, pubkeys):
+    def __init__(self, pubkeys: List[model.system.SSHAuthorizedKey]):
         super(SSHAuthorizedKeysFile, self).__init__()
         self._pubkeys = pubkeys
 
@@ -238,13 +240,13 @@ class SSHAuthorizedKeysFile(ConfigFile):
         return self.AUTHORIZED_KEYS_FILE
 
     def _make_content(self):
-        return '\n'.join(pk.get_value() for pk in self._pubkeys)
+        return '\n'.join(pk.value for pk in self._pubkeys)
 
 
 class SSHConfig(ConfigFile):
     CONFIG_FILENAME = '/root/.ssh/config'
 
-    def __init__(self, configs):
+    def __init__(self, configs: List[model.system.SSHConfigItem]):
         super(SSHConfig, self).__init__()
         self._configs = configs
 
@@ -252,7 +254,7 @@ class SSHConfig(ConfigFile):
         return self.CONFIG_FILENAME
 
     def _make_content(self):
-        return '\n'.join(['%s %s' % (item.get_key(), item.get_value()) for item in self._configs])
+        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._configs])
 
 
 class RcLocalScriptFile(ConfigFile):
