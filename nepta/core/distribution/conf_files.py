@@ -184,7 +184,7 @@ class IfcfgFile(JinjaConfFile):
 class SysctlFile(ConfigFile):
     SYSCTL_CONF_FILE = '/etc/sysctl.conf'
 
-    def __init__(self, variables):
+    def __init__(self, variables: List[model.system.SysctlVariable]):
         super(SysctlFile, self).__init__()
         self._variables = variables
 
@@ -194,7 +194,7 @@ class SysctlFile(ConfigFile):
     def _make_content(self):
         conf = ''
         for var in self._variables:
-            conf += '%s = %s\n' % (var.get_key(), var.get_value())
+            conf += '%s = %s\n' % (var.key, var.value)
         return conf
 
 
@@ -323,7 +323,7 @@ class Route6File(RouteGenericFile):
 class KDump(ConfigFile):
     CONFIG_FILENAME = '/etc/kdump.conf'
 
-    def __init__(self, opts):
+    def __init__(self, opts: List[model.system.KDumpOption]):
         super(KDump, self).__init__()
         self._opts = opts
 
@@ -331,7 +331,7 @@ class KDump(ConfigFile):
         return self.CONFIG_FILENAME
 
     def _make_content(self):
-        return '\n'.join(['%s %s' % (item.get_key(), item.get_value()) for item in self._opts])
+        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._opts])
 
 
 class GuestTap(JinjaConfFile):

@@ -4,7 +4,7 @@ import abc
 from enum import Enum
 
 from nepta.core.distribution.command import Command
-from nepta.core.model.system import SysVInitService, KernelModule, _AbstractService
+from nepta.core.model.system import SystemService, TunedAdmProfile
 
 logger = logging.getLogger(__name__)
 
@@ -128,45 +128,45 @@ class GenericServiceHandler(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def run_service_cmd(action: Actions, service: _AbstractService) -> (str, int):
+    def run_service_cmd(action: Actions, service: SystemService) -> (str, int):
         pass
 
     @classmethod
-    def start_service(cls, service: _AbstractService):
+    def start_service(cls, service: SystemService):
         logger.info('starting service %s', service)
         cls.run_service_cmd(cls.Actions.START, service)
 
     @classmethod
-    def stop_service(cls, service: _AbstractService):
+    def stop_service(cls, service: SystemService):
         logger.info('stopping service %s', service)
         cls.run_service_cmd(cls.Actions.STOP, service)
 
     @classmethod
-    def restart_service(cls, service: _AbstractService):
+    def restart_service(cls, service: SystemService):
         logger.info('restarting service %s', service)
         cls.run_service_cmd(cls.Actions.RESTART, service)
 
     @staticmethod
-    def enable_service(service: _AbstractService):
+    def enable_service(service: SystemService):
         logger.info('enabling service %s', service)
         c = Command('chkconfig %s on' % service.name)
         c.run()
         c.watch_output()
 
     @staticmethod
-    def disable_service(service: _AbstractService):
+    def disable_service(service: SystemService):
         logger.info('disabling service %s', service)
         c = Command('chkconfig %s off' % service.name)
         c.run()
         c.watch_output()
 
     @classmethod
-    def is_running(cls, service: _AbstractService) -> bool:
+    def is_running(cls, service: SystemService) -> bool:
         _, exit_code = cls.run_service_cmd(cls.Actions.STATUS, service)
         return not exit_code
 
     @classmethod
-    def configure_service(cls, service: _AbstractService):
+    def configure_service(cls, service: SystemService):
         if service.enable:
             logger.info('configuring service %s to be enabled' % service)
             cls.enable_service(service)

@@ -79,16 +79,14 @@ class Setup(Strategy):
     def configure_kdump(self):
         logger.info('Configuring KDump')
         confs = self.conf.get_subset(m_class=model.system.KDumpOption)
-        if len(confs):
-            conf_files.KDump(confs).apply()
+        conf_files.KDump(confs).apply()
 
     @Strategy.schedule
     def configure_kernel_variables(self):
         logger.info('Configuring sysctl variables')
         kvars = self.conf.get_subset(m_class=model.system.SysctlVariable)
         conf_files.SysctlFile(kvars).apply()
-        sysctl_cmd = 'sysctl --system'
-        c = Command(sysctl_cmd)
+        c = Command('sysctl --system')
         c.run()
         c.watch_output()
 
