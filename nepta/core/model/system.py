@@ -39,25 +39,9 @@ class KDumpOption(KeyValue):
 
 
 @dataclass(frozen=True)
-class SSHIdentity(object):
-
-    def __init__(self, priv_key, pub_key):
-        self._priv_key = priv_key
-        self._pub_key = pub_key
-
-    def get_private_key(self):
-        return self._priv_key
-
-    @property
-    def identity(self):
-        return self._priv_key
-
-    @property
-    def pubkey(self):
-        return self._pub_key
-
-    def get_public_key(self):
-        return self._pub_key
+class SSHIdentity:
+    private_key: str
+    public_key: str
 
 
 @dataclass(frozen=True)
