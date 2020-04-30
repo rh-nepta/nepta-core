@@ -275,12 +275,12 @@ class RepositoryFile(JinjaConfFile):
     REPOSITORY_DIRECTORY = '/etc/yum.repos.d/'
     TEMPLATE = 'repo.jinja2'
 
-    def __init__(self, repository):
-        super(RepositoryFile, self).__init__()
+    def __init__(self, repository: model.system.Repository):
+        super().__init__()
         self._repo = repository
 
     def _make_path(self):
-        file_name = '%s.repo' % self._repo.get_key()
+        file_name = '%s.repo' % self._repo.key
         file_path = os.path.join(self.REPOSITORY_DIRECTORY, file_name)
         return file_path
 

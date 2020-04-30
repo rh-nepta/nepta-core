@@ -32,7 +32,7 @@ class Setup(Strategy):
         logger.info('Adding repositories')
         repos = self.conf.get_subset(m_class=model.system.Repository)
         for repo in repos:
-            logger.info('Adding repo %s', repo.get_key())
+            logger.info('Adding repo %s', repo)
             conf_files.RepositoryFile(repo).apply()
 
     @Strategy.schedule
