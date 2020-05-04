@@ -377,8 +377,7 @@ class Rhel7(Setup):
     @Strategy.schedule
     def setup_ntp(self):
         servers = self.conf.get_subset(m_class=model.system.NTPServer)
-        if len(servers) > 0:
-            conf_files.ChronyConf(servers[0]).apply()
+        conf_files.ChronyConf(servers).apply()
 
 
 class Rhel8(Rhel7):

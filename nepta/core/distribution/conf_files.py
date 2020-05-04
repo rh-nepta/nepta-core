@@ -377,15 +377,15 @@ class ChronyConf(JinjaConfFile):
     CONFIG_FILENAME = '/etc/chrony.conf'
     TEMPLATE = 'chrony.jinja2'
 
-    def __init__(self, server):
+    def __init__(self, servers: List[model.system.NTPServer]):
         super().__init__()
-        self._server = server
+        self._servers = servers
 
     def _make_path(self):
         return self.CONFIG_FILENAME
 
     def _make_jinja_context(self):
-        return {'server': self._server}
+        return {'servers': self._servers}
 
 
 class DockerDaemonJson(ConfigFile):
