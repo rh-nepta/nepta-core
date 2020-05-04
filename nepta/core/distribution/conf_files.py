@@ -199,7 +199,7 @@ class SysctlFile(ConfigFile):
 
 
 class SSHPrivateKey(ConfigFile):
-    PRIVATE_KEY_FILENAME = '/root/.ssh/id_rsa'
+    PRIVATE_KEY_FILENAME = '/root/.ssh/{name}'
     ACESS_RIGHTS = 0o600
 
     def __init__(self, identity: model.system.SSHIdentity):
@@ -207,14 +207,14 @@ class SSHPrivateKey(ConfigFile):
         self._identity = identity
 
     def _make_path(self):
-        return self.PRIVATE_KEY_FILENAME
+        return self.PRIVATE_KEY_FILENAME.format(name=self._identity.name)
 
     def _make_content(self):
         return self._identity.private_key
 
 
 class SSHPublicKey(ConfigFile):
-    PUBLIC_KEY_FILENAME = '/root/.ssh/id_rsa.pub'
+    PUBLIC_KEY_FILENAME = '/root/.ssh/{name}.pub'
     ACESS_RIGHTS = 0o644
 
     def __init__(self, identity: model.system.SSHIdentity):
@@ -222,7 +222,7 @@ class SSHPublicKey(ConfigFile):
         self._identity = identity
 
     def _make_path(self):
-        return self.PUBLIC_KEY_FILENAME
+        return self.PUBLIC_KEY_FILENAME.format(name=self._identity.name)
 
     def _make_content(self):
         return self._identity.public_key

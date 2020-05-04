@@ -32,6 +32,7 @@ class KDumpOption(KeyValue):
 
 @dataclass(frozen=True)
 class SSHIdentity:
+    name: str
     private_key: str
     public_key: str
 

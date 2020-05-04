@@ -61,14 +61,9 @@ class Setup(Strategy):
         conf_files.SSHAuthorizedKeysFile(pub_keys).apply()
 
         identities = self.conf.get_subset(m_class=model.system.SSHIdentity)
-        if len(identities) > 0:
-            # TODO : support more public keys
-            # curently only one private key is supported
-            first_identity = identities[0]
-
-            # install the SSH private key and corresponding public key
-            conf_files.SSHPrivateKey(first_identity).apply()
-            conf_files.SSHPublicKey(first_identity).apply()
+        for ident in identities:
+            conf_files.SSHPrivateKey(ident).apply()
+            conf_files.SSHPublicKey(ident).apply()
 
         confs = self.conf.get_subset(m_class=model.system.SSHConfigItem)
         conf_files.SSHConfig(confs).apply()
