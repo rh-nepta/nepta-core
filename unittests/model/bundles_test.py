@@ -79,7 +79,7 @@ class TestBundles(TestCase):
 
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -94,7 +94,7 @@ class TestBundles(TestCase):
     def test_new_hierarchical_bundles(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -128,7 +128,7 @@ class TestBundles(TestCase):
     def test_cycle_in_hierarchical_bundles(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -183,11 +183,11 @@ class TestBundles(TestCase):
     def test_override_bundle(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         sys4 = system.Package('ip')
         sys5 = system.Repository('epel-universe', 'http://internet.com')
-        sys6 = system.SystemdService('NetworkManager')
+        sys6 = system.SystemService('NetworkManager')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -216,7 +216,7 @@ class TestBundles(TestCase):
     def test_delete_local_bundle(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -249,7 +249,7 @@ class TestBundles(TestCase):
     def test_bundle_flush(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -272,7 +272,7 @@ class TestBundles(TestCase):
     def test_filter(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -339,7 +339,7 @@ class TestBundles(TestCase):
     def test_filter_exclude(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.SystemdService('network')
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
