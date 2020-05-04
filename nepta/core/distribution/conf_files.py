@@ -16,7 +16,7 @@ from nepta.core.distribution.utils.fs import Fs
 logger = logging.getLogger(__name__)
 
 
-class ConfigFile(object):
+class ConfigFile(ABC):
     REWRITE_STRATEGY = 1
     APPEND_STRATEGY = 2
 
@@ -34,11 +34,13 @@ class ConfigFile(object):
 
         return '%s, file content %s path: %s,\nFile content:\n%s' % (type_name_str, strategy_str, path_str, content_str)
 
+    @abstractmethod
     def _make_path(self):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def _make_content(self):
-        raise NotImplementedError
+        pass
 
     def get_path(self):
         return self._make_path()
@@ -61,7 +63,7 @@ class ConfigFile(object):
         self.restore_access_rights()
 
 
-class JinjaConfFile(ConfigFile):
+class JinjaConfFile(ConfigFile, ABC):
     TEMPLATE = None
     TEMPLATE_DIR = 'templates/conf_templates'
 
@@ -84,7 +86,7 @@ class JinjaConfFile(ConfigFile):
 # want to just add configurations for connections/secrets.
 #
 # Same thing applies to IPsec secrets files
-class GenericIPsecFile(JinjaConfFile):
+class GenericIPsecFile(JinjaConfFile, ABC):
     IPSEC_CONF_DIR = '/etc/ipsec.d'
     IPSEC_CONF_PREFIX = 'conn'
     SUFFIX = ''
