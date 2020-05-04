@@ -7,6 +7,7 @@ import logging
 import json
 from jinja2 import Environment, FileSystemLoader
 from typing import List
+from abc import ABC, abstractmethod
 
 from nepta.core import model
 from nepta.core.model import network as net_model
@@ -415,10 +416,10 @@ class DockerDaemonJson(ConfigFile):
         Fs.write_to_path(self._make_path(), self._new_content)
 
 
-class _KernelModuleConf(ConfigFile):
+class KernelModuleConf(ConfigFile, ABC):
     CONF_DIR = None
 
-    def __init__(self, mod):
+    def __init__(self, mod: model.system.KernelModule):
         super().__init__()
         self.mod = mod
 
@@ -426,14 +427,14 @@ class _KernelModuleConf(ConfigFile):
         return os.path.join(self.CONF_DIR, f"{self.mod.name}.conf")
 
 
-class KernelLoadModuleConfig(_KernelModuleConf):
+class KernelLoadModuleConfig(KernelModuleConf):
     CONF_DIR = '/etc/modules-load.d/'
 
     def _make_content(self):
         return self.mod.name
 
 
-class KernelModuleOptions(_KernelModuleConf, JinjaConfFile):
+class KernelModuleOptions(KernelModuleConf, JinjaConfFile):
     CONF_DIR = '/etc/modprobe.d/'
     TEMPLATE = 'kernel_options.jinja2'
 
