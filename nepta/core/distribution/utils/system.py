@@ -4,7 +4,7 @@ import abc
 from enum import Enum
 
 from nepta.core.distribution.command import Command
-from nepta.core.model.system import SystemService, TunedAdmProfile
+from nepta.core.model.system import SystemService, TunedAdmProfile, KernelModule
 
 logger = logging.getLogger(__name__)
 
