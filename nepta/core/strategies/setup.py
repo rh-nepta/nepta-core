@@ -134,14 +134,15 @@ class Setup(Strategy):
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        SystemD.stop_service(model.system.SystemdService('ipsec'))
+        ipsec_service = model.system.SystemService('ipsec')
+        SystemD.stop_service(ipsec_service)
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        SystemD.start_service(model.system.SystemdService('ipsec'))
+        SystemD.start_service(ipsec_service)
 
     @staticmethod
     def wipe_interfaces_config():
