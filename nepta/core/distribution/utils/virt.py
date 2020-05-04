@@ -2,6 +2,7 @@ import logging
 import os
 
 from nepta.core.distribution.command import Command
+from nepta.core.model.system import VirtualGuest
 
 logger = logging.getLogger(__name__)
 
@@ -93,14 +94,13 @@ class Docker(object):
             logger.error(out)
 
 
-class Virsh(object):
+class Virsh:
     # TODO clean asserts and warnings -> unify
 
     @staticmethod
-    def attach_device(guest, dfile, persistent=True):
-        guest_name = guest.get_name()
-        logger.info('Attaching device specified in %s to guest %s', guest_name, dfile)
-        cmd = 'virsh attach-device %s %s' % (guest_name, dfile)
+    def attach_device(guest: VirtualGuest, dfile, persistent=True):
+        logger.info('Attaching device specified in %s to guest %s', guest.name, dfile)
+        cmd = 'virsh attach-device %s %s' % (guest.name, dfile)
         if persistent:
             cmd += ' --persistent'
         c = Command(cmd)
@@ -109,9 +109,8 @@ class Virsh(object):
         return retcode
 
     @staticmethod
-    def domiflist(guest):
-        guest_name = guest.get_name()
-        cmd = 'virsh domiflist %s' % guest_name
+    def domiflist(guest: VirtualGuest):
+        cmd = 'virsh domiflist %s' % guest.name
         c = Command(cmd)
         c.run()
         out, _ = c.get_output()
@@ -125,10 +124,9 @@ class Virsh(object):
         return ret
 
     @staticmethod
-    def detach_interface(guest, itype, mac, persistent=True):
-        guest_name = guest.get_name()
-        logger.info('Detaching interface type %s with mac %s from guest %s', guest_name, itype, mac)
-        cmd = 'virsh detach-interface %s %s' % (guest_name, itype)
+    def detach_interface(guest: VirtualGuest, itype, mac, persistent=True):
+        logger.info('Detaching interface type %s with mac %s from guest %s', guest.name, itype, mac)
+        cmd = 'virsh detach-interface %s %s' % (guest.name, itype)
         if mac:
             cmd += ' --mac %s' % mac
         if persistent:
@@ -139,11 +137,9 @@ class Virsh(object):
         return retcode
 
     @staticmethod
-    def set_persistent_max_cpus(guest):
-        guest_name = guest.get_name()
-        num_of_cpus = guest.get_cpu_count()
-        logger.info('Setting persistent maximum cpus : %s on guest %s' % (num_of_cpus, guest_name))
-        cmd = 'virsh setvcpus %s %s --config --maximum' % (guest_name, num_of_cpus)
+    def set_persistent_max_cpus(guest: VirtualGuest):
+        logger.info('Setting persistent maximum cpus : %s on guest %s' % (guest.cpu_count, guest.name))
+        cmd = 'virsh setvcpus %s %s --config --maximum' % (guest.name, guest.cpu_count)
         c = Command(cmd)
         c.run()
         _, retcode = c.get_output()
@@ -151,12 +147,10 @@ class Virsh(object):
         return retcode
 
     @staticmethod
-    def set_cpus(guest):
-        guest_name = guest.get_name()
-        num_of_cpus = guest.get_cpu_count()
-        logger.info('Setting number of cpus : %s on guest %s' % (num_of_cpus, guest_name))
-        cmd_config = 'virsh setvcpus %s %s --config' % (guest_name, num_of_cpus)
-        cmd_live = 'virsh setvcpus %s %s --live' % (guest_name, num_of_cpus)
+    def set_cpus(guest: VirtualGuest):
+        logger.info('Setting number of cpus : %s on guest %s' % (guest.cpu_count, guest.name))
+        cmd_config = 'virsh setvcpus %s %s --config' % (guest.name, guest.cpu_count)
+        cmd_live = 'virsh setvcpus %s %s --live' % (guest.name, guest.cpu_count)
         c_conf = Command(cmd_config)
         c_live = Command(cmd_live)
         c_conf.run()
@@ -168,11 +162,10 @@ class Virsh(object):
         return ret_conf and ret_live
 
     @staticmethod
-    def set_persistent_max_mem(guest):
-        guest_name = guest.get_name()
-        mem_size = guest.get_mem_size() * 1024  # conversion from MB to Kb because of virsh
-        logger.info('Setting persistent maximum memory size : %s kB on guest %s' % (mem_size, guest_name))
-        cmd = 'virsh setmaxmem %s %s --config' % (guest_name, mem_size)
+    def set_persistent_max_mem(guest: VirtualGuest):
+        mem_size = guest.mem_size * 1024  # conversion from MB to Kb because of virsh
+        logger.info('Setting persistent maximum memory size : %s kB on guest %s' % (mem_size, guest.name))
+        cmd = 'virsh setmaxmem %s %s --config' % (guest.name, mem_size)
         c = Command(cmd)
         c.run()
         output, retcode = c.get_output()
@@ -180,12 +173,11 @@ class Virsh(object):
         return retcode
 
     @staticmethod
-    def set_mem(guest):
-        guest_name = guest.get_name()
-        mem_size = guest.get_mem_size() * 1024  # conversion from MB to Kb because of virsh
-        logger.info('Setting allocated memory : %s kB on guest %s' % (mem_size, guest_name))
-        cmd_config = 'virsh setmem %s %s --config' % (guest_name, mem_size)
-        cmd_live = 'virsh setmem %s %s --live' % (guest_name, mem_size)
+    def set_mem(guest: VirtualGuest):
+        mem_size = guest.mem_size * 1024  # conversion from MB to Kb because of virsh
+        logger.info('Setting allocated memory : %s kB on guest %s' % (mem_size, guest.name))
+        cmd_config = 'virsh setmem %s %s --config' % (guest.name, mem_size)
+        cmd_live = 'virsh setmem %s %s --live' % (guest.name, mem_size)
         c_conf = Command(cmd_config)
         c_live = Command(cmd_live)
 
@@ -198,31 +190,28 @@ class Virsh(object):
         return ret_conf and ret_live
 
     @staticmethod
-    def set_cpu_pinning(guest):
+    def set_cpu_pinning(guest: VirtualGuest):
+        # TODO: refactor: try to aggregate vcpupinning to single cmd
         return_value = False
-        guest_name = guest.get_name()
-        cpu_pinning = guest.get_cpu_pinning()
-        logger.info('Setting cpu pinning %s on guest %s' % (cpu_pinning, guest_name))
-        if cpu_pinning:
-            for real, virtual in cpu_pinning:
-                logger.info('%s >> real cpu : %s , virtual cpu : %s' % (guest_name, real, virtual))
-                cmd_conf = 'virsh vcpupin %s %s %s --config' % (guest_name, virtual, real)
-                cmd_live = 'virsh vcpupin %s %s %s --live' % (guest_name, virtual, real)
-                c_conf = Command(cmd_conf)
-                c_live = Command(cmd_live)
-                c_conf.run()
-                c_live.run()
-                _, ret_conf = c_conf.get_output()
-                _, ret_live = c_live.get_output()
-                assert not ret_conf
-                return_value = ret_conf or ret_live or return_value
+        logger.info('Setting cpu pinning %s on guest %s' % (guest.cpu_pinning, guest.name))
+        for real, virtual in guest.cpu_pinning:
+            logger.info('%s >> real cpu : %s , virtual cpu : %s' % (guest.name, real, virtual))
+            cmd_conf = 'virsh vcpupin %s %s %s --config' % (guest.name, virtual, real)
+            cmd_live = 'virsh vcpupin %s %s %s --live' % (guest.name, virtual, real)
+            c_conf = Command(cmd_conf)
+            c_live = Command(cmd_live)
+            c_conf.run()
+            c_live.run()
+            _, ret_conf = c_conf.get_output()
+            _, ret_live = c_live.get_output()
+            assert not ret_conf
+            return_value = ret_conf or ret_live or return_value
         return return_value
 
     @staticmethod
-    def destroy(guest):
-        guest_name = guest.get_name()
-        logger.info('Destroying guest : %s!' % guest_name)
-        cmd = 'virsh destroy %s' % guest_name
+    def destroy(guest: VirtualGuest):
+        logger.info('Destroying guest : %s!' % guest.name)
+        cmd = 'virsh destroy %s' % guest.name
         c = Command(cmd)
         c.run()
         output, return_code = c.get_output()
@@ -233,10 +222,9 @@ class Virsh(object):
         return return_code
 
     @staticmethod
-    def start(guest):
-        guest_name = guest.get_name()
-        logger.info('Starting guest %s!' % guest_name)
-        cmd = 'virsh start %s' % guest_name
+    def start(guest: VirtualGuest):
+        logger.info('Starting guest %s!' % guest.name)
+        cmd = 'virsh start %s' % guest.name
         c = Command(cmd)
         c.run()
         output, return_code = c.get_output()
