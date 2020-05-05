@@ -1,6 +1,7 @@
 import ipaddress
 import copy
 from typing import List
+from dataclasses import dataclass, field
 
 from nepta.core.model.tag import SoftwareInventoryTag
 
@@ -46,26 +47,19 @@ class IPv6Configuration(IPBaseConfiguration):
 
 
 class NetFormatter(ipaddress._BaseNetwork):
-    CONF_OBJ = None
+    CONF_OBJ = IPBaseConfiguration
 
-    def __init__(self, net):
-        super().__init__(net)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._ip_gen = self.hosts()
 
-    def new_addr(self):
-        current_ip = next(self._ip_gen)
-        return ipaddress.ip_interface('%s/%s' % (current_ip, self.prefixlen))
+    def new_addr(self) -> ipaddress._BaseAddress:
+        return ipaddress.ip_interface('{ip}/{prefix}'.format(ip=next(self._ip_gen), prefix=self.prefixlen))
 
-    def new_addresses(self, n):
-        if not isinstance(n, int):
-            raise TypeError('Number of addresses should be a number')
-        addrs = []
-        for _ in range(n):
-            addrs.append(self.new_addr())
+    def new_addresses(self, n: int) -> List[ipaddress._BaseAddress]:
+        return [self.new_addr() for _ in range(n)]
 
-        return addrs
-
-    def new_config(self, num_of_ips=1):
+    def new_config(self, num_of_ips=1) -> IPBaseConfiguration:
         return self.CONF_OBJ(self.new_addresses(num_of_ips))
 
     def subnets(self, prefixlen_diff=1, new_prefix=None):
