@@ -6,30 +6,11 @@ from dataclasses import dataclass, field
 from nepta.core.model.tag import SoftwareInventoryTag
 
 
-class IPBaseConfiguration(object):
-
-    def __init__(self, addrs=None, gw=None, dns=None):
-        if addrs is None:
-            addrs = []
-
-        try:
-            iter(addrs)
-        except TypeError:
-            raise TypeError('IPBaseConfiguration: attribute addrs should be iterable')
-
-        for addr in addrs:
-            if not isinstance(addr, ipaddress._BaseAddress):
-                raise TypeError('IPBaseConfiguration: item in addrs attribute should be object from ipaddress')
-
-        self.addresses = addrs
-        self.gw = gw
-        # dns should be specified as list
-        if dns is not None and not isinstance(dns, list):
-            raise TypeError('IPBaseConfiguration: dns attribute should be specified as list')
-        self.dns = dns if dns else []
-
-    def __str__(self):
-        return "%s :\n\tAddresses: %s\n\tGW: %s\n\tDNS: %s" % (self.__class__, self.addresses, self.gw, self.dns)
+@dataclass
+class IPBaseConfiguration:
+    addresses: List[ipaddress._BaseAddress] = field(default_factory=list)
+    gw: ipaddress._BaseAddress = None
+    dns: List[ipaddress._BaseAddress] = field(default_factory=list)
 
     def __iter__(self):
         return iter(self.addresses)
