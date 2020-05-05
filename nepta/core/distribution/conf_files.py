@@ -6,14 +6,17 @@ import os
 import logging
 import json
 from jinja2 import Environment, FileSystemLoader
+from typing import List
+from abc import ABC, abstractmethod
 
+from nepta.core import model
 from nepta.core.model import network as net_model
 from nepta.core.distribution.utils.fs import Fs
 
 logger = logging.getLogger(__name__)
 
 
-class ConfigFile(object):
+class ConfigFile(ABC):
     REWRITE_STRATEGY = 1
     APPEND_STRATEGY = 2
 
@@ -31,11 +34,13 @@ class ConfigFile(object):
 
         return '%s, file content %s path: %s,\nFile content:\n%s' % (type_name_str, strategy_str, path_str, content_str)
 
+    @abstractmethod
     def _make_path(self):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def _make_content(self):
-        raise NotImplementedError
+        pass
 
     def get_path(self):
         return self._make_path()
@@ -58,7 +63,7 @@ class ConfigFile(object):
         self.restore_access_rights()
 
 
-class JinjaConfFile(ConfigFile):
+class JinjaConfFile(ConfigFile, ABC):
     TEMPLATE = None
     TEMPLATE_DIR = 'templates/conf_templates'
 
@@ -81,7 +86,7 @@ class JinjaConfFile(ConfigFile):
 # want to just add configurations for connections/secrets.
 #
 # Same thing applies to IPsec secrets files
-class GenericIPsecFile(JinjaConfFile):
+class GenericIPsecFile(JinjaConfFile, ABC):
     IPSEC_CONF_DIR = '/etc/ipsec.d'
     IPSEC_CONF_PREFIX = 'conn'
     SUFFIX = ''
@@ -182,7 +187,7 @@ class IfcfgFile(JinjaConfFile):
 class SysctlFile(ConfigFile):
     SYSCTL_CONF_FILE = '/etc/sysctl.conf'
 
-    def __init__(self, variables):
+    def __init__(self, variables: List[model.system.SysctlVariable]):
         super(SysctlFile, self).__init__()
         self._variables = variables
 
@@ -192,45 +197,45 @@ class SysctlFile(ConfigFile):
     def _make_content(self):
         conf = ''
         for var in self._variables:
-            conf += '%s = %s\n' % (var.get_key(), var.get_value())
+            conf += '%s = %s\n' % (var.key, var.value)
         return conf
 
 
 class SSHPrivateKey(ConfigFile):
-    PRIVATE_KEY_FILENAME = '/root/.ssh/id_rsa'
+    PRIVATE_KEY_FILENAME = '/root/.ssh/{name}'
     ACESS_RIGHTS = 0o600
 
-    def __init__(self, identity):
+    def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPrivateKey, self).__init__()
         self._identity = identity
 
     def _make_path(self):
-        return self.PRIVATE_KEY_FILENAME
+        return self.PRIVATE_KEY_FILENAME.format(name=self._identity.name)
 
     def _make_content(self):
-        return self._identity.get_private_key()
+        return self._identity.private_key
 
 
 class SSHPublicKey(ConfigFile):
-    PUBLIC_KEY_FILENAME = '/root/.ssh/id_rsa.pub'
+    PUBLIC_KEY_FILENAME = '/root/.ssh/{name}.pub'
     ACESS_RIGHTS = 0o644
 
-    def __init__(self, identity):
+    def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPublicKey, self).__init__()
         self._identity = identity
 
     def _make_path(self):
-        return self.PUBLIC_KEY_FILENAME
+        return self.PUBLIC_KEY_FILENAME.format(name=self._identity.name)
 
     def _make_content(self):
-        return self._identity.get_public_key()
+        return self._identity.public_key
 
 
 class SSHAuthorizedKeysFile(ConfigFile):
     AUTHORIZED_KEYS_FILE = '/root/.ssh/authorized_keys'
     STRATEGY = ConfigFile.APPEND_STRATEGY
 
-    def __init__(self, pubkeys):
+    def __init__(self, pubkeys: List[model.system.SSHAuthorizedKey]):
         super(SSHAuthorizedKeysFile, self).__init__()
         self._pubkeys = pubkeys
 
@@ -238,13 +243,13 @@ class SSHAuthorizedKeysFile(ConfigFile):
         return self.AUTHORIZED_KEYS_FILE
 
     def _make_content(self):
-        return '\n'.join(pk.get_value() for pk in self._pubkeys)
+        return '\n'.join(pk.value for pk in self._pubkeys)
 
 
 class SSHConfig(ConfigFile):
     CONFIG_FILENAME = '/root/.ssh/config'
 
-    def __init__(self, configs):
+    def __init__(self, configs: List[model.system.SSHConfigItem]):
         super(SSHConfig, self).__init__()
         self._configs = configs
 
@@ -252,7 +257,7 @@ class SSHConfig(ConfigFile):
         return self.CONFIG_FILENAME
 
     def _make_content(self):
-        return '\n'.join(['%s %s' % (item.get_key(), item.get_value()) for item in self._configs])
+        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._configs])
 
 
 class RcLocalScriptFile(ConfigFile):
@@ -273,12 +278,12 @@ class RepositoryFile(JinjaConfFile):
     REPOSITORY_DIRECTORY = '/etc/yum.repos.d/'
     TEMPLATE = 'repo.jinja2'
 
-    def __init__(self, repository):
-        super(RepositoryFile, self).__init__()
+    def __init__(self, repository: model.system.Repository):
+        super().__init__()
         self._repo = repository
 
     def _make_path(self):
-        file_name = '%s.repo' % self._repo.get_key()
+        file_name = '%s.repo' % self._repo.key
         file_path = os.path.join(self.REPOSITORY_DIRECTORY, file_name)
         return file_path
 
@@ -321,7 +326,7 @@ class Route6File(RouteGenericFile):
 class KDump(ConfigFile):
     CONFIG_FILENAME = '/etc/kdump.conf'
 
-    def __init__(self, opts):
+    def __init__(self, opts: List[model.system.KDumpOption]):
         super(KDump, self).__init__()
         self._opts = opts
 
@@ -329,7 +334,7 @@ class KDump(ConfigFile):
         return self.CONFIG_FILENAME
 
     def _make_content(self):
-        return '\n'.join(['%s %s' % (item.get_key(), item.get_value()) for item in self._opts])
+        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._opts])
 
 
 class GuestTap(JinjaConfFile):
@@ -372,15 +377,15 @@ class ChronyConf(JinjaConfFile):
     CONFIG_FILENAME = '/etc/chrony.conf'
     TEMPLATE = 'chrony.jinja2'
 
-    def __init__(self, server):
+    def __init__(self, servers: List[model.system.NTPServer]):
         super().__init__()
-        self._server = server
+        self._servers = servers
 
     def _make_path(self):
         return self.CONFIG_FILENAME
 
     def _make_jinja_context(self):
-        return {'server': self._server}
+        return {'servers': self._servers}
 
 
 class DockerDaemonJson(ConfigFile):
@@ -413,10 +418,10 @@ class DockerDaemonJson(ConfigFile):
         Fs.write_to_path(self._make_path(), self._new_content)
 
 
-class _KernelModuleConf(ConfigFile):
+class KernelModuleConf(ConfigFile, ABC):
     CONF_DIR = None
 
-    def __init__(self, mod):
+    def __init__(self, mod: model.system.KernelModule):
         super().__init__()
         self.mod = mod
 
@@ -424,14 +429,14 @@ class _KernelModuleConf(ConfigFile):
         return os.path.join(self.CONF_DIR, f"{self.mod.name}.conf")
 
 
-class KernelLoadModuleConfig(_KernelModuleConf):
+class KernelLoadModuleConfig(KernelModuleConf):
     CONF_DIR = '/etc/modules-load.d/'
 
     def _make_content(self):
         return self.mod.name
 
 
-class KernelModuleOptions(_KernelModuleConf, JinjaConfFile):
+class KernelModuleOptions(KernelModuleConf, JinjaConfFile):
     CONF_DIR = '/etc/modprobe.d/'
     TEMPLATE = 'kernel_options.jinja2'
 

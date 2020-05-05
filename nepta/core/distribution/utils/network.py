@@ -3,7 +3,7 @@ import re
 
 from nepta.core import model
 from nepta.core.distribution.command import Command
-from nepta.core.distribution.utils.system import Uname, SysVInit
+from nepta.core.distribution.utils.system import Uname, SystemD
 
 logger = logging.getLogger(__name__)
 
@@ -88,8 +88,8 @@ class LldpTool(object):
 
         # TODO : make something better
         # Warning: bad_hack
-        lldpad = model.system.SystemdService('lldpad', model.system.AbstractService.ENABLED)
-        SysVInit.configure_service(lldpad)
+        lldpad = model.system.SystemService('lldpad')
+        SystemD.configure_service(lldpad)
 
     @classmethod
     def enable_on_interfaces(cls, interfaces):

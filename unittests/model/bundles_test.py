@@ -79,7 +79,7 @@ class TestBundles(TestCase):
 
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -94,7 +94,7 @@ class TestBundles(TestCase):
     def test_new_hierarchical_bundles(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -128,7 +128,7 @@ class TestBundles(TestCase):
     def test_cycle_in_hierarchical_bundles(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -143,7 +143,6 @@ class TestBundles(TestCase):
 
         net5 = network.TeamMasterInterface('team1')
         net6 = network.TeamMasterInterface('team1')
-
 
         main_bundle = bundles.Bundle()
         main_bundle.add_multiple_components(sys1)
@@ -184,11 +183,11 @@ class TestBundles(TestCase):
     def test_override_bundle(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         sys4 = system.Package('ip')
         sys5 = system.Repository('epel-universe', 'http://internet.com')
-        sys6 = system.AbstractService('NetworkManager', system.AbstractService.ENABLED)
+        sys6 = system.SystemService('NetworkManager')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -217,7 +216,7 @@ class TestBundles(TestCase):
     def test_delete_local_bundle(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -250,7 +249,7 @@ class TestBundles(TestCase):
     def test_bundle_flush(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -273,7 +272,7 @@ class TestBundles(TestCase):
     def test_filter(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -288,7 +287,6 @@ class TestBundles(TestCase):
 
         net5 = network.TeamMasterInterface('team1')
         net6 = network.TeamMasterInterface('team1')
-
 
         main_bundle = bundles.Bundle()
         main_bundle.add_multiple_components(sys1)
@@ -341,7 +339,7 @@ class TestBundles(TestCase):
     def test_filter_exclude(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -356,7 +354,6 @@ class TestBundles(TestCase):
 
         net5 = network.TeamMasterInterface('team1')
         net6 = network.TeamMasterInterface('team1')
-
 
         main_bundle = bundles.Bundle()
         main_bundle.add_multiple_components(sys1)
@@ -405,6 +402,7 @@ class TestBundles(TestCase):
         for item in test_pckgs:
             self.assertNotIn(item, without_pckgs.get_all_components(), "There are wrongobjects.")
             self.assertIn(item, main_withou_intf.get_all_components(), "There are missing some specified objects.")
+
 
 class TestMergeBundles(TestCase):
 
@@ -644,4 +642,3 @@ class TestMergeBundles(TestCase):
 
         print()
         print(b2.str_tree())
-
