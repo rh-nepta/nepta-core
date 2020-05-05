@@ -19,7 +19,7 @@ class Setup(Strategy):
     SETTLE_TIME = 30
 
     _INSTALLER = 'yum -y install '
-    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.value }} \
+    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.name }} \
 {% for repo in pkg.disable_repos %}--disablerepo {{ repo.key }} {% endfor %}\
 {% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}""")
 

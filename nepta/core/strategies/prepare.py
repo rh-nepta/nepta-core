@@ -72,4 +72,4 @@ class Prepare(Strategy):
         tunnels malfunctions. As a simple solution is just restart IPsec service before test.
         Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
         """
-        SystemD.restart_service(model.system.SystemdService('ipsec'))
+        SystemD.restart_service(model.system.SystemService('ipsec'))
