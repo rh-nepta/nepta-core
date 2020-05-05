@@ -68,6 +68,14 @@ class NetFormatter(ipaddress._BaseNetwork):
     def new_config(self, num_of_ips=1):
         return self.CONF_OBJ(self.new_addresses(num_of_ips))
 
+    def subnets(self, prefixlen_diff=1, new_prefix=None):
+        def new_gen(gen):
+            for net in gen:
+                yield self.__class__(net)
+
+        olg_gen = super().subnets(prefixlen_diff, new_prefix)
+        return new_gen(olg_gen)
+
 
 class NetperfNet4(NetFormatter, ipaddress.IPv4Network):
     CONF_OBJ = IPv4Configuration
