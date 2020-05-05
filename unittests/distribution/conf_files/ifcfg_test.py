@@ -18,7 +18,8 @@ class IfcfgTest(TestCase):
                                 ia.IPv4Address('192.168.0.255'),
                                 [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')]),
                             nm.IPv6Configuration(
-                                [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64'), ia.IPv6Interface('fec0::35/64')],
+                                [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64'),
+                                 ia.IPv6Interface('fec0::35/64')],
                                 ia.IPv6Address('fd00::ff'),
                                 [ia.IPv6Address('2001:4860:4860::8844'), ia.IPv6Address('2001:4860:4860::8888')]))
         ifcfg = cf.IfcfgFile(intf)
@@ -189,12 +190,15 @@ IPV6_DEFAULTGW=fd00::ff
 
     def test_vlan_int(self):
         eth = nm.EthernetInterface('ixgbe_0', '00:22:33:44:55:66')
-        vlan = nm.VlanInterface(eth, 963, nm.IPv4Configuration(
-            [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')], ia.IPv4Address('192.168.0.255'),
-            None),
-                                nm.IPv6Configuration([ia.IPv6Interface('fd00::1/64')], None,
-                                                     [ia.IPv6Address('2001:4860:4860::8844'),
-                                                      ia.IPv6Address('2001:4860:4860::8888')]))
+        vlan = nm.VlanInterface(eth, 963,
+                                nm.IPv4Configuration(
+                                    [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                                    gw=ia.IPv4Address('192.168.0.255')
+                                ),
+                                nm.IPv6Configuration(
+                                    [ia.IPv6Interface('fd00::1/64')],
+                                    dns=[ia.IPv6Address('2001:4860:4860::8844'),
+                                         ia.IPv6Address('2001:4860:4860::8888')]))
         ifcfg = cf.IfcfgFile(vlan)
         expected = '''\
 DEVICE=ixgbe_0.963
