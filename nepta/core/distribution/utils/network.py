@@ -88,7 +88,7 @@ class LldpTool(object):
 
         # TODO : make something better
         # Warning: bad_hack
-        lldpad = model.system.SystemdService('lldpad')
+        lldpad = model.system.SystemService('lldpad')
         SystemD.configure_service(lldpad)
 
     @classmethod
