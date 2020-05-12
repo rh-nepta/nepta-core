@@ -2,34 +2,17 @@ import itertools
 import ipaddress
 import copy
 from typing import List
+from dataclasses import dataclass, field
 
 from nepta.core.model.tag import SoftwareInventoryTag
 
+# TODO: create a network generator yielding NetPerfNet v4/6 objects
 
-class IPBaseConfiguration(object):
-
-    def __init__(self, addrs=None, gw=None, dns=None):
-        if addrs is None:
-            addrs = []
-
-        try:
-            iter(addrs)
-        except TypeError:
-            raise TypeError('IPBaseConfiguration: attribute addrs should be iterable')
-
-        for addr in addrs:
-            if not isinstance(addr, ipaddress._BaseAddress):
-                raise TypeError('IPBaseConfiguration: item in addrs attribute should be object from ipaddress')
-
-        self.addresses = addrs
-        self.gw = gw
-        # dns should be specified as list
-        if dns is not None and not isinstance(dns, list):
-            raise TypeError('IPBaseConfiguration: dns attribute should be specified as list')
-        self.dns = dns if dns else []
-
-    def __str__(self):
-        return "%s :\n\tAddresses: %s\n\tGW: %s\n\tDNS: %s" % (self.__class__, self.addresses, self.gw, self.dns)
+@dataclass
+class IPBaseConfiguration:
+    addresses: List[ipaddress._BaseAddress] = field(default_factory=list)
+    gw: ipaddress._BaseAddress = None
+    dns: List[ipaddress._BaseAddress] = field(default_factory=list)
 
     def __iter__(self):
         return iter(self.addresses)
@@ -47,27 +30,28 @@ class IPv6Configuration(IPBaseConfiguration):
 
 
 class NetFormatter(ipaddress._BaseNetwork):
-    CONF_OBJ = None
+    CONF_OBJ = IPBaseConfiguration
 
-    def __init__(self, net):
-        super().__init__(net)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._ip_gen = self.hosts()
 
-    def new_addr(self):
-        current_ip = next(self._ip_gen)
-        return ipaddress.ip_interface('%s/%s' % (current_ip, self.prefixlen))
+    def new_addr(self) -> ipaddress._BaseAddress:
+        return ipaddress.ip_interface('{ip}/{prefix}'.format(ip=next(self._ip_gen), prefix=self.prefixlen))
 
-    def new_addresses(self, n):
-        if not isinstance(n, int):
-            raise TypeError('Number of addresses should be a number')
-        addrs = []
-        for _ in range(n):
-            addrs.append(self.new_addr())
+    def new_addresses(self, n: int) -> List[ipaddress._BaseAddress]:
+        return [self.new_addr() for _ in range(n)]
 
-        return addrs
-
-    def new_config(self, num_of_ips=1):
+    def new_config(self, num_of_ips=1) -> IPBaseConfiguration:
         return self.CONF_OBJ(self.new_addresses(num_of_ips))
+
+    def subnets(self, prefixlen_diff=1, new_prefix=None):
+        def new_gen(gen):
+            for net in gen:
+                yield self.__class__(net)
+
+        olg_gen = super().subnets(prefixlen_diff, new_prefix)
+        return new_gen(olg_gen)
 
 
 class NetperfNet4(NetFormatter, ipaddress.IPv4Network):

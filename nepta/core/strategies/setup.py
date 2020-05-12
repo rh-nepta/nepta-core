@@ -7,7 +7,7 @@ from nepta.core.strategies.generic import Strategy
 from nepta.core import model
 from nepta.core.distribution import conf_files, env
 from nepta.core.distribution.command import Command
-from nepta.core.distribution.utils.system import Tuned, SysVInit, KernelModuleUtils
+from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemD, KernelModuleUtils
 from nepta.core.distribution.utils.fs import Fs
 from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl
 from nepta.core.distribution.utils.virt import Docker, Virsh
@@ -19,7 +19,7 @@ class Setup(Strategy):
     SETTLE_TIME = 30
 
     _INSTALLER = 'yum -y install '
-    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.value }} \
+    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.name }} \
 {% for repo in pkg.disable_repos %}--disablerepo {{ repo.key }} {% endfor %}\
 {% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}""")
 
@@ -32,7 +32,7 @@ class Setup(Strategy):
         logger.info('Adding repositories')
         repos = self.conf.get_subset(m_class=model.system.Repository)
         for repo in repos:
-            logger.info('Adding repo %s', repo.get_key())
+            logger.info('Adding repo %s', repo)
             conf_files.RepositoryFile(repo).apply()
 
     @Strategy.schedule
@@ -57,19 +57,13 @@ class Setup(Strategy):
     @Strategy.schedule
     def configure_ssh(self):
         logger.info('Configuring SSH client')
-        pubkeys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
-        if len(pubkeys) > 0:
-            conf_files.SSHAuthorizedKeysFile(pubkeys).apply()
+        pub_keys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
+        conf_files.SSHAuthorizedKeysFile(pub_keys).apply()
 
         identities = self.conf.get_subset(m_class=model.system.SSHIdentity)
-        if len(identities) > 0:
-            # TODO : support more public keys
-            # curently only one private key is supported
-            first_identity = identities[0]
-
-            # install the SSH private key and corresponding public key
-            conf_files.SSHPrivateKey(first_identity).apply()
-            conf_files.SSHPublicKey(first_identity).apply()
+        for ident in identities:
+            conf_files.SSHPrivateKey(ident).apply()
+            conf_files.SSHPublicKey(ident).apply()
 
         confs = self.conf.get_subset(m_class=model.system.SSHConfigItem)
         conf_files.SSHConfig(confs).apply()
@@ -80,16 +74,14 @@ class Setup(Strategy):
     def configure_kdump(self):
         logger.info('Configuring KDump')
         confs = self.conf.get_subset(m_class=model.system.KDumpOption)
-        if len(confs):
-            conf_files.KDump(confs).apply()
+        conf_files.KDump(confs).apply()
 
     @Strategy.schedule
     def configure_kernel_variables(self):
         logger.info('Configuring sysctl variables')
         kvars = self.conf.get_subset(m_class=model.system.SysctlVariable)
         conf_files.SysctlFile(kvars).apply()
-        sysctl_cmd = 'sysctl --system'
-        c = Command(sysctl_cmd)
+        c = Command('sysctl --system')
         c.run()
         c.watch_output()
 
@@ -107,12 +99,8 @@ class Setup(Strategy):
 
     @Strategy.schedule
     def configure_services(self):
-        # TODO systemD style config
-        sysv_services = self.conf.get_subset(model.system.SysVInitService)
-        systemd_services = self.conf.get_subset(model.system.SystemdService)
-
-        for vs in sysv_services + systemd_services:
-            SysVInit.configure_service(vs)
+        for service in self.conf.get_subset(model.system.SystemService):
+            SysVInit.configure_service(service)
 
     @Strategy.schedule
     def configure_kernel_modules(self):
@@ -146,14 +134,15 @@ class Setup(Strategy):
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        SysVInit.stop_service('ipsec')
+        ipsec_service = model.system.SystemService('ipsec')
+        SystemD.stop_service(ipsec_service)
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        SysVInit.start_service('ipsec')
+        SystemD.start_service(ipsec_service)
 
     @Strategy.schedule
     def delete_old_wireguard_conf(self):
@@ -343,7 +332,7 @@ class Setup(Strategy):
             docker_conf_file = conf_files.DockerDaemonJson(setting)
             docker_conf_file.update()
         # after changing docker settings, daemon needs to be restarted
-        SysVInit.restart_service('docker')
+        SystemD.restart_service(model.system.SystemService('docker'))
 
         images = self.conf.get_subset(m_type=model.docker.Image)
         for img in images:
@@ -366,10 +355,10 @@ class Setup(Strategy):
 class Rhel6(Setup):
 
     def stop_net(self):
-        SysVInit.stop_service('network')
+        SysVInit.stop_service(model.system.SystemService('network'))
 
     def start_net(self):
-        SysVInit.start_service('network')
+        SysVInit.start_service(model.system.SystemService('network'))
 
     def setup_udev_rules(self):
         return  # no udev rules needed on rhel6
@@ -381,12 +370,16 @@ class Rhel6(Setup):
 
 
 class Rhel7(Setup):
+    @Strategy.schedule
+    def configure_services(self):
+        for service in self.conf.get_subset(model.system.SystemService):
+            SystemD.configure_service(service)
 
     def stop_net(self):
-        SysVInit.stop_service('NetworkManager')
+        SystemD.stop_service(model.system.SystemService('NetworkManager'))
 
     def start_net(self):
-        SysVInit.start_service('NetworkManager')
+        SystemD.start_service(model.system.SystemService('NetworkManager'))
         c0 = Command('nmcli connection reload')
         c0.run()
         c0.watch_output()
@@ -406,8 +399,7 @@ class Rhel7(Setup):
     @Strategy.schedule
     def setup_ntp(self):
         servers = self.conf.get_subset(m_class=model.system.NTPServer)
-        if len(servers) > 0:
-            conf_files.ChronyConf(servers[0]).apply()
+        conf_files.ChronyConf(servers).apply()
 
 
 class Rhel8(Rhel7):
@@ -416,14 +408,14 @@ class Rhel8(Rhel7):
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        SysVInit.stop_service('ipsec')
+        SystemD.stop_service(model.system.SystemService('ipsec'))
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecRHEL8ConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        SysVInit.start_service('ipsec')
+        SystemD.start_service(model.system.SystemService('ipsec'))
 
     def stop_net(self):
         # FIXME: check if this WA is still necessary
