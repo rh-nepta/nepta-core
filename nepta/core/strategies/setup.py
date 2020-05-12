@@ -161,10 +161,11 @@ class Setup(Strategy):
         tuns = self.conf.get_subset(m_class=model.network.WireGuardTunnel)
         for tun in tuns:
             # We must stop&start wg-quick for *every* connection
-            SysVInit.stop_service(f'wg-quick@{tun.name}')
+            svc = model.system.SystemService(f'wg-quick@{tun.name}')
+            SystemD.stop_service(svc)
             conf_files.WireGuardConnectionFile(tun).apply()
-            SysVInit.start_service(f'wg-quick@{tun.name}')
-            SysVInit.enable_service(f'wg-quick@{tun.name}')
+            SystemD.start_service(svc)
+            SystemD.enable_service(svc)
 
     @staticmethod
     def wipe_interfaces_config():
