@@ -240,14 +240,21 @@ class BondChildInterface(EthernetInterface):
 
 
 class WireGuardPeer:
-    def __init__(self, public_key, private_key, allowed_ips, endpoint=None):
+    DEFAULT_PORT = 51820
+
+    def __init__(self, public_key, private_key, allowed_ips, endpoint_ip=None, endpoint_port=DEFAULT_PORT):
         self.public_key = public_key
         self.private_key = private_key
-        self.endpoint = endpoint
+        self.endpoint_ip = endpoint_ip
+        self.endpoint_port = endpoint_port
         self.allowed_ips = allowed_ips
 
     def __str__(self):
-        return f'WireGuard peer: (public_key={self.public_key}, endpoint={self.endpoint}, allowed_ips={self.allowed_ips})'
+        return f'WireGuard peer: (public_key={self.public_key}, endpoint={self.endpoint_ip}, allowed_ips={self.allowed_ips})'
+
+    @property
+    def endpoint(self):
+        return f'{self.endpoint_ip.ip}:{self.endpoint_port}'
 
 
 class WireGuardTunnel:
