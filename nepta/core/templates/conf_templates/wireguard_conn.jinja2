@@ -7,7 +7,7 @@ ListenPort = {{ local_port }}
 [Peer]
 PublicKey = {{ peer.public_key }}
 AllowedIPs = {{ peer.allowed_ips }}
-{% if endpoint %}
+{% if peer.endpoint %}
 Endpoint = {{ peer.endpoint }}
 {% endif %}
 {% endfor %}
