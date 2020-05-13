@@ -150,18 +150,7 @@ class WireGuardConnectionFile(JinjaConfFile):
         self.connection = connection
 
     def _make_jinja_context(self):
-        return {
-            "local_ip": self.connection.local_ip,
-            "local_port": self.connection.local_port,
-            "private_key": self.connection.private_key,
-            "peers": [
-                {
-                    "public_key": peer.public_key,
-                    "allowed_ips": peer.allowed_ips,
-                    "endpoint": peer.endpoint,
-                } for peer in self.connection.peers
-            ],
-        }
+        return self.connection.__dict__
 
     def _make_path(self):
         return os.path.join(self.CONF_DIR, f'{self.connection.name}{self.SUFFIX}')
