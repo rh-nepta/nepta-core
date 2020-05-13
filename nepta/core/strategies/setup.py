@@ -381,7 +381,7 @@ class Rhel7(Setup):
 
 
 class Rhel8(Rhel7):
-    _INSTALLER = 'dnf -y --allowerasing --skip-broken install '
+    _INSTALLER = 'dnf -y --allowerasing install '
 
     @Strategy.schedule
     def setup_ipsec(self):
