@@ -125,10 +125,12 @@ class GenericServiceHandler(abc.ABC):
         STOP = 'stop'
         RESTART = 'restart'
         STATUS = 'status'
+        ENABLE = 'enable'
+        DISABLE = 'disable'
 
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def run_service_cmd(action: Actions, service: SystemService) -> (str, int):
+    def run_service_cmd(cls, action: Actions, service: SystemService) -> (str, int):
         pass
 
     @classmethod
@@ -146,19 +148,15 @@ class GenericServiceHandler(abc.ABC):
         logger.info('restarting service %s', service)
         cls.run_service_cmd(cls.Actions.RESTART, service)
 
-    @staticmethod
-    def enable_service(service: SystemService):
+    @classmethod
+    def enable_service(cls, service: SystemService):
         logger.info('enabling service %s', service)
-        c = Command('chkconfig %s on' % service.name)
-        c.run()
-        c.watch_output()
+        cls.run_service_cmd(cls.Actions.ENABLE, service)
 
-    @staticmethod
-    def disable_service(service: SystemService):
+    @classmethod
+    def disable_service(cls, service: SystemService):
         logger.info('disabling service %s', service)
-        c = Command('chkconfig %s off' % service.name)
-        c.run()
-        c.watch_output()
+        cls.run_service_cmd(cls.Actions.DISABLE, service)
 
     @classmethod
     def is_running(cls, service: SystemService) -> bool:
@@ -186,17 +184,22 @@ class GenericServiceHandler(abc.ABC):
 
 
 class SysVInit(GenericServiceHandler):
-    @staticmethod
-    def run_service_cmd(action, service):
-        c = Command(f"service {service.name} {action.value}")
+    @classmethod
+    def run_service_cmd(cls, action, service):
+        if action == cls.Actions.ENABLE:
+            c = Command(f'chkconfig {service.name} on')
+        elif action == cls.Actions.DISABLE:
+            c = Command(f'chkconfig {service.name} off')
+        else:
+            c = Command(f'service {service.name} {action.value}')
         c.run()
         return c.watch_output()
 
 
 class SystemD(GenericServiceHandler):
-    @staticmethod
-    def run_service_cmd(action, service):
-        c = Command(f"systemctl {action.value} {service.name}")
+    @classmethod
+    def run_service_cmd(cls, action, service):
+        c = Command(f'systemctl {action.value} {service.name}')
         c.run()
         return c.watch_output()
 
