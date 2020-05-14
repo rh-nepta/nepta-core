@@ -1,14 +1,14 @@
 import itertools
 import ipaddress
 import copy
-from typing import List, Union, NewType
+from typing import List, Union
 from dataclasses import dataclass, field
 
 from nepta.core.model.tag import SoftwareInventoryTag
 
-IpInterface = NewType('IpInterface', Union[ipaddress.IPv4Interface, ipaddress.IPv6Interface])
-IpAddress = NewType('IpAddress', Union[ipaddress.IPv4Address, ipaddress.IPv6Address])
-IpNetwork = NewType('IpNetwork', Union[ipaddress.IPv4Network, ipaddress.IPv6Network])
+IpInterface = Union[ipaddress.IPv4Interface, ipaddress.IPv6Interface]
+IpAddress = Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
+IpNetwork = Union[ipaddress.IPv4Network, ipaddress.IPv6Network]
 
 
 @dataclass
