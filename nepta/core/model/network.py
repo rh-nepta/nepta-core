@@ -1,12 +1,11 @@
 import itertools
 import ipaddress
 import copy
-from typing import List
+from typing import List, Union
 from dataclasses import dataclass, field
 
 from nepta.core.model.tag import SoftwareInventoryTag
 
-# TODO: create a network generator yielding NetPerfNet v4/6 objects
 
 @dataclass
 class IPBaseConfiguration:
@@ -239,18 +238,18 @@ class BondChildInterface(EthernetInterface):
         return "Bond child interface: %s, master: %s" % (self.name, self.master_bond)
 
 
+@dataclass
 class WireGuardPeer:
-    DEFAULT_PORT = 51820
-
-    def __init__(self, public_key, private_key, allowed_ips, endpoint_ip=None, endpoint_port=DEFAULT_PORT):
-        self.public_key = public_key
-        self.private_key = private_key
-        self.endpoint_ip = endpoint_ip
-        self.endpoint_port = endpoint_port
-        self.allowed_ips = allowed_ips
-
-    def __str__(self):
-        return f'WireGuard peer: (public_key={self.public_key}, endpoint={self.endpoint_ip}, allowed_ips={self.allowed_ips})'
+    """
+    Represents peer in the configuration. Keys are generated using `wg` command. For more details see wireguard doc.
+    private key >>  wg genkey > private
+    public key  >>  wg pubkey < private > public
+    """
+    public_key: str
+    private_key: str
+    allowed_ips: List[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]]
+    endpoint_ip: Union[ipaddress.IPv4Interface, ipaddress.IPv6Interface] = None
+    endpoint_port: int = 51820
 
     @property
     def endpoint(self):
