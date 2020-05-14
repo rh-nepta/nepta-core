@@ -260,32 +260,24 @@ class WireGuardPeer:
         return f'{self.endpoint_ip.ip}:{self.endpoint_port}'
 
 
+@dataclass
 class WireGuardTunnel:
     """
     Also called wireguard interface.
     """
+    local_ip: IpInterface
+    private_key: str
+    local_port: int = 51820
+    peers: List[WireGuardPeer] = field(default_factory=list)
+    index: int = field(init=False, default_factory=lambda: next(WireGuardTunnel._COUNTER))
 
-    DEFAULT_PORT = 51820
-    METHOD_COUNTER = itertools.count()
-
-    def __init__(self, local_ip, private_key, local_port=DEFAULT_PORT, peers=None):
-        if peers is None:
-            peers = []
-
-        self.local_ip = local_ip
-        self.private_key = private_key
-        self.local_port = local_port
-        self.peers = peers
-
-        self.index = next(WireGuardTunnel.METHOD_COUNTER)
-
-    def __str__(self):
-        return f'WireGuard tunnel (name={self.name}): {self.local_ip} <=> {self.peers}'
+    # this is used to assign unique int to each wiregaurd tunnel
+    _COUNTER = itertools.count()
 
     @property
     def name(self):
         '''
-        Returned connection name must be unique accross all connections.
+        Returned connection name must be unique across all connections.
         '''
         return f"wg{self.index}"
 
