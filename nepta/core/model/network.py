@@ -13,9 +13,9 @@ IpNetwork = NewType('IpNetwork', Union[ipaddress.IPv4Network, ipaddress.IPv6Netw
 
 @dataclass
 class IPBaseConfiguration:
-    addresses: List[ipaddress._BaseAddress] = field(default_factory=list)
-    gw: ipaddress._BaseAddress = None
-    dns: List[ipaddress._BaseAddress] = field(default_factory=list)
+    addresses: List[IpInterface] = field(default_factory=list)
+    gw: IpAddress = None
+    dns: List[IpAddress] = field(default_factory=list)
 
     def __iter__(self):
         return iter(self.addresses)
@@ -39,10 +39,10 @@ class NetFormatter(ipaddress._BaseNetwork):
         super().__init__(*args, **kwargs)
         self._ip_gen = self.hosts()
 
-    def new_addr(self) -> ipaddress._BaseAddress:
+    def new_addr(self) -> IpInterface:
         return ipaddress.ip_interface('{ip}/{prefix}'.format(ip=next(self._ip_gen), prefix=self.prefixlen))
 
-    def new_addresses(self, n: int) -> List[ipaddress._BaseAddress]:
+    def new_addresses(self, n: int) -> List[IpInterface]:
         return [self.new_addr() for _ in range(n)]
 
     def new_config(self, num_of_ips=1) -> IPBaseConfiguration:
@@ -251,8 +251,8 @@ class WireGuardPeer:
     """
     public_key: str
     private_key: str
-    allowed_ips: List[Union[ipaddress.IPv4Network, ipaddress.IPv6Network]]
-    endpoint_ip: Union[ipaddress.IPv4Interface, ipaddress.IPv6Interface] = None
+    allowed_ips: List[IpNetwork]
+    endpoint_ip: IpInterface = None
     endpoint_port: int = 51820
 
     @property
