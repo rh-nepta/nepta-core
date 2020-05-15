@@ -11,9 +11,9 @@ class TapTest(TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.guest = VirtualGuest("guest1")
-        self.ovs = OVSwitch("ovs1")
-        self.br = LinuxBridge("br1")
+        self.guest = VirtualGuest('guest1')
+        self.ovs = OVSwitch('ovs1')
+        self.br = LinuxBridge('br1')
         self.maxDiff = None
 
     def assertEqualXML(self, xml1, xml2):

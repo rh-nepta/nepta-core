@@ -42,7 +42,7 @@ class Iperf3TestResultTest(TestCase):
 
     def test_format(self):
         def str_round(num, decimal=3):
-            return "{:.{}f}".format(num, decimal)
+            return '{:.{}f}'.format(num, decimal)
 
         result = Iperf3TCPTestResult.from_json(self.json_data)
         result.set_data_formatter(str_round)

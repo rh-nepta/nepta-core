@@ -171,12 +171,12 @@ class CallFunctionTest(unittest.TestCase):
         self.assertFalse(setup.wipe_routes.was_called)
 
     def test_call_save_meta_check_meta(self):
-        bundle = HostBundle("klacek1", "Standard")
+        bundle = HostBundle('klacek1', 'Standard')
         package = df.DataPackage.create(self.PACKAGE_PATH)
         meta = {
             'UUID': 741852963,
-            'Tag': "wertyui",
-            'Specific': "a;lskdjfoiqwe;lrfskdf",
+            'Tag': 'wertyui',
+            'Specific': 'a;lskdjfoiqwe;lrfskdf',
         }
 
         save_meta = SaveMeta(bundle, package, meta)

@@ -90,7 +90,7 @@ class IPsecSecretJinjaTest(TestCase):
         self.maxDiff = None
 
     def test_secret_content(self):
-        psw = "wertyuiop;kdszxcvbn"
+        psw = 'wertyuiop;kdszxcvbn'
         ipsec_tunnel = IPsecTunnel(IPv4Interface('192.168.1.1/24'), IPv4Interface('192.168.1.2/24'), 'aes128-sha1', psw)
         ipsec_secret_obj = IPsecSecretsFile(ipsec_tunnel)
 
