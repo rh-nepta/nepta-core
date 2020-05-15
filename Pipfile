@@ -6,6 +6,9 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 tox = "*"
+mypy = "*"
+flake8 = "*"
+black = "*"
 
 [packages]
 jinja2 = "==2.10.1"
