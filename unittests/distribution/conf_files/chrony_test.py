@@ -3,8 +3,8 @@ from unittest import TestCase
 from nepta.core.model.system import NTPServer
 from nepta.core.distribution.conf_files import ChronyConf
 
-class TestChrony(TestCase):
 
+class TestChrony(TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ntp1 = NTPServer('server1.ntp.com')

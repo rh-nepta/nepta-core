@@ -8,7 +8,6 @@ from nepta.core.distribution.conf_files import GuestTap
 
 
 class TapTest(TestCase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.guest = VirtualGuest('guest1')
@@ -33,7 +32,10 @@ class TapTest(TestCase):
               <virtualport type='openvswitch'>
               </virtualport>
             </interface>
-            """ % (tap1.mac, self.ovs.name)
+            """ % (
+            tap1.mac,
+            self.ovs.name,
+        )
         self.assertEqualXML(expected_out, tap1_file._make_content())
 
     def test_ovs_vlan_tap(self):
@@ -51,7 +53,10 @@ class TapTest(TestCase):
                 <tag id='20'/>
               </vlan>
             </interface>
-            """ % (tap1.mac, self.ovs.name)
+            """ % (
+            tap1.mac,
+            self.ovs.name,
+        )
         self.assertEqualXML(expected_out, tap1_file._make_content())
 
     def test_bridge_tap(self):
@@ -64,5 +69,8 @@ class TapTest(TestCase):
               <source bridge='%s'/>
               <model type='virtio'/>
             </interface>
-            """ % (tap1.mac, self.br.name)
+            """ % (
+            tap1.mac,
+            self.br.name,
+        )
         self.assertEqualXML(expected_out, tap1_file._make_content())

@@ -6,7 +6,6 @@ from nepta.core.distribution.conf_files import WireGuardConnectionFile
 
 
 class WireGuardTest(TestCase):
-
     def setUp(self) -> None:
         self.wg_net = NetperfNet4('10.0.0.0/16')
         self.local_net = NetperfNet4('192.168.0.0/24')
@@ -22,7 +21,9 @@ class WireGuardTest(TestCase):
 
     def test_interface(self):
         p0 = WireGuardPeer(self.local_pub, self.local_priv, [self.wg_net, self.local_net], self.rem_int)
-        p1 = WireGuardPeer(self.remote_pub, self.remote_priv, [self.wg_net, self.remote_net, self.wg_net], self.my_int, 12345)
+        p1 = WireGuardPeer(
+            self.remote_pub, self.remote_priv, [self.wg_net, self.remote_net, self.wg_net], self.my_int, 12345
+        )
         p2 = WireGuardPeer('public', 'private', [ia.IPv4Network('224.0.0.0/25')])
 
         local_tunnel = WireGuardTunnel(self.wg_net.new_addr(), p0.private_key, peers=[p1, p2])
@@ -36,7 +37,7 @@ class WireGuardTest(TestCase):
 
         self.assertEqual(
             local_cfg.get_content(),
-f"""[Interface]
+            f"""[Interface]
 Address = 10.0.0.1/16
 PrivateKey = {self.local_priv}
 ListenPort = 51820
@@ -49,11 +50,12 @@ Endpoint = 8.8.8.8:12345
 [Peer]
 PublicKey = {p2.public_key}
 AllowedIPs = {p2.allowed_ips[0]}
-""")
+""",
+        )
 
         self.assertEqual(
             remote_cfg.get_content(),
-f"""[Interface]
+            f"""[Interface]
 Address = 10.0.0.2/16
 PrivateKey = {self.remote_priv}
 ListenPort = 12345
@@ -62,5 +64,5 @@ ListenPort = 12345
 PublicKey = {self.local_pub}
 AllowedIPs = 10.0.0.0/16, 192.168.0.0/24
 Endpoint = 8.8.8.10:51820
-"""
+""",
         )

@@ -6,7 +6,6 @@ from nepta.core.model.network import IPv4Configuration, IPv6Configuration
 
 
 class NetFormatterTest(TestCase):
-
     def setUp(self) -> None:
         self.net4 = NetperfNet4(ia.ip_network('192.168.0.0/24'))
         self.net6 = NetperfNet6(ia.ip_network('FE80::/64'))
@@ -41,5 +40,3 @@ class NetFormatterTest(TestCase):
                 self.assertEqual(ip, cfg4[j])
             for j, ip in enumerate(cfg6):
                 self.assertEqual(ip, cfg6[j])
-
-

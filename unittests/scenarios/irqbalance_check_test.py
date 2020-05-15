@@ -7,7 +7,6 @@ _LOCAL_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class IRQBalanceScenarioTest(TestCase):
-
     def setUp(self):
         example_str = open(os.path.join(_LOCAL_DIR, 'example_interrupt_out.txt'), 'r').read()
         self.scenario = IRQBalanceCheck([])

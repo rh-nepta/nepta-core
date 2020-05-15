@@ -6,22 +6,24 @@ from nepta.core.distribution import conf_files as cf
 
 
 class IfcfgTest(TestCase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.maxDiff = None
 
     def test_generic_test(self):
-        intf = nm.Interface('int1',
-                            nm.IPv4Configuration(
-                                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
-                                ia.IPv4Address('192.168.0.255'),
-                                [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')]),
-                            nm.IPv6Configuration(
-                                [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64'),
-                                 ia.IPv6Interface('fec0::35/64')],
-                                ia.IPv6Address('fd00::ff'),
-                                [ia.IPv6Address('2001:4860:4860::8844'), ia.IPv6Address('2001:4860:4860::8888')]))
+        intf = nm.Interface(
+            'int1',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+                [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')],
+            ),
+            nm.IPv6Configuration(
+                [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64'), ia.IPv6Interface('fec0::35/64')],
+                ia.IPv6Address('fd00::ff'),
+                [ia.IPv6Address('2001:4860:4860::8844'), ia.IPv6Address('2001:4860:4860::8888')],
+            ),
+        )
         ifcfg = cf.IfcfgFile(intf)
 
         expected_result = '''DEVICE=int1
@@ -47,9 +49,14 @@ IPV6_DEFAULTGW=fd00::ff
         self.assertEqual(expected_result, ifcfg.get_content())
 
     def test_ipv4_test(self):
-        intf = nm.Interface('int1', nm.IPv4Configuration(
-            [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')], ia.IPv4Address('192.168.0.255'),
-            [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')]))
+        intf = nm.Interface(
+            'int1',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+                [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')],
+            ),
+        )
         ifcfg = cf.IfcfgFile(intf)
 
         expected_result = '''DEVICE=int1
@@ -69,8 +76,9 @@ DNS2=1.1.1.1
         self.assertEqual(expected_result, ifcfg.get_content())
 
     def test_ipv4_addr_only(self):
-        intf = nm.Interface('int1', nm.IPv4Configuration(
-            [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')]))
+        intf = nm.Interface(
+            'int1', nm.IPv4Configuration([ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')])
+        )
         ifcfg = cf.IfcfgFile(intf)
 
         expected_result = '''DEVICE=int1
@@ -86,8 +94,13 @@ NETMASK1=255.255.255.0
         self.assertEqual(expected_result, ifcfg.get_content())
 
     def test_ipv4_addr_n_gw_only(self):
-        intf = nm.Interface('int1', nm.IPv4Configuration(
-            [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')], ia.IPv4Address('192.168.0.255')))
+        intf = nm.Interface(
+            'int1',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+            ),
+        )
         ifcfg = cf.IfcfgFile(intf)
 
         expected_result = '''DEVICE=int1
@@ -105,10 +118,15 @@ GATEWAY0=192.168.0.255
         self.assertEqual(expected_result, ifcfg.get_content())
 
     def test_ipv6_test(self):
-        intf = nm.Interface('int1', None,
-                            nm.IPv6Configuration([ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64')],
-                                                 ia.IPv6Address('fd00::ff'), [ia.IPv6Address('2001:4860:4860::8844'),
-                                                                              ia.IPv6Address('2001:4860:4860::8888')]))
+        intf = nm.Interface(
+            'int1',
+            None,
+            nm.IPv6Configuration(
+                [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64')],
+                ia.IPv6Address('fd00::ff'),
+                [ia.IPv6Address('2001:4860:4860::8844'), ia.IPv6Address('2001:4860:4860::8888')],
+            ),
+        )
         ifcfg = cf.IfcfgFile(intf)
 
         expected_result = '''DEVICE=int1
@@ -137,7 +155,6 @@ MTU=1500
 
 
 class EthIfcfgTest(TestCase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.maxDiff = None
@@ -155,14 +172,21 @@ HWADDR=aa:bb:cc:dd:ee:ff
         self.assertEqual(expected_result, ifcfg.get_content())
 
     def test_full_eth_int(self):
-        intf = nm.EthernetInterface('int1', 'aa:bb:cc:dd:ee:ff', nm.IPv4Configuration(
-            [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')], ia.IPv4Address('192.168.0.255'),
-            [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')]),
-                                    nm.IPv6Configuration(
-                                        [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64')],
-                                        ia.IPv6Address('fd00::ff'), [ia.IPv6Address('2001:4860:4860::8844'),
-                                                                     ia.IPv6Address('2001:4860:4860::8888')]),
-                                    mtu=1450)
+        intf = nm.EthernetInterface(
+            'int1',
+            'aa:bb:cc:dd:ee:ff',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+                [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')],
+            ),
+            nm.IPv6Configuration(
+                [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64')],
+                ia.IPv6Address('fd00::ff'),
+                [ia.IPv6Address('2001:4860:4860::8844'), ia.IPv6Address('2001:4860:4860::8888')],
+            ),
+            mtu=1450,
+        )
         ifcfg = cf.IfcfgFile(intf)
 
         expected_result = '''DEVICE=int1
@@ -190,15 +214,18 @@ IPV6_DEFAULTGW=fd00::ff
 
     def test_vlan_int(self):
         eth = nm.EthernetInterface('ixgbe_0', '00:22:33:44:55:66')
-        vlan = nm.VlanInterface(eth, 963,
-                                nm.IPv4Configuration(
-                                    [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
-                                    gw=ia.IPv4Address('192.168.0.255')
-                                ),
-                                nm.IPv6Configuration(
-                                    [ia.IPv6Interface('fd00::1/64')],
-                                    dns=[ia.IPv6Address('2001:4860:4860::8844'),
-                                         ia.IPv6Address('2001:4860:4860::8888')]))
+        vlan = nm.VlanInterface(
+            eth,
+            963,
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                gw=ia.IPv4Address('192.168.0.255'),
+            ),
+            nm.IPv6Configuration(
+                [ia.IPv6Interface('fd00::1/64')],
+                dns=[ia.IPv6Address('2001:4860:4860::8844'), ia.IPv6Address('2001:4860:4860::8888')],
+            ),
+        )
         ifcfg = cf.IfcfgFile(vlan)
         expected = '''\
 DEVICE=ixgbe_0.963
@@ -222,18 +249,23 @@ IPV6ADDR=fd00::1/64
 
 
 class VariousIfcfgTest(TestCase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.maxDiff = None
-        self.generic_eth = nm.EthernetInterface('ixgbe_1', '00:11:22:33:44:55', nm.IPv4Configuration(
-            [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')], ia.IPv4Address('192.168.0.255'),
-            [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')]),
-                                                nm.IPv6Configuration(
-                                                    [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64')],
-                                                    ia.IPv6Address('fd00::ff'), [ia.IPv6Address('2001:4860:4860::8844'),
-                                                                                 ia.IPv6Address(
-                                                                                     '2001:4860:4860::8888')]))
+        self.generic_eth = nm.EthernetInterface(
+            'ixgbe_1',
+            '00:11:22:33:44:55',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+                [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')],
+            ),
+            nm.IPv6Configuration(
+                [ia.IPv6Interface('fd00::1/64'), ia.IPv6Interface('fec0::34/64')],
+                ia.IPv6Address('fd00::ff'),
+                [ia.IPv6Address('2001:4860:4860::8844'), ia.IPv6Address('2001:4860:4860::8888')],
+            ),
+        )
 
     def test_team_master(self):
         team_int = nm.TeamMasterInterface('team1', self.generic_eth.v4_conf, self.generic_eth.v6_conf)
@@ -355,8 +387,9 @@ IPV6_DEFAULTGW=fd00::ff
 
     def test_bridge_slave(self):
         bridge_master = nm.LinuxBridge('br1', self.generic_eth.v4_conf, self.generic_eth.v6_conf)
-        bridge_slave = nm.EthernetInterface('bnxt_1', '00:11:22:33:44:55', self.generic_eth.v4_conf,
-                                            self.generic_eth.v6_conf)
+        bridge_slave = nm.EthernetInterface(
+            'bnxt_1', '00:11:22:33:44:55', self.generic_eth.v4_conf, self.generic_eth.v6_conf
+        )
         bridge_master.add_interface(bridge_slave)
         ifcfg = cf.IfcfgFile(bridge_slave)
         expected = '''\

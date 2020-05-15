@@ -5,7 +5,6 @@ from nepta.core.distribution.conf_files import KernelModuleOptions
 
 
 class ModelTest(TestCase):
-
     def test_kernel_module_model(self):
         chcr = system.KernelModule('chcr')
         cryptd = system.KernelModule('cryptd', cryptd_max_cpu_qlen=2048)
@@ -28,4 +27,3 @@ class ModelTest(TestCase):
         self.assertEqual(KernelModuleOptions(b.chcr).get_content(), '')
         self.assertEqual(KernelModuleOptions(b.chcr).get_path(), '/etc/modprobe.d/chcr.conf')
         self.assertEqual(KernelModuleOptions(b.cryptd).get_content(), 'options cryptd cryptd_max_cpu_qlen=2048\n')
-

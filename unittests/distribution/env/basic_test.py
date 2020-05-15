@@ -4,7 +4,6 @@ from nepta.core.distribution.env import Environment, RedhatRelease
 
 
 class EnvPrintTest(TestCase):
-
     def test_print_env(self):
         print(Environment)
 

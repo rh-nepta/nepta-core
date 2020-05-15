@@ -3,7 +3,6 @@ from nepta.core.model import bundles, network, system, attachments
 
 
 class TestBundles(TestCase):
-
     def test_budnle_variables(self):
         host = 'popicci.server.u.nas'
         conf = 'LetNaMesiac'
@@ -405,7 +404,6 @@ class TestBundles(TestCase):
 
 
 class TestMergeBundles(TestCase):
-
     def test_merge_no_key_over_lap(self):
         b1 = bundles.Bundle()
 

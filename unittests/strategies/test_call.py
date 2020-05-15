@@ -35,8 +35,11 @@ class MethCallLogger(object):
     def infect_all_public(cls, obj, mockup=False, exclude=None):
         if exclude is None:
             exclude = []
-        for meth in [meth for meth in dir(obj) if not meth.startswith('__') and callable(getattr(obj, meth))
-                                                  and meth not in exclude]:
+        for meth in [
+            meth
+            for meth in dir(obj)
+            if not meth.startswith('__') and callable(getattr(obj, meth)) and meth not in exclude
+        ]:
             cls.infect(obj, getattr(obj, meth), mockup)
 
 

@@ -4,7 +4,6 @@ from nepta.core.distribution.command import Command, ShellCommand
 
 
 class CommandTest(TestCase):
-
     def test_basic(self):
         cmd = Command(f'echo -n {self.__class__.__name__}')
         cmd.run()
@@ -27,5 +26,3 @@ class CommandTest(TestCase):
         out, ret = cmd.get_output()
         self.assertEqual(out.strip(), input_str.split()[-1])
         self.assertEqual(ret, 0)
-
-
