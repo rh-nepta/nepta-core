@@ -276,7 +276,8 @@ ONBOOT=yes
 BOOTPROTO=none
 MTU=1500
 DEVICETYPE=Team
-TEAM_CONFIG='{"runner": {"active": true, "link_watch": "ethotool", "fast_rate": true, "name": "lacp", "tx_hash": ["eth", "ipv4", "ipv6", "tcp"]}}'
+TEAM_CONFIG='{"runner": {"active": true, "link_watch": "ethotool", "fast_rate": true, \
+"name": "lacp", "tx_hash": ["eth", "ipv4", "ipv6", "tcp"]}}'
 IPV4_FAILURE_FATAL=yes
 IPADDR0=192.168.0.1
 NETMASK0=255.255.255.0

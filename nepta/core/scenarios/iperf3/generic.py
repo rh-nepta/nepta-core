@@ -18,7 +18,7 @@ def catch_and_log_exception(f):
         try:
             return f(*args, **kwargs)
         except Exception as e:
-            logger.error('An error occurred during test execution. iPerf3 output is :')
+            logger.error(f'An error {e} occurred during test execution. iPerf3 output is :')
             if hasattr(args[1], '__iter__'):
                 for test in args[1]:
                     logger.error(test.get_json_out())
