@@ -144,6 +144,29 @@ class Setup(Strategy):
 
         SystemD.start_service(ipsec_service)
 
+    @Strategy.schedule
+    def delete_old_wireguard_conf(self):
+        logging.info('Deleting old wireguard tunnel conf-files')
+
+        if os.path.exists(conf_files.WireGuardConnectionFile.CONF_DIR):
+            ls_dir = Fs.list_path(conf_files.WireGuardConnectionFile.CONF_DIR)
+            for conn_file in [x for x in ls_dir if x.endswith(conf_files.WireGuardConnectionFile.SUFFIX)]:
+                logging.debug("Deleting : {}".format(conn_file))
+                Fs.rm(os.path.join(conf_files.WireGuardConnectionFile.CONF_DIR, conn_file))
+
+    @Strategy.schedule
+    def setup_wireguard(self):
+        logger.info('Setting up WireGuard subsystem')
+
+        tuns = self.conf.get_subset(m_class=model.network.WireGuardTunnel)
+        for tun in tuns:
+            # We must stop&start wg-quick for *every* connection
+            svc = model.system.SystemService(f'wg-quick@{tun.name}')
+            SystemD.stop_service(svc)
+            conf_files.WireGuardConnectionFile(tun).apply()
+            SystemD.start_service(svc)
+            SystemD.enable_service(svc)
+
     @staticmethod
     def wipe_interfaces_config():
         logger.info('Wiping old interfaces configuration')

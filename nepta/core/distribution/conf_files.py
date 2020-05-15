@@ -140,6 +140,22 @@ class IPsecSecretsFile(GenericIPsecFile):
         }
 
 
+class WireGuardConnectionFile(JinjaConfFile):
+    TEMPLATE = 'wireguard_conn.jinja2'
+    CONF_DIR = '/etc/wireguard/'
+    SUFFIX = '.conf'
+
+    def __init__(self, connection: net_model.WireGuardTunnel):
+        super().__init__()
+        self.connection = connection
+
+    def _make_jinja_context(self):
+        return self.connection.__dict__
+
+    def _make_path(self):
+        return os.path.join(self.CONF_DIR, f'{self.connection.name}{self.SUFFIX}')
+
+
 class UdevRulesFile(JinjaConfFile):
     RULES_FILE = '/etc/udev/rules.d/70-persistent-net.rules'
     TEMPLATE = 'udev_rule_line.jinja2'
