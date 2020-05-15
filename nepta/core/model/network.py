@@ -85,7 +85,7 @@ class Interface(object):
         if addr_list is not None:
             for addr in addr_list.addresses:
                 ret_str += addr.with_prefixlen
-                ret_str += ", "
+                ret_str += ', '
             if addr_list.gw:
                 ret_str += 'GW=%s, ' % addr_list.gw
             if len(addr_list.dns):
@@ -150,7 +150,7 @@ class GenericGuestTap(object):
             self.__class__.__name__, self.mac, self.switch.name, self.guest)
 
     def __repr__(self):
-        return "%s_%s_%s" % (self.switch.name, self.guest.name, self.mac)
+        return '%s_%s_%s' % (self.switch.name, self.guest.name, self.mac)
 
 
 class OVSGuestTap(GenericGuestTap):
@@ -163,7 +163,7 @@ class OVSGuestVlanTap(GenericGuestTap):
         self.vlan = vlan
 
     def __repr__(self):
-        return super().__repr__() + "_v%s" % self.vlan
+        return super().__repr__() + '_v%s' % self.vlan
 
 
 class BridgeGuestTap(GenericGuestTap):
@@ -198,7 +198,7 @@ class TeamMasterInterface(EthernetInterface):
         self.runner = runner
 
     def make_iface_string(self):
-        return "Team master interface: %s\n\tRunner JSON dump: %s asdf" % (self.name, self.runner)
+        return 'Team master interface: %s\n\tRunner JSON dump: %s asdf' % (self.name, self.runner)
 
     def add_interface(self, port):
         port.team = self.name
@@ -211,15 +211,15 @@ class TeamChildInterface(EthernetInterface):
         super(TeamChildInterface, self).__init__(original_interface.name, original_interface.mac)
 
     def make_iface_string(self):
-        return "Team child interface: %s" % self.name
+        return 'Team child interface: %s' % self.name
 
 
 #
 # Bond
 #
 class BondMasterInterface(EthernetInterface):
-    LACP_BOND_OPTS = "mode=4 xmit_hash_policy=1"
-    ACT_BCKP_BOND_OPTS = "mode=1"
+    LACP_BOND_OPTS = 'mode=4 xmit_hash_policy=1'
+    ACT_BCKP_BOND_OPTS = 'mode=1'
 
     def __init__(self, name, v4_conf=None, v6_conf=None, bond_opts=LACP_BOND_OPTS):
         super(BondMasterInterface, self).__init__(name, None, v4_conf, v6_conf)
@@ -239,7 +239,7 @@ class BondChildInterface(EthernetInterface):
         self.master_bond = None
 
     def make_iface_string(self):
-        return "Bond child interface: %s, master: %s" % (self.name, self.master_bond)
+        return 'Bond child interface: %s, master: %s' % (self.name, self.master_bond)
 
 
 @dataclass
@@ -280,7 +280,7 @@ class WireGuardTunnel:
         '''
         Returned connection name must be unique across all connections.
         '''
-        return f"wg{self.index}"
+        return f'wg{self.index}'
 
     @property
     def tags(self):
@@ -464,7 +464,7 @@ class OVSwitch(object):
         self.tunnel_interfaces.append(tunnel)
 
     def add_trunk_interface(self, iface, vlan=None):
-        item = {"iface": iface, "vlans": vlan}
+        item = {'iface': iface, 'vlans': vlan}
         self.trunk_interfaces.append(item)
 
     def __str__(self):
@@ -475,7 +475,7 @@ class OVSwitch(object):
 
 
 class OVSTunnel(object):
-    VXLAN = "vxlan"
+    VXLAN = 'vxlan'
 
     def __init__(self, name, type=VXLAN, remote_ip=None, key=0):
         self.name = name

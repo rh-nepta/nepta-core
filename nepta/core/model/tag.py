@@ -9,7 +9,7 @@ class GenericTag(object):
 
     def __repr__(self):
         if self.value:
-            return "{}-{}".format(self.name, self.value)
+            return '{}-{}'.format(self.name, self.value)
         else:
             return self.name
 

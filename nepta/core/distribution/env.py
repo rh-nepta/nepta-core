@@ -6,8 +6,8 @@ from nepta.core.distribution.utils.system import Uname, RPMTool
 
 class _MetaPrintedType(type):
     def __str__(self):
-        return self.__name__ + "\n\t" + "\n\t".join(
-            [f"{k} => {v}" for k, v in self.__dict__.items() if not k.startswith('_')])
+        return self.__name__ + '\n\t' + '\n\t'.join(
+            [f'{k} => {v}' for k, v in self.__dict__.items() if not k.startswith('_')])
 
 
 class RedhatRelease(object, metaclass=_MetaPrintedType):

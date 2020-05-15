@@ -24,18 +24,18 @@ class Prepare(Strategy):
         for intf in interfaces:
             cores = intf.bind_cores
             if cores is not None:
-                cores = "".join([str(x) for x in cores])
+                cores = ''.join([str(x) for x in cores])
                 logger.info('Setting all irq of %s to %s cores' % (intf.get_name(), cores))
                 Tuna.set_irq_cpu_binding(intf.get_name(), cores)
 
     @Strategy.schedule
     def start_iperf3_services(self):
-        logger.info("Starting necessary iPerf3 services")
+        logger.info('Starting necessary iPerf3 services')
         sync_objs = self.conf.get_subset(m_class=model.bundles.SyncHost)
 
         # if there is no host for Sync, we are not able to find out how many iPerf3 services we should start
         if not len(sync_objs):
-            logger.info("There is no host for synchronization")
+            logger.info('There is no host for synchronization')
             return
 
         oposite_host_hostname = sync_objs[0].hostname
@@ -60,7 +60,7 @@ class Prepare(Strategy):
 
     @Strategy.schedule
     def start_docker_container(self):
-        logger.info("Starting containers")
+        logger.info('Starting containers')
         containers = self.conf.get_subset(m_class=model.docker.Containter)
         for cont in containers:
             Docker.run(cont)

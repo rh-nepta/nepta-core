@@ -54,12 +54,12 @@ class CommandTool(object):
             Nicely format object attributes when printing to stdout
             :return: str
             """
-            ret_str = ""
+            ret_str = ''
             for arg in self.MAPPING:
-                ret_str += "\t{} {}\n".format(arg.class_name, self.__dict__[arg.class_name])
+                ret_str += '\t{} {}\n'.format(arg.class_name, self.__dict__[arg.class_name])
             return ret_str
 
-        return "{}\n{}".format(self.PROGRAM_NAME, str_mapping())
+        return '{}\n{}'.format(self.PROGRAM_NAME, str_mapping())
 
     def __call__(self):
         self.run()
@@ -83,12 +83,12 @@ class CommandTool(object):
             arg_value = self.__dict__[arg.class_name]
             if arg_value is not None:
                 if arg.argument_type == bool:  # True/False argument
-                    ret_str += " {}".format(arg.argument_name)
+                    ret_str += ' {}'.format(arg.argument_name)
                 else:  # key value argument
-                    ret_str += " {} {}".format(arg.argument_name, arg_value)
+                    ret_str += ' {} {}'.format(arg.argument_name, arg_value)
 
             elif arg.required:  # if required and not set-> error
-                raise MissingRequiredArgument("Argument {} is required in {} command.".format(arg.argument_name, self.PROGRAM_NAME))
+                raise MissingRequiredArgument('Argument {} is required in {} command.'.format(arg.argument_name, self.PROGRAM_NAME))
 
         return ret_str
 

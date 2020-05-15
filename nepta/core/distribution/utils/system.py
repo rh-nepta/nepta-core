@@ -14,7 +14,7 @@ class Uname(object):
 
     @classmethod
     def __str__(cls):
-        return f"Uname: kernel {cls.get_version()} at {cls.get_hostname()}"
+        return f'Uname: kernel {cls.get_version()} at {cls.get_hostname()}'
 
     @classmethod
     def _exec(cls):
@@ -48,13 +48,13 @@ class RPMTool(object):
 
     @classmethod
     def get_package_version(cls, package):
-        rpm_cmd = Command("%s -qa %s" % (cls.CMD_RPM, package))
+        rpm_cmd = Command('%s -qa %s' % (cls.CMD_RPM, package))
         rpm_cmd.run()
         out, ret_code = rpm_cmd.watch_output()
         if ret_code == 0 and len(out):
             first_match = out.split()[0]  # strip whitespaces
             #  "kernel-4.18.0-67.el8.x86_64".split("kernel-") -> [[], ['4.18.0-67.el8.x86_64']]
-            return first_match.split("%s-" % package)[1]
+            return first_match.split('%s-' % package)[1]
         else:
             return None
 
@@ -208,9 +208,9 @@ class KernelModuleUtils:
 
     @staticmethod
     def modprobe(module: KernelModule):
-        opts = " ".join([f"{k}={v}" for k, v in module.options.items()])
-        cmd = Command(f"modprobe {module.name} {opts}")
+        opts = ' '.join([f'{k}={v}' for k, v in module.options.items()])
+        cmd = Command(f'modprobe {module.name} {opts}')
         cmd.run()
         out, ret = cmd.get_output()
         if ret:
-            logger.error(f"Error during modprobe module {module.name} with options {module.options}")
+            logger.error(f'Error during modprobe module {module.name} with options {module.options}')

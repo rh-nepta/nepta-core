@@ -61,4 +61,4 @@ class SaveAttachments(Strategy):
                     command_attachment.path.write(output)
 
             except Exception as e:
-                logger.error(f"Exception occur during execution of attachment {attach}. >>> Error: {e}")
+                logger.error(f'Exception occur during execution of attachment {attach}. >>> Error: {e}')

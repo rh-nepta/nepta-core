@@ -22,10 +22,10 @@ class StaticCongestion(SingleStreamGeneric):
     @staticmethod
     def setup_attero(path):
         Attero.clear_existing_impairments()
-        Attero.set_delay_and_bottleneck_bandwidth("AB", path.delay, path.limit_bandwidth)
-        Attero.set_delay_and_bottleneck_bandwidth("BA", path.delay, path.limit_bandwidth)
+        Attero.set_delay_and_bottleneck_bandwidth('AB', path.delay, path.limit_bandwidth)
+        Attero.set_delay_and_bottleneck_bandwidth('BA', path.delay, path.limit_bandwidth)
         Attero.start()
-        logger.info("Attero is set and running tests on this path")
+        logger.info('Attero is set and running tests on this path')
 
     def run_path(self, path):
         """
@@ -51,17 +51,17 @@ class NetemConstricted(StreamGeneric):
         super().store_msg_size(section, size, cpu_pinning)
         test_settings_sec = section.subsections.filter('test_settings')[0]
         test_settings_sec.subsections.append(Section(
-            'item', key='constrictions', value=",".join([f"{x[1]}sec@{x[0]}Gpbs" for x in self.constrictions])))
+            'item', key='constrictions', value=','.join([f'{x[1]}sec@{x[0]}Gpbs' for x in self.constrictions])))
         test_settings_sec.subsections.append(Section('item', key='direction', value=self.direction))
         return section
 
     def run_scenario(self):
-        logger.info("Clearing attero impairments")
+        logger.info('Clearing attero impairments')
         Attero.clear_existing_impairments()
 
         ret = super().run_scenario()
 
-        logger.info("Clearing attero impairments")
+        logger.info('Clearing attero impairments')
         Attero.clear_existing_impairments()
 
         return ret

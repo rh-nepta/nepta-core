@@ -18,13 +18,13 @@ def catch_and_log_exception(f):
         try:
             return f(*args, **kwargs)
         except Exception as e:
-            logger.error("An error occurred during test execution. iPerf3 output is :")
-            if hasattr(args[1], "__iter__"):
+            logger.error('An error occurred during test execution. iPerf3 output is :')
+            if hasattr(args[1], '__iter__'):
                 for test in args[1]:
                     logger.error(test.get_json_out())
             else:
                 logger.error(args[1].get_json_out())
-            logger.error("Traceback of catch exception :")
+            logger.error('Traceback of catch exception :')
             traceback.print_exc(file=sys.stdout)
         return OrderedDict()
 
@@ -46,7 +46,7 @@ class GenericIPerf3Stream(object):
 
     @staticmethod
     def str_round(num, decimal=2):
-        return "{:.{}f}".format(num, decimal)
+        return '{:.{}f}'.format(num, decimal)
 
 
 #######################################################################################################################
@@ -87,7 +87,7 @@ class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
             new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port,
                                   interval=0.1)
-            new_test.affinity = ",".join([str(x) for x in cpu_pinning])
+            new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
         return tests
 
@@ -108,7 +108,7 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
         if len(tests) > 2:
-            logger.error("Too much tests defined in DuplexStream configuration. Cutting excesses !!!")
+            logger.error('Too much tests defined in DuplexStream configuration. Cutting excesses !!!')
         tests[1].reverse = True
         return tests[:2]
 

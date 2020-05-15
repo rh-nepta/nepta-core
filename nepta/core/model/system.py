@@ -91,7 +91,7 @@ class _NamedOptions(_VariousOptions):
         self.name = name
 
     def __str__(self):
-        return f"{self.__class__.__name__} {self.name} [{self.options}]"
+        return f'{self.__class__.__name__} {self.name} [{self.options}]'
 
 
 class KernelModule(_NamedOptions):

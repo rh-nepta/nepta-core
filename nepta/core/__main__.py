@@ -39,7 +39,7 @@ try:
     file_handler.setLevel(logging.DEBUG)
     root_logger.addHandler(file_handler)
 except PermissionError:
-    logging.error(f"Cannot create file logger into {LOG_FILENAME}")
+    logging.error(f'Cannot create file logger into {LOG_FILENAME}')
 
 # Local logger instance
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 def get_configuration(fqdn, conf):
     conf_bundle = model.bundles.HostBundle.find(fqdn, conf)
     if conf_bundle is None:
-        raise FileNotFoundError("%s configuration for host %s does not exists." % (conf, fqdn))
+        raise FileNotFoundError('%s configuration for host %s does not exists.' % (conf, fqdn))
     else:
         return conf_bundle
 
@@ -65,7 +65,7 @@ def get_synchronization(sync, conf):
 def init_package(conf_name, start_time):
     pckg_path = '{}__{}__{}__{}__ts{}'.format(
         Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time))
-    logger.info("Creating libres package in : {}".format(pckg_path))
+    logger.info('Creating libres package in : {}'.format(pckg_path))
 
     package = DataPackage.create(pckg_path)
     package.store.root = init_root_store()
@@ -100,11 +100,11 @@ def delete_subtree(conf, deleting_subtrees):
             if current_node.has_node(subtree):
                 current_node = getattr(current_node, subtree)
             else:  # if there is a wrong name of subtree, end searching
-                logger.info("%s sub tree was NOT found", full_sub_tree_path)
+                logger.info('%s sub tree was NOT found', full_sub_tree_path)
                 break
         else:  # no break
             if current_node.has_node(tree_path[-1]):
-                logger.info("Deleting: %s", full_sub_tree_path)
+                logger.info('Deleting: %s', full_sub_tree_path)
                 delattr(current_node, tree_path[-1])
 
 
@@ -168,9 +168,9 @@ def main():
                         help='Specify synchronization method used before and after test execution '
                              '[Default: %(default)s].')
     parser.add_argument('-s', '--scenario', dest='scenarios', action='append', type=str,
-                        help="Run only specified scenario.")
-    parser.add_argument('-l', '--log', action='store', type=str.upper, help="Logging level [Default: %(default)s].",
-                        choices=["DEBUG", "WARNING", "INFO", "ERROR", "EXCEPTION"], default="INFO")
+                        help='Run only specified scenario.')
+    parser.add_argument('-l', '--log', action='store', type=str.upper, help='Logging level [Default: %(default)s].',
+                        choices=['DEBUG', 'WARNING', 'INFO', 'ERROR', 'EXCEPTION'], default='INFO')
     parser.add_argument('--meta', nargs=2, action='append', metavar=('KEY', 'VALUE'), default=[],
                         help='Append meta variables into package.')
     parser.add_argument('-f', '--filter', action='append', metavar='FILTERED_CLASS',
@@ -276,7 +276,7 @@ def main():
     try:
         final_strategy()
     except BaseException as e:
-        logger.warning("Setting pass to all barriers")
+        logger.warning('Setting pass to all barriers')
         desync = create_desynchronize_strategy(final_strategy, package)
         desync()
         raise e
@@ -284,5 +284,5 @@ def main():
     logger.info('bye bye world...')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

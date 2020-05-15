@@ -67,18 +67,18 @@ class IRQBalanceCheck(ScenarioGeneric):
             iperf3_test.run()
             out, ret = iperf3_test.watch_output()
             if ret:
-                logger.error(f"iPerf3 {iperf3_test} test failed!!!")
+                logger.error(f'iPerf3 {iperf3_test} test failed!!!')
 
         int_table = self.get_parsed_interrupts()
         cpu_sums = [sum(int_table[y][x] for y in range(len(int_table))) for x in range(len(int_table[0]))]
 
         test_result = '1' if cpu_sums[0] < sum(cpu_sums[1:]) else '0'
 
-        logger.info(f"Sums of interrupts per CPU: {cpu_sums}")
-        logger.info(f"Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???")
-        logger.info(f"{self.__class__.__name__} test result: {test_result}.")
+        logger.info(f'Sums of interrupts per CPU: {cpu_sums}')
+        logger.info(f'Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???')
+        logger.info(f'{self.__class__.__name__} test result: {test_result}.')
 
-        root_sec = Section("scenario")
+        root_sec = Section('scenario')
         root_sec.params['scenario_name'] = self.__class__.__name__
         root_sec.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
 

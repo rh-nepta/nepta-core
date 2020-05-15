@@ -23,9 +23,9 @@ class Network(object):
         self.v6 = v6 if v6 is None else DockerSubnetV6(v6)
 
     def __str__(self):
-        return "Docker network: {}\n" \
-               "\tV4: {}\n" \
-               "\tV6: {}\n".format(self.name, self.v4, self.v6)
+        return 'Docker network: {}\n' \
+               '\tV4: {}\n' \
+               '\tV6: {}\n'.format(self.name, self.v4, self.v6)
 
 
 class GenericDockerSubnet(object):
@@ -68,7 +68,7 @@ class DockerDaemonSettings(dict):
         return hash(frozenset(self))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     net = Network('dickernetq', network.NetperfNet4('192.168.22.0/24'), network.NetperfNet6('fd01::/64'))
     print(net)
     print(DockerSubnetV4.__mro__)

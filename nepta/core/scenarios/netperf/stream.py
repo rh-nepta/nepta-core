@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def round_f(num, decimal=2):
-    return "{:.{}f}".format(num, decimal)
+    return '{:.{}f}'.format(num, decimal)
 
 
 class NetperfTCPStream(SingleStreamGeneric):
@@ -29,7 +29,7 @@ class NetperfTCPStream(SingleStreamGeneric):
             result_dict['local_cpu'] = test_result['loc_util']
             result_dict['remote_cpu'] = test_result['rem_util']
         except KeyError:
-            logging.error("Parsed NetperfDict has different structure than %s test except!!!" % self.__class__.__name__)
+            logging.error('Parsed NetperfDict has different structure than %s test except!!!' % self.__class__.__name__)
         return result_dict
 
 

@@ -28,8 +28,8 @@ class Path(object):
     def id(self):
         sorted_tags = copy.deepcopy(self.tags)
         sorted_tags.sort()
-        uid = uuid.uuid5(uuid.NAMESPACE_DNS, ",".join(map(str, sorted_tags)))
-        logger.debug("Sorted tags : {}, generated uid: {}".format(sorted_tags, uid))
+        uid = uuid.uuid5(uuid.NAMESPACE_DNS, ','.join(map(str, sorted_tags)))
+        logger.debug('Sorted tags : {}, generated uid: {}'.format(sorted_tags, uid))
         return uid
 
     @property
@@ -96,7 +96,7 @@ class RsyncHost(object):
         self.attempt_delays = attempt_delays if attempt_delays is not None else [0]
 
     def __repr__(self):
-        return f"{self.__class__.__name__}: {self.__dict__}"
+        return f'{self.__class__.__name__}: {self.__dict__}'
 
     def __str__(self):
-        return f"{self.__class__.__name__}: server address: {self.server}, destination: {self.destination}"
+        return f'{self.__class__.__name__}: server address: {self.server}, destination: {self.destination}'

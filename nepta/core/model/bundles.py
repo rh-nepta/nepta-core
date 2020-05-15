@@ -13,7 +13,7 @@ class DupliciteConfException(BundleException): pass
 
 
 class Bundle(object):
-    _properties = ["_bundles", "_components", "_parents", "__deepcopy__", "__getstate__"]
+    _properties = ['_bundles', '_components', '_parents', '__deepcopy__', '__getstate__']
 
     def __init__(self, clone=None):
         self._components = []           # configuration objects of this bundle
@@ -23,7 +23,7 @@ class Bundle(object):
             self += clone
 
     def __str__(self):
-        return 'Configuration bundle : \n' + "\n".join([str(x) for x in self.get_all_components()])
+        return 'Configuration bundle : \n' + '\n'.join([str(x) for x in self.get_all_components()])
 
     def __iter__(self):
         return self.item_generator()
@@ -46,7 +46,7 @@ class Bundle(object):
             if isinstance(value, Bundle) and new_item:
                 value._parents.append(self)
                 if len(value._parents) > 1:
-                    logger.warning("You are using cyclic graph structure!!! Be careful!!!")
+                    logger.warning('You are using cyclic graph structure!!! Be careful!!!')
         else:
             super().__setattr__(key, value)
 
@@ -170,8 +170,8 @@ class Bundle(object):
                     setattr(self, attr_name, value.clone())
             else:  # if is not instance of Bundle
                 if attr_name in self._bundles:
-                    raise MergeBundleException("%s -> {%s} model is defined in both trees."
-                                               " I do NOT know which should I use." % (attr_name, value))
+                    raise MergeBundleException('%s -> {%s} model is defined in both trees.'
+                                               ' I do NOT know which should I use.' % (attr_name, value))
                 else:
                     self._bundles[attr_name] = value
 
@@ -195,7 +195,7 @@ class Bundle(object):
         return new_bundle
 
     def str_tree(self):
-        return "\n".join([str(x) for x in DisplayableNode.from_bundle('RootBundle', self)])
+        return '\n'.join([str(x) for x in DisplayableNode.from_bundle('RootBundle', self)])
 
 
 class DisplayableNode(object):
@@ -264,21 +264,21 @@ class DisplayableNode(object):
         while parent and parent.parent is not None:
             parent_prefix_list.append(self.parent_prefix_last if parent.is_last else self.parent_prefix_middle)
             parent = parent.parent
-        return "".join(reversed(parent_prefix_list))
+        return ''.join(reversed(parent_prefix_list))
 
     def __str__(self):
         if self.parent is None:
             return self.name
 
-        bundle_name = "{!s} {!s}".format(self.child_prefix_last if self.is_last else self.child_prefix_middle, self.name)
-        model_value_str = "" if self.label is None else self.format_label_str()
+        bundle_name = '{!s} {!s}'.format(self.child_prefix_last if self.is_last else self.child_prefix_middle, self.name)
+        model_value_str = '' if self.label is None else self.format_label_str()
 
         return self.parent_prefix + bundle_name + model_value_str
 
 
 class HostBundle(Bundle):
     _all_confs_register = defaultdict(dict)
-    _properties = Bundle._properties + ['_hostname', "_conf_name"]
+    _properties = Bundle._properties + ['_hostname', '_conf_name']
 
     @classmethod
     def find(cls, hostname, conf_name):
@@ -318,7 +318,7 @@ class HostBundle(Bundle):
         self._add_configuration(self)
 
     def __str__(self):
-        return 'Host configuration bundle : \n' + "\n".join([str(x) for x in self.get_all_components()])
+        return 'Host configuration bundle : \n' + '\n'.join([str(x) for x in self.get_all_components()])
 
     @property
     def hostname(self):

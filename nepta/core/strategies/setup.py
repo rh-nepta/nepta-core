@@ -38,7 +38,7 @@ class Setup(Strategy):
     @Strategy.schedule
     def install_packages(self):
         pkgs = self.conf.get_subset(m_type=model.system.Package)
-        install_cmd = self._INSTALLER + " ".join([str(pkg.value) for pkg in pkgs])
+        install_cmd = self._INSTALLER + ' '.join([str(pkg.value) for pkg in pkgs])
         c = Command(install_cmd)
         c.run()
         out, retcode = c.watch_output()
@@ -92,7 +92,7 @@ class Setup(Strategy):
             if len(profile) > 1:
                 logger.warning('Too many tuned profiles in configuration \n%s' % self.conf)
             profile = profile[0]
-            logger.info("Setting tuned-adm profile: %s" % profile)
+            logger.info('Setting tuned-adm profile: %s' % profile)
             out, retcode = Tuned.set_profile(profile.value)
             if retcode:
                 logger.error(out)
@@ -104,12 +104,12 @@ class Setup(Strategy):
 
     @Strategy.schedule
     def configure_kernel_modules(self):
-        logger.info("Configuring kernel modules")
+        logger.info('Configuring kernel modules')
         for mod in self.conf.get_subset(m_class=model.system.KernelModule):
             logger.info(f'Configuring module {mod}')
             conf_files.KernelLoadModuleConfig(mod).apply()
             conf_files.KernelModuleOptions(mod).apply()
-            logger.info(f"Inserting module {mod}")
+            logger.info(f'Inserting module {mod}')
             KernelModuleUtils.modprobe(mod)
 
     def stop_net(self):
@@ -128,7 +128,7 @@ class Setup(Strategy):
         if os.path.exists(conf_files.IPsecConnFile.IPSEC_CONF_DIR):
             ls_dir = Fs.list_path(conf_files.IPsecConnFile.IPSEC_CONF_DIR)
             for conn_file in [x for x in ls_dir if x.startswith(conf_files.IPsecConnFile.IPSEC_CONF_PREFIX)]:
-                logging.debug("Deleting : {}".format(conn_file))
+                logging.debug('Deleting : {}'.format(conn_file))
                 Fs.rm(os.path.join(conf_files.IPsecConnFile.IPSEC_CONF_DIR, conn_file))
 
     @Strategy.schedule
@@ -151,7 +151,7 @@ class Setup(Strategy):
         if os.path.exists(conf_files.WireGuardConnectionFile.CONF_DIR):
             ls_dir = Fs.list_path(conf_files.WireGuardConnectionFile.CONF_DIR)
             for conn_file in [x for x in ls_dir if x.endswith(conf_files.WireGuardConnectionFile.SUFFIX)]:
-                logging.debug("Deleting : {}".format(conn_file))
+                logging.debug('Deleting : {}'.format(conn_file))
                 Fs.rm(os.path.join(conf_files.WireGuardConnectionFile.CONF_DIR, conn_file))
 
     @Strategy.schedule

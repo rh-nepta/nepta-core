@@ -24,14 +24,14 @@ class Submit(Strategy):
     def submit(self):
         logger.info('Starting rsync results')
         for rsync in self.configuration.get_subset(m_class=RsyncHost):
-            logger.info('Rsyncing results to %s', ":".join([rsync.server, rsync.destination]))
+            logger.info('Rsyncing results to %s', ':'.join([rsync.server, rsync.destination]))
             c = Command(self._RSYNC_TEMPLATE.render(path=self.package.path, rsync=rsync))
             c.run()
             out, ret = c.watch_output()
             if not ret:
-                logger.info("Rsync successful")
+                logger.info('Rsync successful')
             else:
-                logger.error("Rsync failed")
+                logger.error('Rsync failed')
                 logger.error(out)
 
 
@@ -41,7 +41,7 @@ class ReliableSubmit(Submit):
     def _rsync_sender(rsync: RsyncHost, cmd: str):
         for delay in rsync.attempt_delays:
             sleep(delay * 60)
-            dest = ":".join([rsync.server, rsync.destination])
+            dest = ':'.join([rsync.server, rsync.destination])
             logger.info(f'Rsyncing results to {dest}', )
 
             c = Command(cmd)
@@ -49,10 +49,10 @@ class ReliableSubmit(Submit):
             out, ret = c.get_output()
             logger.debug(out)
             if ret == 0:
-                logger.info(f"Rsync result to {dest} >> Successful")
+                logger.info(f'Rsync result to {dest} >> Successful')
                 break
             else:
-                logger.error(f"Rsync result to {dest} >> Failed")
+                logger.error(f'Rsync result to {dest} >> Failed')
         else:  # no break
             logger.error(f'All rsync attempts to destination {rsync.destination} failed.'
                          f' Result was not sent to data server.')

@@ -134,9 +134,9 @@ class IPsecSecretsFile(GenericIPsecFile):
 
     def _make_jinja_context(self):
         return {
-            "left": self.connection.left_ip.ip,
-            "right": self.connection.right_ip.ip,
-            "password": self.connection.passphrase,
+            'left': self.connection.left_ip.ip,
+            'right': self.connection.right_ip.ip,
+            'password': self.connection.passphrase,
         }
 
 
@@ -168,7 +168,7 @@ class UdevRulesFile(JinjaConfFile):
         return self.RULES_FILE
 
     def _make_jinja_context(self):
-        return {"interfaces": self._interfaces}
+        return {'interfaces': self._interfaces}
 
 
 class IfcfgFile(JinjaConfFile):
@@ -442,7 +442,7 @@ class KernelModuleConf(ConfigFile, ABC):
         self.mod = mod
 
     def _make_path(self):
-        return os.path.join(self.CONF_DIR, f"{self.mod.name}.conf")
+        return os.path.join(self.CONF_DIR, f'{self.mod.name}.conf')
 
 
 class KernelLoadModuleConfig(KernelModuleConf):

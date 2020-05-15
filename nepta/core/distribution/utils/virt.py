@@ -229,7 +229,7 @@ class Virsh:
         c.run()
         output, return_code = c.get_output()
         if return_code:
-            logger.error("Virsh >> %s" % output)
+            logger.error('Virsh >> %s' % output)
         else:
-            logger.info("Virsh >> %s" % output)
+            logger.info('Virsh >> %s' % output)
         return return_code

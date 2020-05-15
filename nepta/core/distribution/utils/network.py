@@ -24,7 +24,7 @@ class IpCommand(object):
 
         @classmethod
         def get_all_interfaces(cls):
-            logger.debug("Getting all interfaces")
+            logger.debug('Getting all interfaces')
             link_cmd = Command('ip link')
             link_cmd.run()
 
@@ -142,7 +142,7 @@ class Tuna(object):
 
     @staticmethod
     def list_all_irqs():
-        cmd_line = "tuna --show_irqs"
+        cmd_line = 'tuna --show_irqs'
         cmd = Command(cmd_line)
         cmd.run()
         output, _ = cmd.get_output()
@@ -151,7 +151,7 @@ class Tuna(object):
 
     @staticmethod
     def get_irq_of_interface(interface):
-        cmd_line = "tuna --show_irqs | grep %s" % interface
+        cmd_line = 'tuna --show_irqs | grep %s' % interface
         cmd = Command(cmd_line)
         cmd.run()
         all_irq, _ = cmd.get_output()
@@ -165,9 +165,9 @@ class Tuna(object):
     @classmethod
     def set_irq_cpu_binding(cls, interface, cpu):
         interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ", ".join(interface_irq)
+        irqs = ', '.join(interface_irq)
 
-        cmd_line = "tuna --irqs=%s --cpu=%s --move" % (irqs, cpu)
+        cmd_line = 'tuna --irqs=%s --cpu=%s --move' % (irqs, cpu)
         cmd = Command(cmd_line)
         cmd.run()
         cmd.get_output()
@@ -175,9 +175,9 @@ class Tuna(object):
     @classmethod
     def set_irq_socket_binding(cls, interface, socket):
         interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ", ".join(interface_irq)
+        irqs = ', '.join(interface_irq)
 
-        cmd_line = "tuna --irqs=%s --sockets=%s --move" % (irqs, socket)
+        cmd_line = 'tuna --irqs=%s --sockets=%s --move' % (irqs, socket)
         cmd = Command(cmd_line)
         cmd.run()
         cmd.get_output()

@@ -11,7 +11,7 @@ def info_log_func_output(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         output = f(*args, **kwargs)
-        logger.info(f"function output >>> {output}")
+        logger.info(f'function output >>> {output}')
         return output
     return wrapper
 
@@ -41,13 +41,13 @@ class StreamGeneric(ScenarioGeneric):
     def __str__(self):
         ret_str = super().__str__()
         for k, v in self.__dict__.items():
-            ret_str += "\n\t{}: {}".format(k, v)
+            ret_str += '\n\t{}: {}'.format(k, v)
         return ret_str
 
     def run_scenario(self):
         logger.info('Running scenario: %s' % self)
 
-        root_sec = Section("scenario")
+        root_sec = Section('scenario')
         self.store_scenario(root_sec)
 
         paths_section = Section('paths')
@@ -101,7 +101,7 @@ class StreamGeneric(ScenarioGeneric):
         return test_case_section
 
     def store_msg_size(self, section, size, cpu_pinning=None):
-        section.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, "msg_size=%s test_length=%s" % (size, self.test_length))
+        section.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, 'msg_size=%s test_length=%s' % (size, self.test_length))
         test_settings_sec = Section('test_settings')
         test_settings_sec.subsections.append(Section('item', key='msg_size', value=size))
         test_settings_sec.subsections.append(Section('item', key='test_length', value=self.test_length))
@@ -182,13 +182,13 @@ class MultiStreamsGeneric(StreamGeneric):
             if success:
                 break
 
-            logger.info("Measurements was unsuccessful. Trying again...")
+            logger.info('Measurements was unsuccessful. Trying again...')
             for test in tests:
                 test.clear()
             time.sleep(self.attempt_pause)
 
         else:  # if every attempt fails
-            logger.error("Each measurement fails. Returning results with zeros.")
+            logger.error('Each measurement fails. Returning results with zeros.')
             return Section('failed-test')
 
         return self.store_instance(Section('run'), tests)

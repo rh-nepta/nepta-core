@@ -21,13 +21,13 @@ class Command(object):
         self.log_debug = logger.debug if enable_debug_log else lambda *_: None
 
     def __str__(self):
-        return "{cls}: {cmd}".format(cls=self.__class__.__name__, cmd=self._cmd_str())
+        return '{cls}: {cmd}'.format(cls=self.__class__.__name__, cmd=self._cmd_str())
 
     def _cmd_str(self):
-        return " ".join(self._cmdline)
+        return ' '.join(self._cmdline)
 
     def run(self):
-        self.log_debug("Running %s", self)
+        self.log_debug('Running %s', self)
         self._command_handle = subprocess.Popen(
             self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         return self
@@ -96,7 +96,7 @@ class ShellCommand(Command):
         return self._cmdline
 
     def run(self):
-        self.log_debug("Running command: %s", self._cmdline)
+        self.log_debug('Running command: %s', self._cmdline)
         self._command_handle = subprocess.Popen(
             self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         return self

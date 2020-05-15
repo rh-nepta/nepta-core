@@ -25,7 +25,7 @@ class RemoteLogs(Strategy):
 
         for host in remote_hosts:
             remote_log = self.package.remote_packages.new(host.hostname)
-            logger.info(f"Stealing df-pck from {host.hostname} into {remote_log.path}.")
+            logger.info(f'Stealing df-pck from {host.hostname} into {remote_log.path}.')
             cmd = Command(self._RSYNC_TEMPLATE.render(
                 host=host.hostname, directory=Save.SYMLINK_NAME, local_path=remote_log.path))
             cmd.run()
