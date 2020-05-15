@@ -1,4 +1,4 @@
-image: fedora
+image: adiosnb/nepta-env:latest
 
 stages:
   - pytest
@@ -8,10 +8,6 @@ stages:
 
 before_script:
   - export NETWORK_PERFTEST_ARGS="--help"
-  - dnf -y install python36 python3-pytest git pipenv
-  - dnf -y install libselinux-utils tuned python38
-  - pip3 install pip -U
-  - git config --global http.sslVerify false
   - pipenv install --dev
   - pipenv run env
   - pipenv run pip install .
@@ -45,8 +41,9 @@ nepta-print-conf:
 quotes:
   tags:
     - docker
-  stage: soft
+  stage: pytest
   script: pipenv run tox -e unify
+  allow_failure: true
 
 black:
   tags:
@@ -55,6 +52,7 @@ black:
   needs:
     - quotes
   script: pipenv run tox -e black
+  allow_failure: true
 
 flake8:
   tags:
@@ -63,10 +61,22 @@ flake8:
   needs:
     - quotes
   script: pipenv run tox -e flake8
+  allow_failure: true
+
+pytest-mypy:
+  tags:
+    - docker
+  stage: ultra
+  needs:
+    - py36
+  script: pipenv run tox -e pytest-mypy
+  allow_failure: true
 
 mypy:
   tags:
     - docker
   stage: ultra
-  script: pipenv run pytest --mypy
+  needs:
+    - nepta-print-conf
+  script: pipenv run tox -e mypy
   allow_failure: true
