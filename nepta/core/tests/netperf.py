@@ -39,8 +39,17 @@ class GenericNetperfTest(CommandTool):
 
 
 class NetperStreamfTest(GenericNetperfTest):
-    LABELS = ['rcv_socket_size', 'snd_socket_size', 'msg_size', 'time', 'throughput', 'loc_util', 'rem_util',
-              'service_local', 'service_remote']
+    LABELS = [
+        'rcv_socket_size',
+        'snd_socket_size',
+        'msg_size',
+        'time',
+        'throughput',
+        'loc_util',
+        'rem_util',
+        'service_local',
+        'service_remote',
+    ]
 
     def get_results(self):
         ret = {}
@@ -56,7 +65,7 @@ class NetperStreamfTest(GenericNetperfTest):
 
         warning_string = 'catcher: timer popped with times_up != 0'
         if self._output.find(warning_string) >= 0:
-            output_parts = self._output[len(warning_string):].split()
+            output_parts = self._output[len(warning_string) :].split()
             ret['warning'] = warning_string
         else:
             output_parts = self._output.split()

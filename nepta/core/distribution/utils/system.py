@@ -60,7 +60,6 @@ class RPMTool(object):
 
 
 class SELinux(object):
-
     @staticmethod
     def getenforce():
         cmd = Command('getenforce')
@@ -78,7 +77,6 @@ class SELinux(object):
 
 
 class Tuned(object):
-
     @staticmethod
     def set_profile(profile):
         cmd = Command('tuned-adm profile %s' % profile)
@@ -100,7 +98,6 @@ class Tuned(object):
 
 
 class Lscpu(object):
-
     @staticmethod
     def parse_output_into_dict():
         cmd = Command('lscpu')
@@ -110,7 +107,7 @@ class Lscpu(object):
         for line in out.split('\n'):
             if line:  # skip blank line
                 first_double_dot = line.find(':')
-                ret_dict[line[:first_double_dot].strip()] = line[first_double_dot + 1:].strip()
+                ret_dict[line[:first_double_dot].strip()] = line[first_double_dot + 1 :].strip()
 
         return ret_dict
 
@@ -205,7 +202,6 @@ class SystemD(GenericServiceHandler):
 
 
 class KernelModuleUtils:
-
     @staticmethod
     def modprobe(module: KernelModule):
         opts = ' '.join([f'{k}={v}' for k, v in module.options.items()])

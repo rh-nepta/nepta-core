@@ -32,7 +32,6 @@ def catch_and_log_exception(f):
 
 
 class GenericIPerf3Stream(object):
-
     @staticmethod
     def log_iperf3_error(out_json):
         try:
@@ -55,7 +54,6 @@ class GenericIPerf3Stream(object):
 
 
 class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
-
     def init_test(self, path, size):
         iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
         if path.cpu_pinning:
@@ -80,13 +78,13 @@ class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
 
 
 class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
-
     def init_all_tests(self, path, size):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
-            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port,
-                                  interval=0.1)
+            new_test = Iperf3Test(
+                client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port, interval=0.1
+            )
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
         return tests
@@ -97,14 +95,11 @@ class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         result_dict = OrderedDict()
         total = sum([test.get_result() for test in tests])
         total.set_data_formatter(self.str_round)
-        result_dict.update(
-            {'total_' + key: value for key, value in total}
-        )
+        result_dict.update({'total_' + key: value for key, value in total})
         return result_dict
 
 
 class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
-
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
         if len(tests) > 2:
@@ -121,7 +116,5 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
         total = stream_test_result + reversed_test_result
         result_dict['up_throughput'] = stream_test_result['throughput']
         result_dict['down_throughput'] = reversed_test_result['throughput']
-        result_dict.update(
-            {'total_' + key: value for key, value in total}
-        )
+        result_dict.update({'total_' + key: value for key, value in total})
         return result_dict

@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class Synchronization(object):
-    
     def set_sync_condition(self, condition):
         raise NotImplementedError
 
@@ -33,7 +32,6 @@ class NoSynchronization(Synchronization):
 
 
 class BeakerSynchronization(Synchronization):
-    
     def __init__(self):
         logger.info('Beaker synchronization enabled')
         self._rstrnt = Rstrnt
@@ -51,9 +49,9 @@ class BeakerSynchronization(Synchronization):
 
 
 class PerfSynchronization(Synchronization):
-    
     def __init__(self, sync_server, poll_inerval=1):
         from nepta import synchronization
+
         self._sync_server = sync_server
         self._poll_interval = poll_inerval
         self._client = synchronization.client.SyncClient(self._sync_server)

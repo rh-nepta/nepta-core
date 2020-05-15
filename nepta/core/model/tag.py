@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 
 class GenericTag(object):
-
     def __init__(self, name, value=None):
         self.name = name
         self.value = value
@@ -29,5 +28,3 @@ class HardwareInventoryTag(GenericTag):
 
 class SoftwareInventoryTag(GenericTag):
     pass
-
-

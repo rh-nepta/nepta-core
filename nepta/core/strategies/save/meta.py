@@ -8,7 +8,6 @@ from nepta.core.distribution.utils.system import SELinux, RPMTool, Tuned, Lscpu
 
 
 class SaveMeta(Strategy):
-
     def __init__(self, conf, package, meta=None):
         super().__init__()
         self.conf = conf
@@ -25,7 +24,7 @@ class SaveMeta(Strategy):
 
         root['BenchmarkName'] = 'iperf3'  # TODO : we might have more banchmarks (netperf, iPerf3, etc.)
         root['BenchmarkVersion'] = RPMTool.get_package_version('iperf3')
-        root['Arguments'] = '-v' 
+        root['Arguments'] = '-v'
         root['HostName'] = Environment.fqdn
         root['OtherHostNames'] = [Environment.fqdn]
         root['OtherHostNames'] += [h.hostname for h in self.conf.get_subset(m_class=bundles.SyncHost)]

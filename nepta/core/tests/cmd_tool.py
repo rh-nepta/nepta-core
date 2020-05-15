@@ -5,6 +5,7 @@ class CommandToolException(Exception):
     """
     General exception of this package.
     """
+
     pass
 
 
@@ -12,11 +13,11 @@ class MissingRequiredArgument(CommandToolException):
     """
     Exception is raised when required argument is missing.
     """
+
     pass
 
 
 class CommandArgument(object):
-
     def __init__(self, class_name, argument_name, required=False, argument_type=str, default_value=None):
         """
         This object is abstract class to program argument. It basically store tuple of argument
@@ -88,7 +89,9 @@ class CommandTool(object):
                     ret_str += ' {} {}'.format(arg.argument_name, arg_value)
 
             elif arg.required:  # if required and not set-> error
-                raise MissingRequiredArgument('Argument {} is required in {} command.'.format(arg.argument_name, self.PROGRAM_NAME))
+                raise MissingRequiredArgument(
+                    'Argument {} is required in {} command.'.format(arg.argument_name, self.PROGRAM_NAME)
+                )
 
         return ret_str
 

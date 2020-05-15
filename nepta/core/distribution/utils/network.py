@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 class IpCommand(object):
     class Link(object):
-
         @classmethod
         def get_interface_name(cls, mac):
             mac_regex = r'[0-9]*: (.*):.*\n.*link/ether (%s)' % mac
@@ -84,6 +83,7 @@ class LldpTool(object):
     def restart_lldpad():
         # waitng to be sure if network is up
         from time import sleep
+
         sleep(5)
 
         # TODO : make something better
@@ -139,7 +139,6 @@ class LldpTool(object):
 
 
 class Tuna(object):
-
     @staticmethod
     def list_all_irqs():
         cmd_line = 'tuna --show_irqs'
@@ -190,7 +189,6 @@ class Tuna(object):
 
 
 class OvsVsctl(object):
-
     @staticmethod
     def add_bridge(bridge):
         bridge_name = bridge.name
@@ -236,10 +234,18 @@ class OvsVsctl(object):
         tunnel_rem_ip = tunnel.remote_ip
         tunnel_key = tunnel.key
 
-        logger.info('adding interface %s to bridge %s, type = %s, remote ip = %s'
-                    % (tunnel.name, bridge.name, tunnel.type, tunnel.remote_ip))
-        cmd_line = 'ovs-vsctl add-port %s %s -- set Interface %s type=%s options:remote_ip=%s options:key=%s' \
-                   % (bridge_name, tunnel_name, tunnel_name, tunnel_type, tunnel_rem_ip, tunnel_key)
+        logger.info(
+            'adding interface %s to bridge %s, type = %s, remote ip = %s'
+            % (tunnel.name, bridge.name, tunnel.type, tunnel.remote_ip)
+        )
+        cmd_line = 'ovs-vsctl add-port %s %s -- set Interface %s type=%s options:remote_ip=%s options:key=%s' % (
+            bridge_name,
+            tunnel_name,
+            tunnel_name,
+            tunnel_type,
+            tunnel_rem_ip,
+            tunnel_key,
+        )
         cmd = Command(cmd_line)
         cmd.run()
         output, retcode = cmd.get_output()

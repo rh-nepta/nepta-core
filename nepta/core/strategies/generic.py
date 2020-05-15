@@ -90,4 +90,3 @@ class CompoundStrategy(object):
     def __call__(self):
         for strategy in self.strategies:
             strategy()
-

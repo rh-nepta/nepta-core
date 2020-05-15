@@ -66,7 +66,6 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
 
 
 class Interface(object):
-
     def __init__(self, name, v4_conf=None, v6_conf=None, mtu=1500):
         self.name = name
         self.v4_conf = v4_conf
@@ -107,7 +106,6 @@ class Interface(object):
 
 
 class EthernetInterface(Interface):
-
     def __init__(self, name, mac, v4_conf=None, v6_conf=None, bind_cores=None, mtu=1500):
         self.mac = mac
         if self.mac is not None:
@@ -118,12 +116,15 @@ class EthernetInterface(Interface):
         super(EthernetInterface, self).__init__(name, v4_conf, v6_conf, mtu)
 
     def make_iface_string(self):
-        return 'Ethernet interface %s, MAC:%s, Bridge: %s, MTU: %s' % \
-               (self.name, self.mac, self.master_bridge_name, self.mtu)
+        return 'Ethernet interface %s, MAC:%s, Bridge: %s, MTU: %s' % (
+            self.name,
+            self.mac,
+            self.master_bridge_name,
+            self.mtu,
+        )
 
 
 class VlanInterface(EthernetInterface):
-
     def __init__(self, parrent, vlan_id, v4_conf=None, v6_conf=None):
         self.vlan_id = vlan_id
         self.parrent = parrent
@@ -132,22 +133,23 @@ class VlanInterface(EthernetInterface):
 
     def make_iface_string(self):
         return 'Ethernet vlan interface %s, vlan id: %s, parrent name: %s' % (
-            self.name, self.vlan_id, self.parrent.name)
+            self.name,
+            self.vlan_id,
+            self.parrent.name,
+        )
 
 
 #
 # Guest taps for virtual guests
 #
 class GenericGuestTap(object):
-
     def __init__(self, guest, switch, mac):
         self.switch = switch
         self.guest = guest
         self.mac = mac
 
     def __str__(self):
-        return '%s. MAC: %s, Switch: %s, guest: %s' % (
-            self.__class__.__name__, self.mac, self.switch.name, self.guest)
+        return '%s. MAC: %s, Switch: %s, guest: %s' % (self.__class__.__name__, self.mac, self.switch.name, self.guest)
 
     def __repr__(self):
         return '%s_%s_%s' % (self.switch.name, self.guest.name, self.mac)
@@ -174,7 +176,6 @@ class BridgeGuestTap(GenericGuestTap):
 # Bridge
 #
 class LinuxBridge(EthernetInterface):
-
     def __init__(self, name, v4_conf=None, v6_conf=None):
         super(LinuxBridge, self).__init__(name, None, v4_conf, v6_conf)
 
@@ -189,8 +190,10 @@ class LinuxBridge(EthernetInterface):
 # TEAM objects
 #
 class TeamMasterInterface(EthernetInterface):
-    LACP_RUNNER = '{"runner": {"active": true, "link_watch": "ethotool", "fast_rate": true, "name": "lacp", ' \
-                  '"tx_hash": ["eth", "ipv4", "ipv6", "tcp"]}}'
+    LACP_RUNNER = (
+        '{"runner": {"active": true, "link_watch": "ethotool", "fast_rate": true, "name": "lacp", '
+        '"tx_hash": ["eth", "ipv4", "ipv6", "tcp"]}}'
+    )
     ACT_BCKP_RUNNER = '{"runner": {"name": "activebackup", "link_watch": "ethtool"}}'
 
     def __init__(self, name, v4=None, v6=None, runner=LACP_RUNNER):
@@ -205,7 +208,6 @@ class TeamMasterInterface(EthernetInterface):
 
 
 class TeamChildInterface(EthernetInterface):
-
     def __init__(self, original_interface):
         self.team = None
         super(TeamChildInterface, self).__init__(original_interface.name, original_interface.mac)
@@ -233,7 +235,6 @@ class BondMasterInterface(EthernetInterface):
 
 
 class BondChildInterface(EthernetInterface):
-
     def __init__(self, original_interface):
         super().__init__(original_interface.name, original_interface.mac)
         self.master_bond = None
@@ -249,6 +250,7 @@ class WireGuardPeer:
     private key >>  wg genkey > private
     public key  >>  wg pubkey < private > public
     """
+
     public_key: str
     private_key: str
     allowed_ips: List[IpNetwork]
@@ -265,6 +267,7 @@ class WireGuardTunnel:
     """
     Also called wireguard interface.
     """
+
     local_ip: IpInterface
     private_key: str
     local_port: int = 51820
@@ -308,8 +311,18 @@ class IPsecTunnel(object):
     def generate_tunnels(cls, addrs1: IPBaseConfiguration, addrs2: IPBaseConfiguration, properties: List[dict]):
         return [cls(addr1, addr2, **prop) for addr1, addr2, prop in zip(addrs1, addrs2, properties)]
 
-    def __init__(self, left_ip, right_ip, cipher, passphrase, mode=MODE_TRANSPORT, phase2=PHASE2_ESP,
-                 replay_window=None, encapsulation=ENCAPSULATION_NO, nic_offload=OFFLOAD_NO):
+    def __init__(
+        self,
+        left_ip,
+        right_ip,
+        cipher,
+        passphrase,
+        mode=MODE_TRANSPORT,
+        phase2=PHASE2_ESP,
+        replay_window=None,
+        encapsulation=ENCAPSULATION_NO,
+        nic_offload=OFFLOAD_NO,
+    ):
         if not isinstance(left_ip, ipaddress._BaseAddress) or not isinstance(right_ip, ipaddress._BaseAddress):
             raise TypeError('Left and Right IP address should be object from ipaddress module')
         self.left_ip = left_ip
@@ -328,9 +341,21 @@ class IPsecTunnel(object):
 
     def __str__(self):
         replay_window_str = 'default' if self.replay_window is None else '%d' % self.replay_window
-        return 'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s, ' \
-               'nic-offload %s' % (self.family, self.left_ip, self.right_ip, self.phase2, self.cipher, self.mode,
-                                   replay_window_str, self.encapsulation, self.nic_offload)
+        return (
+            'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s, '
+            'nic-offload %s'
+            % (
+                self.family,
+                self.left_ip,
+                self.right_ip,
+                self.phase2,
+                self.cipher,
+                self.mode,
+                replay_window_str,
+                self.encapsulation,
+                self.nic_offload,
+            )
+        )
 
     @property
     def family(self):
@@ -347,8 +372,10 @@ class IPsecTunnel(object):
 
         The name of a connection is used in ipsec configuration.
         '''
-        return f'{self.family}_{self.mode}_{self.cipher}_encap-{self.encapsulation}_' \
-               f'{self.left_ip.ip}_{self.right_ip.ip}'
+        return (
+            f'{self.family}_{self.mode}_{self.cipher}_encap-{self.encapsulation}_'
+            f'{self.left_ip.ip}_{self.right_ip.ip}'
+        )
 
     @property
     def tags(self):
@@ -365,7 +392,6 @@ class IPsecTunnel(object):
 
 
 class RouteGeneric(object):
-
     @classmethod
     def from_path(cls, path, interfaces):
         destination = None
@@ -450,7 +476,6 @@ class Route6(RouteGeneric):
 # OVS related objects
 #
 class OVSwitch(object):
-
     def __init__(self, name):
         self.name = name
         self.interfaces = []
@@ -485,7 +510,6 @@ class OVSTunnel(object):
 
 
 class OVSIntPort(EthernetInterface):
-
     def __init__(self, name, ovs_switch, v4_conf=None, v6_conf=None):
         self.ovs_switch = ovs_switch
         super(OVSIntPort, self).__init__(name, None, v4_conf, v6_conf)

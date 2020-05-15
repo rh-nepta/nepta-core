@@ -85,7 +85,6 @@ class _VariousOptions:
 
 
 class _NamedOptions(_VariousOptions):
-
     def __init__(self, name, **kwargs):
         super().__init__(**kwargs)
         self.name = name

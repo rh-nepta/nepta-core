@@ -28,8 +28,7 @@ class Command(object):
 
     def run(self):
         self.log_debug('Running %s', self)
-        self._command_handle = subprocess.Popen(
-            self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        self._command_handle = subprocess.Popen(self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         return self
 
     def wait(self):
@@ -98,5 +97,6 @@ class ShellCommand(Command):
     def run(self):
         self.log_debug('Running command: %s', self._cmdline)
         self._command_handle = subprocess.Popen(
-            self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+            self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         return self

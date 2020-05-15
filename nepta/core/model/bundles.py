@@ -7,17 +7,24 @@ from nepta.core.model.system import Value
 logger = logging.getLogger(__name__)
 
 
-class BundleException(Exception): pass
-class MergeBundleException(BundleException): pass
-class DupliciteConfException(BundleException): pass
+class BundleException(Exception):
+    pass
+
+
+class MergeBundleException(BundleException):
+    pass
+
+
+class DupliciteConfException(BundleException):
+    pass
 
 
 class Bundle(object):
     _properties = ['_bundles', '_components', '_parents', '__deepcopy__', '__getstate__']
 
     def __init__(self, clone=None):
-        self._components = []           # configuration objects of this bundle
-        self._bundles = OrderedDict()   # tree nodes (children)
+        self._components = []  # configuration objects of this bundle
+        self._bundles = OrderedDict()  # tree nodes (children)
         self._parents = []
         if clone is not None:
             self += clone
@@ -170,8 +177,10 @@ class Bundle(object):
                     setattr(self, attr_name, value.clone())
             else:  # if is not instance of Bundle
                 if attr_name in self._bundles:
-                    raise MergeBundleException('%s -> {%s} model is defined in both trees.'
-                                               ' I do NOT know which should I use.' % (attr_name, value))
+                    raise MergeBundleException(
+                        '%s -> {%s} model is defined in both trees.'
+                        ' I do NOT know which should I use.' % (attr_name, value)
+                    )
                 else:
                     self._bundles[attr_name] = value
 
@@ -202,6 +211,7 @@ class DisplayableNode(object):
     """
     Inspired by : https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
     """
+
     child_prefix_middle = '├──'
     child_prefix_last = '└──'
     parent_prefix_middle = '|   '
@@ -270,7 +280,9 @@ class DisplayableNode(object):
         if self.parent is None:
             return self.name
 
-        bundle_name = '{!s} {!s}'.format(self.child_prefix_last if self.is_last else self.child_prefix_middle, self.name)
+        bundle_name = '{!s} {!s}'.format(
+            self.child_prefix_last if self.is_last else self.child_prefix_middle, self.name
+        )
         model_value_str = '' if self.label is None else self.format_label_str()
 
         return self.parent_prefix + bundle_name + model_value_str
@@ -336,7 +348,6 @@ class HostBundle(Bundle):
 
 
 class SyncHost(object):
-
     def __init__(self, hostname):
         self._hostname = hostname
 

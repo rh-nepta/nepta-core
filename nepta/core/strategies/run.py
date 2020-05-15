@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 class RunScenarios(Strategy):
-
     def __init__(self, conf, package, filter_scenarios=None):
         super().__init__()
         self.conf = conf

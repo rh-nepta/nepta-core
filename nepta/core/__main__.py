@@ -64,7 +64,8 @@ def get_synchronization(sync, conf):
 
 def init_package(conf_name, start_time):
     pckg_path = '{}__{}__{}__{}__ts{}'.format(
-        Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time))
+        Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time)
+    )
     logger.info('Creating libres package in : {}'.format(pckg_path))
 
     package = DataPackage.create(pckg_path)
@@ -119,9 +120,7 @@ def create_desynchronize_strategy(strategy: CompoundStrategy, package: DataPacka
     desync_strategy = CompoundStrategy()
     for strat in strategy.strategies:
         if isinstance(strat, strategies.sync.Synchronize):
-            desync_strategy += strategies.sync.EndSyncBarriers(
-                strat.configuration, strat.synchronizer, strat.condition
-            )
+            desync_strategy += strategies.sync.EndSyncBarriers(strat.configuration, strat.synchronizer, strat.condition)
 
     desync_strategy += strategies.save.save_package.Save(package)
 
@@ -137,50 +136,103 @@ class CheckEnvVariable(argparse._AppendAction):
             super().__call__(parser, namespace, values, option_string)
         else:
             raise argparse.ArgumentError(
-                self, "Provided key \"{}\" is not defined in Environment so it cannot be overridden.".format(values[0]))
+                self, "Provided key \"{}\" is not defined in Environment so it cannot be overridden.".format(values[0])
+            )
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Script for running whole network performance test suite. This test is'
-                                                 ' divided into separate phases, which take care of : setup servers,'
-                                                 'execute tests, save results. Each of these phases can be run'
-                                                 'ane by one or together according to your preferences.')
+    parser = argparse.ArgumentParser(
+        description='Script for running whole network performance test suite. This test is'
+        ' divided into separate phases, which take care of : setup servers,'
+        'execute tests, save results. Each of these phases can be run'
+        'ane by one or together according to your preferences.'
+    )
 
-    parser.add_argument('-c', '--configuration', required=True, action='store',
-                        help='Specify which configuration is going to be run.')
+    parser.add_argument(
+        '-c', '--configuration', required=True, action='store', help='Specify which configuration is going to be run.'
+    )
 
     # phase arguments
     parser.add_argument('--setup', action='store_true', help='[phase] Setup server for test.')
     parser.add_argument('--prepare', action='store_true', help='[phase] Prepare non-persistent settings before test.')
     parser.add_argument('--execute', action='store_true', help='[phase] Run test scenarios.')
-    parser.add_argument('--store', action='store_true',
-                        help='[phase] Save test results and meta variables into dataformat package')
-    parser.add_argument('--store-logs', action='store_true',
-                        help='[phase] Save additional logs from testing server into dataformat package.')
-    parser.add_argument('--store-remote-logs', action='store_true',
-                        help='[phase] Save additional logs from remote testing servers into dataformat package.')
+    parser.add_argument(
+        '--store', action='store_true', help='[phase] Save test results and meta variables into dataformat package'
+    )
+    parser.add_argument(
+        '--store-logs',
+        action='store_true',
+        help='[phase] Save additional logs from testing server into dataformat package.',
+    )
+    parser.add_argument(
+        '--store-remote-logs',
+        action='store_true',
+        help='[phase] Save additional logs from remote testing servers into dataformat package.',
+    )
     parser.add_argument('--submit', action='store_true', help='[phase] Send dataformat package into result server.')
 
     # additional arguments
-    parser.add_argument('-e', '--environment', nargs=2, action=CheckEnvVariable, metavar=('ENV', 'VAR'),
-                        help='Override Environment object attribute with provided value.')
-    parser.add_argument('--sync', choices=['beaker', 'perfqe', 'none'], action='store', default='none',
-                        help='Specify synchronization method used before and after test execution '
-                             '[Default: %(default)s].')
-    parser.add_argument('-s', '--scenario', dest='scenarios', action='append', type=str,
-                        help='Run only specified scenario.')
-    parser.add_argument('-l', '--log', action='store', type=str.upper, help='Logging level [Default: %(default)s].',
-                        choices=['DEBUG', 'WARNING', 'INFO', 'ERROR', 'EXCEPTION'], default='INFO')
-    parser.add_argument('--meta', nargs=2, action='append', metavar=('KEY', 'VALUE'), default=[],
-                        help='Append meta variables into package.')
-    parser.add_argument('-f', '--filter', action='append', metavar='FILTERED_CLASS',
-                        help='Filter current configuration of these model object types.')
-    parser.add_argument('-d', '--delete-tree', action='append', metavar='SUBTREE_PATH',
-                        help='Specify which sub-tree of configuration tree will be deleted.')
-    parser.add_argument('-p', '--print', action='store_true',
-                        help='Print current configuration in tree format and exit.')
-    parser.add_argument('-i', '--import', dest='imp', action='append', nargs=2,  metavar=('MODULE_NAME', 'PATH'),
-                        help='Dynamically import test configurations.')
+    parser.add_argument(
+        '-e',
+        '--environment',
+        nargs=2,
+        action=CheckEnvVariable,
+        metavar=('ENV', 'VAR'),
+        help='Override Environment object attribute with provided value.',
+    )
+    parser.add_argument(
+        '--sync',
+        choices=['beaker', 'perfqe', 'none'],
+        action='store',
+        default='none',
+        help='Specify synchronization method used before and after test execution ' '[Default: %(default)s].',
+    )
+    parser.add_argument(
+        '-s', '--scenario', dest='scenarios', action='append', type=str, help='Run only specified scenario.'
+    )
+    parser.add_argument(
+        '-l',
+        '--log',
+        action='store',
+        type=str.upper,
+        help='Logging level [Default: %(default)s].',
+        choices=['DEBUG', 'WARNING', 'INFO', 'ERROR', 'EXCEPTION'],
+        default='INFO',
+    )
+    parser.add_argument(
+        '--meta',
+        nargs=2,
+        action='append',
+        metavar=('KEY', 'VALUE'),
+        default=[],
+        help='Append meta variables into package.',
+    )
+    parser.add_argument(
+        '-f',
+        '--filter',
+        action='append',
+        metavar='FILTERED_CLASS',
+        help='Filter current configuration of these model object types.',
+    )
+    parser.add_argument(
+        '-d',
+        '--delete-tree',
+        action='append',
+        metavar='SUBTREE_PATH',
+        help='Specify which sub-tree of configuration tree will be deleted.',
+    )
+    parser.add_argument(
+        '-p', '--print', action='store_true', help='Print current configuration in tree format and exit.'
+    )
+    parser.add_argument(
+        '-i',
+        '--import',
+        dest='imp',
+        action='append',
+        nargs=2,
+        metavar=('MODULE_NAME', 'PATH'),
+        help='Dynamically import test configurations.',
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
