@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class Prepare(Strategy):
-
     def __init__(self, configuration):
         super().__init__()
         self.conf = configuration

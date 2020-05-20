@@ -592,7 +592,7 @@ class TestMergeBundles(TestCase):
         b3.attch.cmd.ipx = attachments.Command('ip x sta')
 
         try:
-            b4 = b2 + b3
+            b2 + b3
         except bundles.MergeBundleException:
             pass
         else:  # if exception is not raised

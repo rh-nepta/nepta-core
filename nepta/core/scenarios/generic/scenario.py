@@ -13,11 +13,11 @@ def info_log_func_output(f):
         output = f(*args, **kwargs)
         logger.info(f'function output >>> {output}')
         return output
+
     return wrapper
 
 
 class ScenarioGeneric(object):
-
     def __str__(self):
         return self.__class__.__name__
 
@@ -29,7 +29,6 @@ class ScenarioGeneric(object):
 
 
 class StreamGeneric(ScenarioGeneric):
-
     def __init__(self, paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port):
         self.paths = paths
         self.test_length = test_length
@@ -116,7 +115,6 @@ class StreamGeneric(ScenarioGeneric):
 
 
 class SingleStreamGeneric(StreamGeneric):
-
     def init_test(self, path, size):
         raise NotImplementedError
 
@@ -145,7 +143,6 @@ class SingleStreamGeneric(StreamGeneric):
 
 
 class MultiStreamsGeneric(StreamGeneric):
-
     def __init__(self, paths, attempt_count, attempt_pause, test_length, test_runs, msg_sizes, cpu_pinning, base_port):
         super().__init__(paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port)
         self.attempt_count = attempt_count
@@ -200,7 +197,6 @@ class MultiStreamsGeneric(StreamGeneric):
 
 
 class DuplexStreamGeneric(MultiStreamsGeneric):
-
     def store_msg_size(self, section, size, cpu_pinning=None):
         super().store_msg_size(section, size)
         if cpu_pinning:

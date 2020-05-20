@@ -79,6 +79,7 @@ class Docker(object):
 
         if inherit_arguments_from_master_proc:
             import sys
+
             if len(sys.argv) > 1:
                 cmd_prototype += ' ' + ' '.join(sys.argv[1:])
             else:
@@ -120,7 +121,8 @@ class Virsh:
         for line in out_lines:
             parts = line.split()
             ret.append(
-                {'interface': parts[0], 'type': parts[1], 'source': parts[2], 'model': parts[3], 'mac': parts[4]})
+                {'interface': parts[0], 'type': parts[1], 'source': parts[2], 'model': parts[3], 'mac': parts[4]}
+            )
         return ret
 
     @staticmethod

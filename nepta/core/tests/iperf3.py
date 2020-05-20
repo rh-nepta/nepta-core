@@ -48,9 +48,7 @@ class Iperf3TestResult(object):
         :param other: Iperf3TestResultObject object
         :return: new instance of Iperf3TestResultObject containing self + other
         """
-        return self.__class__(
-            self._array + other._array, self._format_func
-        )
+        return self.__class__(self._array + other._array, self._format_func)
 
     @__add__.register(int)
     def _(self, other):
@@ -78,44 +76,47 @@ class Iperf3TestResult(object):
 
 
 class Iperf3TCPTestResult(Iperf3TestResult):
-    _DIMENSIONS = {name: order for order, name in enumerate(
-        ['throughput', 'local_cpu', 'remote_cpu', 'stddev']
-    )}
+    _DIMENSIONS = {name: order for order, name in enumerate(['throughput', 'local_cpu', 'remote_cpu', 'stddev'])}
 
     @classmethod
     def from_json(cls, json_data):
         end = json_data['end']
-        std_dev = stdev(
-            [x['sum']['bits_per_second'] for x in json_data['intervals']]
-        )
+        std_dev = stdev([x['sum']['bits_per_second'] for x in json_data['intervals']])
 
-        return cls(np.array([
-            end['sum_received']['bits_per_second'],
-            end['cpu_utilization_percent']['host_total'],
-            end['cpu_utilization_percent']['remote_total'],
-            std_dev
-        ]))
+        return cls(
+            np.array(
+                [
+                    end['sum_received']['bits_per_second'],
+                    end['cpu_utilization_percent']['host_total'],
+                    end['cpu_utilization_percent']['remote_total'],
+                    std_dev,
+                ]
+            )
+        )
 
 
 class Iperf3UDPTestResult(Iperf3TestResult):
-    _DIMENSIONS = {name: order for order, name in enumerate(
-        ['sender_throughput', 'receiver_throughput', 'local_cpu', 'remote_cpu', 'stddev']
-    )}
+    _DIMENSIONS = {
+        name: order
+        for order, name in enumerate(['sender_throughput', 'receiver_throughput', 'local_cpu', 'remote_cpu', 'stddev'])
+    }
 
     @classmethod
     def from_json(cls, json_data):
         end = json_data['end']
-        std_dev = stdev(
-            [x['sum']['bits_per_second'] for x in json_data['intervals']]
-        )
+        std_dev = stdev([x['sum']['bits_per_second'] for x in json_data['intervals']])
 
-        return cls(np.array([
-            end['sum']['bits_per_second'],
-            end['sum']['bits_per_second'] * (1 - end['sum']['lost_percent']/100),
-            end['cpu_utilization_percent']['host_total'],
-            end['cpu_utilization_percent']['remote_total'],
-            std_dev,
-        ]))
+        return cls(
+            np.array(
+                [
+                    end['sum']['bits_per_second'],
+                    end['sum']['bits_per_second'] * (1 - end['sum']['lost_percent'] / 100),
+                    end['cpu_utilization_percent']['host_total'],
+                    end['cpu_utilization_percent']['remote_total'],
+                    std_dev,
+                ]
+            )
+        )
 
 
 class Iperf3(CommandTool):
@@ -124,6 +125,7 @@ class Iperf3(CommandTool):
     You should NOT create objects from this class. It is just abstract
     definition of iPerf3 program.
     """
+
     PROGRAM_NAME = 'iperf3'
     MAPPING = [
         CommandArgument('port', '--port'),
@@ -139,6 +141,7 @@ class Iperf3Server(Iperf3):
     services running on servers. It should be run on second server
     of test pair, to enable iPerf3 test listener.
     """
+
     MAPPING = Iperf3.MAPPING + [
         CommandArgument('server', '--server', argument_type=bool, default_value=True),
         CommandArgument('daemon', '--daemon', argument_type=bool, default_value=True),
@@ -152,6 +155,7 @@ class Iperf3Test(Iperf3Server):
     Output for each test case is returned to caller, because
     there are various different requirements for test output.
     """
+
     MAPPING = Iperf3.MAPPING + [
         CommandArgument('interval', '--interval'),
         CommandArgument('client', '--client', required=True),
@@ -163,7 +167,7 @@ class Iperf3Test(Iperf3Server):
         CommandArgument('parallel', '--parallel'),
         CommandArgument('reverse', '--reverse', argument_type=bool),
         CommandArgument('congestion', '--congestion'),
-        CommandArgument('zerocopy', '--zerocopy', argument_type=bool)
+        CommandArgument('zerocopy', '--zerocopy', argument_type=bool),
     ]
 
     def run(self):

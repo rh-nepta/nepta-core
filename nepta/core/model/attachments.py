@@ -30,9 +30,7 @@ class CycleCommand(Command):
         self.cmd_for_list = cmd_for_list
 
     def __str__(self):
-        return f'{self.__class__.__name__}\n' \
-               f'\tlist generator: {self.cmd_for_list}\n' \
-               f'\tcommand: {self.cmdline}'
+        return f'{self.__class__.__name__}\n' f'\tlist generator: {self.cmd_for_list}\n' f'\tcommand: {self.cmdline}'
 
 
 class Url(GenericAttachment):

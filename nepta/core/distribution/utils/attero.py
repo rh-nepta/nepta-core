@@ -7,12 +7,11 @@ try:
 except ImportError:
     logger.error('Pyattero library is not available in the system. Attero component cannot be used.')
 
-
     class Null(object):
         def __getattribute__(self, item):
-            raise ImportError('Attero library is not imported. If you want to use Attero component, '
-                              'install pyattero library.')
-
+            raise ImportError(
+                'Attero library is not imported. If you want to use Attero component, ' 'install pyattero library.'
+            )
 
     atteroctl = Null()
 
@@ -38,7 +37,8 @@ class Attero(object):
                 Attero.set_bandwidth(direction, bandwidth)
             except Exception as e:
                 logger.error(
-                    'Attero cannot set impairments [delay: %s, bandwidth: %s, attempt: %s]' % (delay, bandwidth, i))
+                    'Attero cannot set impairments [delay: %s, bandwidth: %s, attempt: %s]' % (delay, bandwidth, i)
+                )
                 logger.error(e)
                 i += 1
                 if i >= Attero.MaxAttempts:

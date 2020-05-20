@@ -12,8 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class Submit(Strategy):
-    _RSYNC_TEMPLATE = jinja2.Template("""rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X {{ path }} \
-{{ rsync.server }}::{{ rsync.destination }}""")
+    _RSYNC_TEMPLATE = jinja2.Template(
+        """rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X {{ path }} \
+{{ rsync.server }}::{{ rsync.destination }}"""
+    )
 
     def __init__(self, configuration, package):
         super().__init__()
@@ -36,13 +38,12 @@ class Submit(Strategy):
 
 
 class ReliableSubmit(Submit):
-
     @staticmethod
     def _rsync_sender(rsync: RsyncHost, cmd: str):
         for delay in rsync.attempt_delays:
             sleep(delay * 60)
             dest = ':'.join([rsync.server, rsync.destination])
-            logger.info(f'Rsyncing results to {dest}', )
+            logger.info(f'Rsyncing results to {dest}',)
 
             c = Command(cmd)
             c.run()
@@ -54,8 +55,9 @@ class ReliableSubmit(Submit):
             else:
                 logger.error(f'Rsync result to {dest} >> Failed')
         else:  # no break
-            logger.error(f'All rsync attempts to destination {rsync.destination} failed.'
-                         f' Result was not sent to data server.')
+            logger.error(
+                f'All rsync attempts to destination {rsync.destination} failed.' f' Result was not sent to data server.'
+            )
 
     @Strategy.schedule
     def submit(self):
@@ -64,7 +66,9 @@ class ReliableSubmit(Submit):
         rsyncs = list(self.configuration.get_subset(m_class=RsyncHost))
 
         with Pool(len(rsyncs)) as p:
-            p.starmap(ReliableSubmit._rsync_sender,
-                      [(rsync, self._RSYNC_TEMPLATE.render(rsync=rsync, path=self.package.path)) for rsync in rsyncs])
+            p.starmap(
+                ReliableSubmit._rsync_sender,
+                [(rsync, self._RSYNC_TEMPLATE.render(rsync=rsync, path=self.package.path)) for rsync in rsyncs],
+            )
 
         logging.debug('Quitting reliable rsyncing results to servers')

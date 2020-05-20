@@ -69,8 +69,9 @@ class JinjaConfFile(ConfigFile, ABC):
 
     def __init__(self):
         template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.TEMPLATE_DIR)
-        self.jinja_environment = Environment(loader=FileSystemLoader(template_dir), trim_blocks=True,
-                                             lstrip_blocks=True)
+        self.jinja_environment = Environment(
+            loader=FileSystemLoader(template_dir), trim_blocks=True, lstrip_blocks=True
+        )
         self.template = self.TEMPLATE
 
     def _make_jinja_context(self):
@@ -96,9 +97,7 @@ class GenericIPsecFile(JinjaConfFile, ABC):
         self.connection = connection
 
     def _make_path(self):
-        return os.path.join(
-            self.IPSEC_CONF_DIR,
-            f'{self.IPSEC_CONF_PREFIX}_{self.connection.name}.{self.SUFFIX}')
+        return os.path.join(self.IPSEC_CONF_DIR, f'{self.IPSEC_CONF_PREFIX}_{self.connection.name}.{self.SUFFIX}')
 
 
 class IPsecConnFile(GenericIPsecFile):
@@ -125,6 +124,7 @@ class IPsecRHEL8ConnFile(IPsecConnFile):
     IPsec in RHEL8 has different libreswan version and some of old parameters are obsolete.
     (e.g.: connaddrfamily)
     """
+
     TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 
@@ -324,7 +324,6 @@ class RouteGenericFile(JinjaConfFile):
 
 
 class Route4File(RouteGenericFile):
-
     def _make_path(self):
         file_name = 'route-%s' % self._interface.name
         file_path = os.path.join(self.ROUTE_DIRECTORY, file_name)
@@ -332,7 +331,6 @@ class Route4File(RouteGenericFile):
 
 
 class Route6File(RouteGenericFile):
-
     def _make_path(self):
         file_name = 'route6-%s' % self._interface.name
         file_path = os.path.join(self.ROUTE_DIRECTORY, file_name)

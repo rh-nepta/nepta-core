@@ -19,9 +19,11 @@ class Setup(Strategy):
     SETTLE_TIME = 30
 
     _INSTALLER = 'yum -y install '
-    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.name }} \
+    _INSTALLER_COMMAND_TEMPLATE = Template(
+        """{{ installer }} {{ pkg.name }} \
 {% for repo in pkg.disable_repos %}--disablerepo {{ repo.key }} {% endfor %}\
-{% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}""")
+{% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}"""
+    )
 
     def __init__(self, conf):
         super().__init__()
@@ -354,7 +356,6 @@ class Setup(Strategy):
 
 
 class Rhel6(Setup):
-
     def stop_net(self):
         SysVInit.stop_service(model.system.SystemService('network'))
 

@@ -1,23 +1,82 @@
-image: fedora
+image: adiosnb/nepta-env:latest
 
 stages:
-        - test
+  - pytest
+  - soft
+  - advanced
+  - ultra
 
 before_script:
-        - export NETWORK_PERFTEST_ARGS="--help"
-        - dnf -y install python36 python3-pytest git pipenv
-        - dnf -y install libselinux-utils tuned
-        - pip3 install pip -U
-        - git config --global http.sslVerify false
-        - pipenv install --dev
-        - pipenv run env
-        - pipenv run pip install .
-        - pipenv run pip list
+  - export NETWORK_PERFTEST_ARGS="--help"
+  - pipenv install --dev
+  - pipenv run env
+  - pipenv run pip install .
+  - pipenv run pip list
 
 
-unittests:
-        tags:
-                - docker
-        stage: test
-        script: pipenv run pytest
+py36:
+  tags:
+    - docker
+  stage: pytest
+  script: pipenv run tox -e py36
 
+py37:
+  tags:
+    - docker
+  stage: pytest
+  script: pipenv run tox -e py37
+
+py38:
+  tags:
+    - docker
+  stage: pytest
+  script: pipenv run tox -e py38
+
+nepta-print-conf:
+  tags:
+    - docker
+  stage: soft
+  script: pipenv run nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org
+
+quotes:
+  tags:
+    - docker
+  stage: pytest
+  script: pipenv run tox -e unify
+  allow_failure: true
+
+black:
+  tags:
+    - docker
+  stage: advanced
+  needs:
+    - quotes
+  script: pipenv run tox -e black
+  allow_failure: true
+
+flake8:
+  tags:
+    - docker
+  stage: advanced
+  needs:
+    - quotes
+  script: pipenv run tox -e flake8
+  allow_failure: true
+
+pytest-mypy:
+  tags:
+    - docker
+  stage: ultra
+  needs:
+    - py36
+  script: pipenv run tox -e pytest-mypy
+  allow_failure: true
+
+mypy:
+  tags:
+    - docker
+  stage: ultra
+  needs:
+    - nepta-print-conf
+  script: pipenv run tox -e mypy
+  allow_failure: true

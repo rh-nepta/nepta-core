@@ -38,7 +38,7 @@ class IRQBalanceCheck(ScenarioGeneric):
 
         # split every line by column
         # -1 to columns are separated by num_of_columns - 1 spaces
-        int_table = [line.split(maxsplit=num_of_columns-1) for line in lines]
+        int_table = [line.split(maxsplit=num_of_columns - 1) for line in lines]
 
         # if ignore_cpu_interrupt option is enabled, it allows only interrupts which names starts with numbers
         if ignore_cpu_interrupts:

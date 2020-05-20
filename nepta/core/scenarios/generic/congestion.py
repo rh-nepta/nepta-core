@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class StaticCongestion(SingleStreamGeneric):
-
     def run_scenario(self):
         """
         Cleaning Attero after end of this scenario.
@@ -50,8 +49,9 @@ class NetemConstricted(StreamGeneric):
     def store_msg_size(self, section, size, cpu_pinning=None):
         super().store_msg_size(section, size, cpu_pinning)
         test_settings_sec = section.subsections.filter('test_settings')[0]
-        test_settings_sec.subsections.append(Section(
-            'item', key='constrictions', value=','.join([f'{x[1]}sec@{x[0]}Gpbs' for x in self.constrictions])))
+        test_settings_sec.subsections.append(
+            Section('item', key='constrictions', value=','.join([f'{x[1]}sec@{x[0]}Gpbs' for x in self.constrictions]))
+        )
         test_settings_sec.subsections.append(Section('item', key='direction', value=self.direction))
         return section
 

@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class Report(Strategy):
-
     def __init__(self, package, success):
         super().__init__()
         self.package = package
