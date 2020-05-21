@@ -26,7 +26,7 @@ class TabulatedStrFormatter:
 
 
 @dataclass
-class IPBaseConfiguration:
+class IPBaseConfiguration(TabulatedStrFormatter):
     addresses: List[IpInterface] = field(default_factory=list)
     gw: IpAddress = None
     dns: List[IpAddress] = field(default_factory=list)
@@ -59,7 +59,7 @@ class NetFormatter(ipaddress._BaseNetwork):
     def new_addresses(self, n: int) -> List[IpInterface]:
         return [self.new_addr() for _ in range(n)]
 
-    def new_config(self, num_of_ips=1) -> IPBaseConfiguration:
+    def new_config(self, num_of_ips=1) -> Union[IPv4Configuration, IPv6Configuration]:
         return self.CONF_OBJ(self.new_addresses(num_of_ips))
 
     def subnets(self, prefixlen_diff=1, new_prefix=None):
