@@ -139,37 +139,29 @@ class VlanInterface(EthernetInterface):
         )
 
 
-#
-# Guest taps for virtual guests
-#
-class GenericGuestTap(object):
-    def __init__(self, guest, switch, mac):
-        self.switch = switch
-        self.guest = guest
-        self.mac = mac
-
-    def __str__(self):
-        return '%s. MAC: %s, Switch: %s, guest: %s' % (self.__class__.__name__, self.mac, self.switch.name, self.guest)
-
-    def __repr__(self):
-        return '%s_%s_%s' % (self.switch.name, self.guest.name, self.mac)
+@dataclass
+class GenericGuestTap:
+    """
+    This is virtual interface interconnecting VM with specific switch in the hypervisor.
+    """
+    guest: system.VirtualGuest
+    switch: Any
+    mac: str
 
 
+@dataclass
 class OVSGuestTap(GenericGuestTap):
-    pass
+    switch: 'OVSwitch'
 
 
+@dataclass
 class OVSGuestVlanTap(GenericGuestTap):
-    def __init__(self, guest, switch, mac, vlan):
-        super(OVSGuestVlanTap, self).__init__(guest, switch, mac)
-        self.vlan = vlan
-
-    def __repr__(self):
-        return super().__repr__() + '_v%s' % self.vlan
+    vlan: int
 
 
+@dataclass
 class BridgeGuestTap(GenericGuestTap):
-    pass
+    switch: 'LinuxBridge'
 
 
 #
