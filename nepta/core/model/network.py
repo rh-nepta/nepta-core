@@ -464,41 +464,31 @@ class Route6(RouteGeneric):
         return Route6(destination, interface, metric=metric)
 
 
-#
-# OVS related objects
-#
-class OVSwitch(object):
-    def __init__(self, name):
-        self.name = name
-        self.interfaces = []
-        self.tunnel_interfaces = []
-        self.trunk_interfaces = []
+@dataclass
+class OVSwitch:
+    name: str
+    interfaces: List[Interface] = field(default_factory=list)
+    tunnels: List['OVSTunnel'] = field(default_factory=list)
 
-    def add_interface(self, iface):
+    def add_interface(self, iface: Interface):
         self.interfaces.append(iface)
 
-    def add_tunnel(self, tunnel):
-        self.tunnel_interfaces.append(tunnel)
-
-    def add_trunk_interface(self, iface, vlan=None):
-        item = {'iface': iface, 'vlans': vlan}
-        self.trunk_interfaces.append(item)
-
-    def __str__(self):
-        ret = 'OVSwitch: %s' % self.name
-        for iface in self.interfaces:
-            ret += '\n  switch interface %s' % iface
-        return ret
+    def add_tunnel(self, tunnel: 'OVSTunnel'):
+        self.tunnels.append(tunnel)
 
 
-class OVSTunnel(object):
-    VXLAN = 'vxlan'
+@dataclass
+class OVSTunnel:
+    class OVSTunnelTypes(Enum):
+        VXLAN = 'vxlan'
+        GRE = 'gre'
+        GENEVE = 'geneve'
+        GREoIPSEC = 'ipsec_gre'
 
-    def __init__(self, name, type=VXLAN, remote_ip=None, key=0):
-        self.name = name
-        self.type = type
-        self.remote_ip = remote_ip
-        self.key = key
+    name: str
+    type: OVSTunnelTypes
+    remote_ip = IpAddress
+    key: Any = ''
 
 
 class OVSIntPort(EthernetInterface):
