@@ -269,7 +269,7 @@ class Setup(Strategy):
         ovswitches = self.conf.get_subset(m_class=model.network.OVSwitch)
         for ovs in ovswitches:
             interfaces = ovs.interfaces
-            tunnels = ovs.tunnel_interfaces
+            tunnels = ovs.tunnels
             OvsVsctl.add_bridge(ovs)
             for iface in interfaces:
                 OvsVsctl.add_port(ovs, iface)

@@ -1,14 +1,28 @@
 import itertools
 import ipaddress
 import copy
-from typing import List, Union
+from enum import Enum
+from typing import List, Union, Any
 from dataclasses import dataclass, field
 
 from nepta.core.model.tag import SoftwareInventoryTag
+from nepta.core.model import system
 
 IpInterface = Union[ipaddress.IPv4Interface, ipaddress.IPv6Interface]
 IpAddress = Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
 IpNetwork = Union[ipaddress.IPv4Network, ipaddress.IPv6Network]
+
+
+class TabulatedStrFormatter:
+    def __str__(self):
+        return '{cls}\n\t{attrs}'.format(
+            cls=self.__class__.__name__,
+            attrs='\n\t'.join(
+                ['{name}={value}'.format(
+                    name=k, value=str(v).replace('\n', '\n\t')
+                ) for k, v in self.__dict__.items() if k is not 'self']
+            )
+        )
 
 
 @dataclass
@@ -65,78 +79,34 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
     CONF_OBJ = IPv6Configuration
 
 
-class Interface(object):
-    def __init__(self, name, v4_conf=None, v6_conf=None, mtu=1500):
+class Interface(TabulatedStrFormatter):
+    def __init__(self, name: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
+                 master_bridge: 'LinuxBridge' = None, mtu: int = 1500):
         self.name = name
         self.v4_conf = v4_conf
         self.v6_conf = v6_conf
         self.mtu = mtu
-
-    def __str__(self):
-        return self.make_iface_string() + ':\n\t' + self.make_v4_addr_string() + '\n\t' + self.make_v6_addr_string()
-
-    def make_iface_string(self):
-        return 'Internet interface %s' % self.name
-
-    @staticmethod
-    def _make_addr_str(addr_list):
-        ret_str = ''
-        if addr_list is not None:
-            for addr in addr_list.addresses:
-                ret_str += addr.with_prefixlen
-                ret_str += ', '
-            if addr_list.gw:
-                ret_str += 'GW=%s, ' % addr_list.gw
-            if len(addr_list.dns):
-                ret_str += 'DNS: '
-                for dns in addr_list.dns:
-                    ret_str += dns.compressed + ', '
-        return ret_str
-
-    def make_v4_addr_string(self):
-        s = 'IPv4 adresses: ' + self._make_addr_str(self.v4_conf)
-        return s
-
-    def make_v6_addr_string(self):
-        s = 'IPv6 adresses: ' + self._make_addr_str(self.v6_conf)
-        return s
+        self.master_bridge_name = master_bridge
 
     def clone(self):
         return copy.deepcopy(self)
 
 
 class EthernetInterface(Interface):
-    def __init__(self, name, mac, v4_conf=None, v6_conf=None, bind_cores=None, mtu=1500):
-        self.mac = mac
-        if self.mac is not None:
-            self.mac = self.mac.lower()
-        self.master_bridge_name = None
-        # TODO check where this is used and test it if it is functional?
+    def __init__(self, name: str, mac: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
+                 bind_cores: List[int] = None, mtu: int = 1500):
+        self.mac = mac.lower()
         self.bind_cores = bind_cores
-        super(EthernetInterface, self).__init__(name, v4_conf, v6_conf, mtu)
-
-    def make_iface_string(self):
-        return 'Ethernet interface %s, MAC:%s, Bridge: %s, MTU: %s' % (
-            self.name,
-            self.mac,
-            self.master_bridge_name,
-            self.mtu,
-        )
+        super().__init__(name, v4_conf, v6_conf, mtu=mtu)
 
 
-class VlanInterface(EthernetInterface):
-    def __init__(self, parrent, vlan_id, v4_conf=None, v6_conf=None):
+class VlanInterface(Interface):
+    def __init__(self, parrent: Interface, vlan_id: int, v4_conf: IPv4Configuration = None,
+                 v6_conf: IPv6Configuration = None):
         self.vlan_id = vlan_id
-        self.parrent = parrent
-        name = '%s.%s' % (self.parrent.name, self.vlan_id)
-        super(VlanInterface, self).__init__(name, None, v4_conf, v6_conf)
-
-    def make_iface_string(self):
-        return 'Ethernet vlan interface %s, vlan id: %s, parrent name: %s' % (
-            self.name,
-            self.vlan_id,
-            self.parrent.name,
-        )
+        self.parrent = parrent.name
+        name = f'{self.parrent}.{self.vlan_id}'
+        super().__init__(name, v4_conf, v6_conf)
 
 
 @dataclass
@@ -164,75 +134,52 @@ class BridgeGuestTap(GenericGuestTap):
     switch: 'LinuxBridge'
 
 
-#
-# Bridge
-#
-class LinuxBridge(EthernetInterface):
-    def __init__(self, name, v4_conf=None, v6_conf=None):
-        super(LinuxBridge, self).__init__(name, None, v4_conf, v6_conf)
-
-    def add_interface(self, interface):
+class LinuxBridge(Interface):
+    def add_interface(self, interface: Interface):
         interface.master_bridge_name = self.name
 
-    def make_iface_string(self):
-        return 'Bridge interface %s' % self.name
 
-
-#
-# TEAM objects
-#
-class TeamMasterInterface(EthernetInterface):
+class TeamMasterInterface(Interface):
     LACP_RUNNER = (
         '{"runner": {"active": true, "link_watch": "ethotool", "fast_rate": true, "name": "lacp", '
         '"tx_hash": ["eth", "ipv4", "ipv6", "tcp"]}}'
     )
     ACT_BCKP_RUNNER = '{"runner": {"name": "activebackup", "link_watch": "ethtool"}}'
 
-    def __init__(self, name, v4=None, v6=None, runner=LACP_RUNNER):
-        super(TeamMasterInterface, self).__init__(name, None, v4, v6)
+    def __init__(self, name: str, v4: IPv4Configuration = None, v6: IPv6Configuration = None, runner=LACP_RUNNER):
+        super().__init__(name, v4, v6)
         self.runner = runner
 
-    def make_iface_string(self):
-        return 'Team master interface: %s\n\tRunner JSON dump: %s asdf' % (self.name, self.runner)
-
-    def add_interface(self, port):
+    def add_interface(self, port: 'TeamChildInterface'):
         port.team = self.name
 
 
 class TeamChildInterface(EthernetInterface):
-    def __init__(self, original_interface):
+    def __init__(self, original_interface: EthernetInterface):
         self.team = None
-        super(TeamChildInterface, self).__init__(original_interface.name, original_interface.mac)
-
-    def make_iface_string(self):
-        return 'Team child interface: %s' % self.name
+        super().__init__(original_interface.name, original_interface.mac)
 
 
 #
 # Bond
 #
-class BondMasterInterface(EthernetInterface):
+class BondMasterInterface(Interface):
     LACP_BOND_OPTS = 'mode=4 xmit_hash_policy=1'
     ACT_BCKP_BOND_OPTS = 'mode=1'
 
-    def __init__(self, name, v4_conf=None, v6_conf=None, bond_opts=LACP_BOND_OPTS):
-        super(BondMasterInterface, self).__init__(name, None, v4_conf, v6_conf)
+    def __init__(self, name: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
+                 bond_opts=LACP_BOND_OPTS):
+        super().__init__(name, v4_conf, v6_conf)
         self.bond_opts = bond_opts
 
-    def make_iface_string(self):
-        return "Bond master interface: %s, bond_opts: \"%s\"" % (self.name, self.bond_opts)
-
-    def add_interface(self, interface):
+    def add_interface(self, interface: Interface):
         interface.master_bond = self.name
 
 
 class BondChildInterface(EthernetInterface):
-    def __init__(self, original_interface):
+    def __init__(self, original_interface: EthernetInterface):
         super().__init__(original_interface.name, original_interface.mac)
         self.master_bond = None
-
-    def make_iface_string(self):
-        return 'Bond child interface: %s, master: %s' % (self.name, self.master_bond)
 
 
 @dataclass
@@ -491,7 +438,8 @@ class OVSTunnel:
     key: Any = ''
 
 
-class OVSIntPort(EthernetInterface):
-    def __init__(self, name, ovs_switch, v4_conf=None, v6_conf=None):
+class OVSIntPort(Interface):
+    def __init__(self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None,
+                 v6_conf: IPv6Configuration = None):
         self.ovs_switch = ovs_switch
-        super(OVSIntPort, self).__init__(name, None, v4_conf, v6_conf)
+        super(OVSIntPort, self).__init__(name, v4_conf, v6_conf)
