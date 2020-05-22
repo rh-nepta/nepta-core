@@ -3,7 +3,8 @@ import ipaddress as ia
 
 from nepta.core.model.network import NetperfNet4, NetperfNet6
 from nepta.core.model.network import IPv4Configuration, IPv6Configuration
-from nepta.core.model import network
+from nepta.core.model import network, schedule
+from nepta.core.distribution.conf_files import Route4File
 
 
 class NetFormatterTest(TestCase):
@@ -84,3 +85,39 @@ class InterfaceTest(TestCase):
 
         vlan1 = network.VlanInterface(generic, 10, self.net4.new_config(2))
         vlan2 = network.VlanInterface(eth, 20)
+
+
+class RouteTest(TestCase):
+
+    def setUp(self) -> None:
+        self.net1 = NetperfNet4("192.168.0.0/24")
+        self.net2 = NetperfNet4("192.168.1.0/24")
+
+        self.local_int1 = network.Interface('eth1', self.net1.new_config())
+        self.local_int2 = network.Interface('eth2', self.net2.new_config())
+        self.remote_int1 = network.Interface('eth3', self.net1.new_config())
+        self.remote_int2 = network.Interface('eth4', self.net2.new_config())
+
+        self.path1 = schedule.Path(
+            self.local_int1.v4_conf[0], self.remote_int1.v4_conf[0], [schedule.SoftwareInventoryTag('IPv4')]
+        )
+        self.path2 = schedule.Path(
+            self.local_int2.v4_conf[0], self.remote_int2.v4_conf[0], [schedule.SoftwareInventoryTag('IPv4')]
+        )
+
+    def test_from_path_creator(self):
+        local_route1 = network.Route4.from_path(self.path1, [self.local_int1, self.local_int2])
+        self.assertEqual(local_route1.destination, self.remote_int1.v4_conf[0].ip)
+        self.assertEqual(local_route1.interface, self.local_int1)
+
+        local_route2 = network.Route4.from_path(self.path2, [self.local_int1, self.local_int2])
+        self.assertEqual(local_route2.destination, self.remote_int2.v4_conf[0].ip)
+        self.assertEqual(local_route2.interface, self.local_int2)
+
+        remote_route1 = network.Route4.from_path(self.path1, [self.remote_int1, self.remote_int2])
+        self.assertEqual(remote_route1.destination, self.local_int1.v4_conf[0].ip)
+        self.assertEqual(remote_route1.interface, self.remote_int1)
+
+        remote_route2 = network.Route4.from_path(self.path2, [self.remote_int1, self.remote_int2])
+        self.assertEqual(remote_route2.destination, self.local_int2.v4_conf[0].ip)
+        self.assertEqual(remote_route2.interface, self.remote_int2)

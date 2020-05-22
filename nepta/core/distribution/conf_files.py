@@ -303,9 +303,9 @@ class RouteGenericFile(JinjaConfFile):
     ROUTE_DIRECTORY = '/etc/sysconfig/network-scripts/'
     TEMPLATE = 'route.jinja2'
 
-    def __init__(self, routes):
+    def __init__(self, routes: List[net_model.RouteGeneric]):
         super().__init__()
-        self._interface = routes[0].get_interface()
+        self._interface = routes[0].interface
         self._routes = routes
 
     def _make_path(self):

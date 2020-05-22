@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 
 from nepta.core.model.tag import SoftwareInventoryTag
 from nepta.core.model import system
+from nepta.core.model.schedule import Path
 
 IpInterface = Union[ipaddress.IPv4Interface, ipaddress.IPv6Interface]
 IpAddress = Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
@@ -312,59 +313,30 @@ class IPsecTunnel:
         return tags
 
 
-class RouteGeneric(object):
+@dataclass
+class RouteGeneric:
+    destination: IpNetwork
+    interface: Interface
+    gw: IpAddress = None
+    metric: int = 0
+
     @classmethod
-    def from_path(cls, path, interfaces):
-        destination = None
-        interface = None
+    def from_path(cls, path: Path, interfaces: List[Interface]):
         for i in interfaces:
             if path.mine_ip in cls._get_ip_from_iface(i):
-                destination = path.their_ip
-                interface = i
+                return cls(path.their_ip, i)
             if path.their_ip in cls._get_ip_from_iface(i):
-                destination = path.mine_ip
-                interface = i
-
-        return cls._construct_route(destination, interface)
+                return cls(path.mine_ip, i)
 
     @classmethod
-    def _get_ip_from_iface(cls, iface):
+    def _get_ip_from_iface(cls, iface: Interface) -> List[IpAddress]:
         raise NotImplementedError
-
-    @classmethod
-    def _get_route_metric(cls, iface):
-        raise NotImplementedError
-
-    @classmethod
-    def _construct_route(cls, destination, interface):
-        raise NotImplementedError
-
-    def __init__(self, destination, interface, gw=None, metric=0):
-        self._destination = destination
-        self._interface = interface
-        self._gw = gw.ip if isinstance(gw, (ipaddress.IPv4Interface, ipaddress.IPv6Interface)) else gw
-        self._metric = metric
 
     def __str__(self):
-        type_string = self.__class__.__name__
-        r = '%s %s' % (type_string, self._destination)
-        if self._gw is not None:
-            r += ' via %s' % self._gw
-        r += ' dev %s' % self._interface.name
-        r += ' metric %s' % self._metric
-        return r
-
-    def get_destination(self):
-        return self._destination
-
-    def get_interface(self):
-        return self._interface
-
-    def get_gateway(self):
-        return self._gw
-
-    def get_metric(self):
-        return self._metric
+        return '{cls} {dest} {gw} dev {dev} metric {metric}'.format(
+            cls=self.__class__.__name__, dev=self.interface.name, metric=self.metric,
+            dest=self.destination, gw="" if self.gw is None else f'dev {self.gw}'
+        )
 
 
 class Route4(RouteGeneric):
@@ -375,10 +347,6 @@ class Route4(RouteGeneric):
         else:
             return []
 
-    @classmethod
-    def _construct_route(cls, destination, interface, metric=0):
-        return Route4(destination, interface, metric=metric)
-
 
 class Route6(RouteGeneric):
     @classmethod
@@ -387,10 +355,6 @@ class Route6(RouteGeneric):
             return [interface.ip for interface in iface.v6_conf.addresses]
         else:
             return []
-
-    @classmethod
-    def _construct_route(cls, destination, interface, metric=1):
-        return Route6(destination, interface, metric=metric)
 
 
 @dataclass
