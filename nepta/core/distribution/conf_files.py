@@ -107,15 +107,8 @@ class IPsecConnFile(GenericIPsecFile):
     def _make_jinja_context(self):
         return {
             'name': self.connection.name,
-            'type': self.connection.mode,
-            'connaddrfamily': self.connection.family,
-            'left': self.connection.left_ip.ip,
-            'right': self.connection.right_ip.ip,
-            'phase2': self.connection.phase2,
-            'cipher': self.connection.cipher,
-            'encapsulation': self.connection.encapsulation,
-            'replay_window': self.connection.replay_window,
-            'nic_offload': self.connection.nic_offload,
+            'family': self.connection.family,
+            **self.connection.__dict__,
         }
 
 
@@ -124,7 +117,6 @@ class IPsecRHEL8ConnFile(IPsecConnFile):
     IPsec in RHEL8 has different libreswan version and some of old parameters are obsolete.
     (e.g.: connaddrfamily)
     """
-
     TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 

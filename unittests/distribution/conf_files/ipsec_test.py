@@ -40,10 +40,10 @@ conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
             IPv4Interface('192.168.1.2/24'),
             'aes128-sha2',
             'SUPER_PASS_IPSEC',
-            IPsecTunnel.MODE_TUNNEL,
+            IPsecTunnel.Mode.TUNNEL,
             replay_window=128,
-            encapsulation=IPsecTunnel.ENCAPSULATION_YES,
-            nic_offload=IPsecTunnel.OFFLOAD_YES,
+            encapsulation=IPsecTunnel.Encapsulation.YES,
+            nic_offload=IPsecTunnel.Offload.YES,
         )
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
 
@@ -71,10 +71,10 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
             IPv4Interface('192.168.1.2/24'),
             'aes128-sha2',
             'SUPER_PASS_IPSEC',
-            IPsecTunnel.MODE_TUNNEL,
+            IPsecTunnel.Mode.TUNNEL,
             replay_window=128,
-            encapsulation=IPsecTunnel.ENCAPSULATION_YES,
-            nic_offload=IPsecTunnel.OFFLOAD_YES,
+            encapsulation=IPsecTunnel.Encapsulation.YES,
+            nic_offload=IPsecTunnel.Offload.YES,
         )
         conn_file_obj = IPsecRHEL8ConnFile(ipsec_tunnel)
 

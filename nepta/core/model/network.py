@@ -219,9 +219,9 @@ class WireGuardTunnel:
 
     @property
     def name(self):
-        '''
+        """
         Returned connection name must be unique across all connections.
-        '''
+        """
         return f'wg{self.index}'
 
     @property
@@ -232,68 +232,49 @@ class WireGuardTunnel:
         ]
 
 
-class IPsecTunnel(object):
-    MODE_TRANSPORT = 'transport'
-    MODE_TUNNEL = 'tunnel'
+@dataclass
+class IPsecTunnel:
+    class Mode(Enum):
+        TRANSPORT = 'transport'
+        TUNNEL = 'tunnel'
 
-    PHASE2_ESP = 'esp'
-    PHASE2_AH = 'ah'
+    class Phase2(Enum):
+        ESP = 'esp'
+        AH = 'ah'
 
-    ENCAPSULATION_YES = 'yes'
-    ENCAPSULATION_NO = 'no'
+    class Encapsulation(Enum):
+        YES = 'yes'
+        NO = 'no'
 
-    OFFLOAD_YES = 'yes'
-    OFFLOAD_NO = 'no'
-    OFFLOAD_AUTO = 'auto'
+    class Offload(Enum):
+        YES = 'yes'
+        NO = 'no'
+        AUTO = 'auto'
+
+    # IPsec tunnel attribute definition with type hints
+    left_ip: IpInterface
+    right_ip: IpInterface
+    cipher: str
+    passphrase: str
+    mode: Mode = Mode.TRANSPORT
+    phase2: Phase2 = Phase2.ESP
+    # The default is kernel stack specific, but usually 32. Linux
+    # NETKEY/XFRM allows at least up to 2048. A value of of 0 disables
+    # replay protection.
+    replay_window: int = None
+    encapsulation: Encapsulation = Encapsulation.NO
+    nic_offload: Offload = Offload.NO
 
     @classmethod
     def generate_tunnels(cls, addrs1: IPBaseConfiguration, addrs2: IPBaseConfiguration, properties: List[dict]):
         return [cls(addr1, addr2, **prop) for addr1, addr2, prop in zip(addrs1, addrs2, properties)]
 
-    def __init__(
-        self,
-        left_ip,
-        right_ip,
-        cipher,
-        passphrase,
-        mode=MODE_TRANSPORT,
-        phase2=PHASE2_ESP,
-        replay_window=None,
-        encapsulation=ENCAPSULATION_NO,
-        nic_offload=OFFLOAD_NO,
-    ):
-        if not isinstance(left_ip, ipaddress._BaseAddress) or not isinstance(right_ip, ipaddress._BaseAddress):
-            raise TypeError('Left and Right IP address should be object from ipaddress module')
-        self.left_ip = left_ip
-        self.right_ip = right_ip
-        self.cipher = cipher
-        self.phase2 = phase2
-        self.passphrase = passphrase
-        self.mode = mode
-        self.encapsulation = encapsulation
-        self.nic_offload = nic_offload
-
-        # The default is kernel stack specific, but usually 32. Linux
-        # NETKEY/XFRM allows at least up to 2048. A value of of 0 disables
-        # replay protection.
-        self.replay_window = replay_window
-
     def __str__(self):
-        replay_window_str = 'default' if self.replay_window is None else '%d' % self.replay_window
+        replay_window_str = 'default' if self.replay_window is None else str(self.replay_window)
         return (
-            'IPSec %s tunnel %s <=> %s, [%s]cipher: %s, mode: %s, replay-window: %s, nat-traversal: %s, '
-            'nic-offload %s'
-            % (
-                self.family,
-                self.left_ip,
-                self.right_ip,
-                self.phase2,
-                self.cipher,
-                self.mode,
-                replay_window_str,
-                self.encapsulation,
-                self.nic_offload,
-            )
+                f'IPSec {self.family} tunnel {self.left_ip} <=> {self.right_ip}, [{self.phase2.value}]cipher: {self.cipher}, '
+                f'mode: {self.mode.value}, replay-window: {replay_window_str}, nat-traversal: {self.encapsulation.value}, '
+                f'nic-offload {self.nic_offload.value}'
         )
 
     @property
@@ -305,26 +286,27 @@ class IPsecTunnel(object):
 
     @property
     def name(self):
-        '''
-        Returned connection name must be unique accross all IPsec connections
-        in this testing framework.
+        """
+        Returned connection name have to be unique across all IPsec connections
+        in this testing framework. This is achieved by source and destination IP
+        address combination.
 
-        The name of a connection is used in ipsec configuration.
-        '''
+        :return The name of this connection is used in ipsec configuration.
+        """
         return (
-            f'{self.family}_{self.mode}_{self.cipher}_encap-{self.encapsulation}_'
+            f'{self.family}_{self.mode.value}_{self.cipher}_encap-{self.encapsulation.value}_'
             f'{self.left_ip.ip}_{self.right_ip.ip}'
         )
 
     @property
     def tags(self):
-        tags = [SoftwareInventoryTag(self.family), SoftwareInventoryTag('IPsec')]
-        tags.append(SoftwareInventoryTag(self.mode.capitalize()))
-        if self.encapsulation == self.ENCAPSULATION_YES:
+        tags = [SoftwareInventoryTag(self.family), SoftwareInventoryTag('IPsec'),
+                SoftwareInventoryTag(self.mode.capitalize())]
+        if self.encapsulation == self.Encapsulation.YES:
             tags.append(SoftwareInventoryTag('NatTraversal'))
         if self.replay_window:
             tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
-        if self.nic_offload != self.OFFLOAD_NO:
+        if self.nic_offload != self.Offload.NO:
             tags.append(SoftwareInventoryTag('NicOffload', self.nic_offload))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
