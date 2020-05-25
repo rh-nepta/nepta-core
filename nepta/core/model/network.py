@@ -14,20 +14,8 @@ IpAddress = Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
 IpNetwork = Union[ipaddress.IPv4Network, ipaddress.IPv6Network]
 
 
-class TabulatedStrFormatter:
-    def __str__(self):
-        return '{cls}\n\t{attrs}'.format(
-            cls=self.__class__.__name__,
-            attrs='\n\t'.join(
-                ['{name}={value}'.format(
-                    name=k, value=str(v).replace('\n', '\n\t')
-                ) for k, v in self.__dict__.items() if k is not 'self']
-            )
-        )
-
-
 @dataclass
-class IPBaseConfiguration(TabulatedStrFormatter):
+class IPBaseConfiguration:
     addresses: List[IpInterface] = field(default_factory=list)
     gw: IpAddress = None
     dns: List[IpAddress] = field(default_factory=list)
@@ -80,7 +68,7 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
     CONF_OBJ = IPv6Configuration
 
 
-class Interface(TabulatedStrFormatter):
+class Interface:
     def __init__(self, name: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
                  master_bridge: 'LinuxBridge' = None, mtu: int = 1500):
         self.name = name
@@ -89,6 +77,12 @@ class Interface(TabulatedStrFormatter):
         self.mtu = mtu
         self.master_bridge_name = master_bridge
 
+    def __str__(self):
+        attrs = dict(self.__dict__)
+        v4 = attrs.pop('v4_conf')
+        v6 = attrs.pop('v6_conf')
+        return f'{self.__class__.__name__} >> {attrs}\n\tv4_conf: {v4}\n\tv6_conf: {v6}'
+
     def clone(self):
         return copy.deepcopy(self)
 
@@ -96,18 +90,18 @@ class Interface(TabulatedStrFormatter):
 class EthernetInterface(Interface):
     def __init__(self, name: str, mac: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
                  bind_cores: List[int] = None, mtu: int = 1500):
+        super().__init__(name, v4_conf, v6_conf, mtu=mtu)
         self.mac = mac.lower()
         self.bind_cores = bind_cores
-        super().__init__(name, v4_conf, v6_conf, mtu=mtu)
 
 
 class VlanInterface(Interface):
     def __init__(self, parrent: Interface, vlan_id: int, v4_conf: IPv4Configuration = None,
                  v6_conf: IPv6Configuration = None):
+        name = f'{parrent.name}.{vlan_id}'
+        super().__init__(name, v4_conf, v6_conf)
         self.vlan_id = vlan_id
         self.parrent = parrent.name
-        name = f'{self.parrent}.{self.vlan_id}'
-        super().__init__(name, v4_conf, v6_conf)
 
 
 @dataclass
