@@ -178,7 +178,7 @@ class IfcfgFile(JinjaConfFile):
         net_model.LinuxBridge: 'bridge.jinja2',
     }
 
-    def __init__(self, interface_model):
+    def __init__(self, interface_model: net_model.Interface):
         super(IfcfgFile, self).__init__()
         self._interface_model = interface_model
         self.template = self.TEMPLATE_MAPPING[interface_model.__class__]
@@ -271,7 +271,7 @@ class SSHConfig(ConfigFile):
 class RcLocalScriptFile(ConfigFile):
     RC_LOCAL_SCRIPT_FILE = '/etc/rc.local'
 
-    def __init__(self, script):
+    def __init__(self, script: model.system.RcLocalScript):
         super(RcLocalScriptFile, self).__init__()
         self._script = script
 
@@ -279,7 +279,7 @@ class RcLocalScriptFile(ConfigFile):
         return self.RC_LOCAL_SCRIPT_FILE
 
     def _make_content(self):
-        return self._script.get_value()
+        return self._script.value
 
 
 class RepositoryFile(JinjaConfFile):
@@ -352,7 +352,7 @@ class GuestTap(JinjaConfFile):
         net_model.OVSGuestVlanTap: 'ovs_vlan_tap.jinja2',
     }
 
-    def __init__(self, tap):
+    def __init__(self, tap: net_model.GenericGuestTap):
         super().__init__()
         self.tap = tap
         self.template = self.TEMPLATE_MAPPING[tap.__class__]
@@ -368,8 +368,8 @@ class GuestTap(JinjaConfFile):
 class HostnameConfFile(ConfigFile):
     HOSTNAME_CONF_FILE = '/etc/hostname'
 
-    def __init__(self, hostname):
-        super(HostnameConfFile, self).__init__()
+    def __init__(self, hostname: str):
+        super().__init__()
         self._hostname = hostname
 
     def _make_path(self):
@@ -397,8 +397,8 @@ class ChronyConf(JinjaConfFile):
 class DockerDaemonJson(ConfigFile):
     DOCKER_DAEMON_FILE = '/etc/docker/daemon.json'
 
-    def __init__(self, settings):
-        super(DockerDaemonJson, self).__init__()
+    def __init__(self, settings: model.docker.DockerDaemonSettings):
+        super().__init__()
         self._settings = settings
 
     def _make_path(self):
@@ -415,8 +415,7 @@ class DockerDaemonJson(ConfigFile):
 
     def _load_content(self):
         with open(self.DOCKER_DAEMON_FILE, 'r') as json_file:
-            data = json.load(json_file)
-        return data
+            return json.load(json_file)
 
     def update(self):
         logger.info('Updating docker daemon file')
