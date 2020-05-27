@@ -64,8 +64,8 @@ class ConfigFile(ABC):
 
 
 class JinjaConfFile(ConfigFile, ABC):
-    TEMPLATE = None
-    TEMPLATE_DIR = 'templates/conf_templates'
+    TEMPLATE: str = ''
+    TEMPLATE_DIR: str = 'templates/conf_templates'
 
     def __init__(self):
         template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.TEMPLATE_DIR)
