@@ -3,8 +3,8 @@
 HWADDR={{ intf.mac }}
 {% endblock %}
 {% block addresses %}
-	{% if intf.master_bridge_name %}
-BRIDGE={{ intf.master_bridge_name }}
+	{% if intf.master_bridge %}
+BRIDGE={{ intf.master_bridge.name }}
 	{% else %}
 {{ super() -}}
 	{% endif %}

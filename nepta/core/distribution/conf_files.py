@@ -345,7 +345,6 @@ class KDump(ConfigFile):
 
 class GuestTap(JinjaConfFile):
     FILE_TEMP_DIRECTORY = '/tmp/taps/'
-    TEMPLATE = None
     TEMPLATE_MAPPING = {
         net_model.BridgeGuestTap: 'bridge_tap.jinja2',
         net_model.OVSGuestTap: 'ovs_tap.jinja2',
@@ -424,7 +423,7 @@ class DockerDaemonJson(ConfigFile):
 
 
 class KernelModuleConf(ConfigFile, ABC):
-    CONF_DIR = None
+    CONF_DIR: str = ''
 
     def __init__(self, mod: model.system.KernelModule):
         super().__init__()

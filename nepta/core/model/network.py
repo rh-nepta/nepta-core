@@ -2,7 +2,7 @@ import itertools
 import ipaddress
 import copy
 from enum import Enum
-from typing import List, Union, Any
+from typing import List, Union, Any, Optional, Iterator
 from dataclasses import dataclass, field
 
 from nepta.core.model.tag import SoftwareInventoryTag
@@ -17,7 +17,7 @@ IpNetwork = Union[ipaddress.IPv4Network, ipaddress.IPv6Network]
 @dataclass
 class IPBaseConfiguration:
     addresses: List[IpInterface] = field(default_factory=list)
-    gw: IpAddress = None
+    gw: Optional[IpAddress] = None
     dns: List[IpAddress] = field(default_factory=list)
 
     def __iter__(self):
@@ -48,7 +48,7 @@ class NetFormatter(ipaddress._BaseNetwork):
     def new_addresses(self, n: int) -> List[IpInterface]:
         return [self.new_addr() for _ in range(n)]
 
-    def new_config(self, num_of_ips=1) -> Union[IPv4Configuration, IPv6Configuration]:
+    def new_config(self, num_of_ips=1) -> 'IPBaseConfiguration':
         return self.CONF_OBJ(self.new_addresses(num_of_ips))
 
     def subnets(self, prefixlen_diff=1, new_prefix=None):
@@ -75,7 +75,7 @@ class Interface:
         self.v4_conf = v4_conf
         self.v6_conf = v6_conf
         self.mtu = mtu
-        self.master_bridge_name = master_bridge
+        self.master_bridge = master_bridge
 
     def __str__(self):
         attrs = dict(self.__dict__)
@@ -131,7 +131,7 @@ class BridgeGuestTap(GenericGuestTap):
 
 class LinuxBridge(Interface):
     def add_interface(self, interface: Interface):
-        interface.master_bridge_name = self.name
+        interface.master_bridge = self
 
 
 class TeamMasterInterface(Interface):
@@ -151,8 +151,8 @@ class TeamMasterInterface(Interface):
 
 class TeamChildInterface(EthernetInterface):
     def __init__(self, original_interface: EthernetInterface):
-        self.team = None
         super().__init__(original_interface.name, original_interface.mac)
+        self.team: str = ''
 
 
 #
@@ -167,14 +167,14 @@ class BondMasterInterface(Interface):
         super().__init__(name, v4_conf, v6_conf)
         self.bond_opts = bond_opts
 
-    def add_interface(self, interface: Interface):
+    def add_interface(self, interface: 'BondChildInterface'):
         interface.master_bond = self.name
 
 
 class BondChildInterface(EthernetInterface):
     def __init__(self, original_interface: EthernetInterface):
         super().__init__(original_interface.name, original_interface.mac)
-        self.master_bond = None
+        self.master_bond: str = ''
 
 
 @dataclass
@@ -188,7 +188,7 @@ class WireGuardPeer:
     public_key: str
     private_key: str
     allowed_ips: List[IpNetwork]
-    endpoint_ip: IpInterface = None
+    endpoint_ip: Optional[IpInterface] = None
     endpoint_port: int = 51820
 
     @property
@@ -210,7 +210,7 @@ class WireGuardTunnel:
     index: int = field(init=False, default_factory=lambda: next(WireGuardTunnel._COUNTER))
 
     # this is used to assign unique int to each wiregaurd tunnel
-    _COUNTER = itertools.count()
+    _COUNTER: Iterator[int] = itertools.count()
 
     @property
     def name(self):
@@ -256,7 +256,7 @@ class IPsecTunnel:
     # The default is kernel stack specific, but usually 32. Linux
     # NETKEY/XFRM allows at least up to 2048. A value of of 0 disables
     # replay protection.
-    replay_window: int = None
+    replay_window: Optional[int] = None
     encapsulation: Encapsulation = Encapsulation.NO
     nic_offload: Offload = Offload.NO
 
@@ -311,7 +311,7 @@ class IPsecTunnel:
 class RouteGeneric:
     destination: IpNetwork
     interface: Interface
-    gw: IpAddress = None
+    gw: Optional[IpAddress] = None
     metric: int = 0
 
     @classmethod
@@ -374,7 +374,7 @@ class OVSTunnel:
 
     name: str
     type: OVSTunnelTypes
-    remote_ip = IpAddress
+    remote_ip: IpAddress
     key: Any = ''
 
 
