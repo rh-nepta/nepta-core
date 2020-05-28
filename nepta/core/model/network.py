@@ -355,7 +355,7 @@ class RouteGeneric:
             dev=self.interface.name,
             metric=self.metric,
             dest=self.destination,
-            gw="" if self.gw is None else f'dev {self.gw}',
+            gw='' if self.gw is None else f'dev {self.gw}',
         )
 
 
