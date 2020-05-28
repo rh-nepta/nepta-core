@@ -2,5 +2,5 @@
 {% block additional_values %}
 {{ super() -}}
 DEVICETYPE=Team
-TEAM_CONFIG='{{ intf.runner }}'
+TEAM_CONFIG='{{ intf.runner.value }}'
 {% endblock %}

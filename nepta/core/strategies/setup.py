@@ -2,6 +2,7 @@ import os
 import logging
 import time
 from jinja2 import Template
+from collections import defaultdict
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core import model
@@ -226,32 +227,19 @@ class Setup(Strategy):
             Fs.rm_path(w)
 
     def setup_routes(self):
-        # TODO default dict ?
         logger.info('Setting up routes')
         self.wipe_routes()
-        routes4 = self.conf.get_subset(m_class=model.network.Route4)
-        devs4 = {}
-        for r in routes4:
-            if_name = r.get_interface().name
-            if if_name not in devs4.keys():
-                devs4[if_name] = [r]
-            else:
-                devs4[if_name].append(r)
+        for route_class, route_cfg in [
+            [model.network.Route4, conf_files.Route4File],
+            [model.network.Route6, conf_files.Route6File],
+        ]:
+            routes = self.conf.get_subset(m_class=route_class)
+            routes_per_interface = defaultdict(list)
+            for r in routes:
+                routes_per_interface[r.interface.name].append(r)
 
-        routes6 = self.conf.get_subset(m_class=model.network.Route6)
-        devs6 = {}
-        for r in routes6:
-            if_name = r.get_interface().name
-            if if_name not in devs6.keys():
-                devs6[if_name] = [r]
-            else:
-                devs6[if_name].append(r)
-
-        for dev in devs4.keys():
-            conf_files.Route4File(routes=devs4[dev]).apply()
-
-        for dev in devs6.keys():
-            conf_files.Route6File(routes=devs6[dev]).apply()
+            for int_routes in routes_per_interface.items():
+                route_cfg(int_routes).apply()
 
     @Strategy.schedule
     def setup_hostname(self):
@@ -269,7 +257,7 @@ class Setup(Strategy):
         ovswitches = self.conf.get_subset(m_class=model.network.OVSwitch)
         for ovs in ovswitches:
             interfaces = ovs.interfaces
-            tunnels = ovs.tunnel_interfaces
+            tunnels = ovs.tunnels
             OvsVsctl.add_bridge(ovs)
             for iface in interfaces:
                 OvsVsctl.add_port(ovs, iface)

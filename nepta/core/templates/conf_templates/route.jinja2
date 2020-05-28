@@ -1,7 +1,9 @@
-{% for r in routes %}
-	{% if r.get_gateway() %}
-{{ r.get_destination() }} via {{ r.get_gateway() }} dev {{ r.get_interface().name }} metric {{ r.get_metric() }}
-	{% else %}
-{{ r.get_destination() }} via {{ r.get_destination() }} dev {{ r.get_interface().name }} metric {{ r.get_metric() }}
-	{% endif %}
+{% for r in routes -%}
+    {{ r.destination }} via
+    {%- if r.gw %}
+ {{ r.gw }}
+    {%- else %}
+ {{ r.destination }}
+    {%- endif %}
+ dev {{ r.interface.name }} metric {{ r.metric }}
 {% endfor %}

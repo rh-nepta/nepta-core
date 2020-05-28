@@ -244,6 +244,7 @@ IPV6INIT=yes
 IPV6_FAILURE_FATAL=yes
 IPV6_AUTOCONF=no
 IPV6ADDR=fd00::1/64
+
 '''
         self.assertEqual(expected, ifcfg.get_content())
 

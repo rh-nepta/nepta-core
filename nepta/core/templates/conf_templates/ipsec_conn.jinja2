@@ -1,19 +1,19 @@
 conn {{name}}
-	type={{type}}
-	connaddrfamily={{ connaddrfamily }}
+	type={{mode.value}}
+	connaddrfamily={{ family }}
 	authby=secret
-	left={{ left }}
-	right={{ right }}
-	phase2={{ phase2 }}
+	left={{ left_ip.ip }}
+	right={{ right_ip.ip }}
+	phase2={{ phase2.value }}
 	phase2alg={{ cipher }}
 	keyexchange=ike
 	pfs=yes
 	auto=start
-	encapsulation={{ encapsulation }}
+	encapsulation={{ encapsulation.value }}
 	{% if replay_window %}
 	replay-window={{ replay_window }}
 	{% endif %}
 	{% if nic_offload %}
-	nic-offload={{ nic_offload }}
+	nic-offload={{ nic_offload.value }}
 	{% endif %}
 

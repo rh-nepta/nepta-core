@@ -64,8 +64,8 @@ class ConfigFile(ABC):
 
 
 class JinjaConfFile(ConfigFile, ABC):
-    TEMPLATE = None
-    TEMPLATE_DIR = 'templates/conf_templates'
+    TEMPLATE: str = ''
+    TEMPLATE_DIR: str = 'templates/conf_templates'
 
     def __init__(self):
         template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.TEMPLATE_DIR)
@@ -107,15 +107,8 @@ class IPsecConnFile(GenericIPsecFile):
     def _make_jinja_context(self):
         return {
             'name': self.connection.name,
-            'type': self.connection.mode,
-            'connaddrfamily': self.connection.family,
-            'left': self.connection.left_ip.ip,
-            'right': self.connection.right_ip.ip,
-            'phase2': self.connection.phase2,
-            'cipher': self.connection.cipher,
-            'encapsulation': self.connection.encapsulation,
-            'replay_window': self.connection.replay_window,
-            'nic_offload': self.connection.nic_offload,
+            'family': self.connection.family,
+            **self.connection.__dict__,
         }
 
 
@@ -186,7 +179,7 @@ class IfcfgFile(JinjaConfFile):
         net_model.LinuxBridge: 'bridge.jinja2',
     }
 
-    def __init__(self, interface_model):
+    def __init__(self, interface_model: net_model.Interface):
         super(IfcfgFile, self).__init__()
         self._interface_model = interface_model
         self.template = self.TEMPLATE_MAPPING[interface_model.__class__]
@@ -279,7 +272,7 @@ class SSHConfig(ConfigFile):
 class RcLocalScriptFile(ConfigFile):
     RC_LOCAL_SCRIPT_FILE = '/etc/rc.local'
 
-    def __init__(self, script):
+    def __init__(self, script: model.system.RcLocalScript):
         super(RcLocalScriptFile, self).__init__()
         self._script = script
 
@@ -287,7 +280,7 @@ class RcLocalScriptFile(ConfigFile):
         return self.RC_LOCAL_SCRIPT_FILE
 
     def _make_content(self):
-        return self._script.get_value()
+        return self._script.value
 
 
 class RepositoryFile(JinjaConfFile):
@@ -311,9 +304,9 @@ class RouteGenericFile(JinjaConfFile):
     ROUTE_DIRECTORY = '/etc/sysconfig/network-scripts/'
     TEMPLATE = 'route.jinja2'
 
-    def __init__(self, routes):
+    def __init__(self, routes: List[net_model.RouteGeneric]):
         super().__init__()
-        self._interface = routes[0].get_interface()
+        self._interface = routes[0].interface
         self._routes = routes
 
     def _make_path(self):
@@ -353,14 +346,13 @@ class KDump(ConfigFile):
 
 class GuestTap(JinjaConfFile):
     FILE_TEMP_DIRECTORY = '/tmp/taps/'
-    TEMPLATE = None
     TEMPLATE_MAPPING = {
         net_model.BridgeGuestTap: 'bridge_tap.jinja2',
         net_model.OVSGuestTap: 'ovs_tap.jinja2',
         net_model.OVSGuestVlanTap: 'ovs_vlan_tap.jinja2',
     }
 
-    def __init__(self, tap):
+    def __init__(self, tap: net_model.GenericGuestTap):
         super().__init__()
         self.tap = tap
         self.template = self.TEMPLATE_MAPPING[tap.__class__]
@@ -376,8 +368,8 @@ class GuestTap(JinjaConfFile):
 class HostnameConfFile(ConfigFile):
     HOSTNAME_CONF_FILE = '/etc/hostname'
 
-    def __init__(self, hostname):
-        super(HostnameConfFile, self).__init__()
+    def __init__(self, hostname: str):
+        super().__init__()
         self._hostname = hostname
 
     def _make_path(self):
@@ -405,8 +397,8 @@ class ChronyConf(JinjaConfFile):
 class DockerDaemonJson(ConfigFile):
     DOCKER_DAEMON_FILE = '/etc/docker/daemon.json'
 
-    def __init__(self, settings):
-        super(DockerDaemonJson, self).__init__()
+    def __init__(self, settings: model.docker.DockerDaemonSettings):
+        super().__init__()
         self._settings = settings
 
     def _make_path(self):
@@ -423,8 +415,7 @@ class DockerDaemonJson(ConfigFile):
 
     def _load_content(self):
         with open(self.DOCKER_DAEMON_FILE, 'r') as json_file:
-            data = json.load(json_file)
-        return data
+            return json.load(json_file)
 
     def update(self):
         logger.info('Updating docker daemon file')
@@ -433,7 +424,7 @@ class DockerDaemonJson(ConfigFile):
 
 
 class KernelModuleConf(ConfigFile, ABC):
-    CONF_DIR = None
+    CONF_DIR: str = ''
 
     def __init__(self, mod: model.system.KernelModule):
         super().__init__()
