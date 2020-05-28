@@ -83,15 +83,15 @@ class InterfaceTest(TestCase):
         )
         self.assertEqual(eth.mac, mac)
 
-        vlan1 = network.VlanInterface(generic, 10, self.net4.new_config(2))
-        vlan2 = network.VlanInterface(eth, 20)
+        network.VlanInterface(generic, 10, self.net4.new_config(2))
+        network.VlanInterface(eth, 20)
 
 
 class RouteTest(TestCase):
 
     def setUp(self) -> None:
-        self.net1 = NetperfNet4("192.168.0.0/24")
-        self.net2 = NetperfNet4("192.168.1.0/24")
+        self.net1 = NetperfNet4('192.168.0.0/24')
+        self.net2 = NetperfNet4('192.168.1.0/24')
 
         self.local_int1 = network.Interface('eth1', self.net1.new_config())
         self.local_int2 = network.Interface('eth2', self.net2.new_config())

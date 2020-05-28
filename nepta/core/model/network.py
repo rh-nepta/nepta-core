@@ -266,9 +266,9 @@ class IPsecTunnel:
     def __str__(self):
         replay_window_str = 'default' if self.replay_window is None else str(self.replay_window)
         return (
-            f'IPSec {self.family} tunnel {self.left_ip} <=> {self.right_ip}, [{self.phase2.value}]cipher: {self.cipher}, '
-            f'mode: {self.mode.value}, replay-window: {replay_window_str}, nat-traversal: {self.encapsulation.value}, '
-            f'nic-offload {self.nic_offload.value}'
+            f'IPSec {self.family} tunnel {self.left_ip} <=> {self.right_ip}, [{self.phase2.value}], '
+            f'cipher: {self.cipher}, mode: {self.mode.value}, replay-window: {replay_window_str}, '
+            f'nat-traversal: {self.encapsulation.value}, nic-offload {self.nic_offload.value}'
         )
 
     @property
