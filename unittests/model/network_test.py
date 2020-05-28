@@ -58,28 +58,16 @@ class InterfaceTest(TestCase):
         """
         generic = network.Interface(
             'eth2',
-            IPv4Configuration(
-                self.net4.new_addresses(3),
-                self.gw4
-            ),
-            IPv6Configuration(
-                self.net6.new_addresses(2),
-                dns=self.dns6
-            )
+            IPv4Configuration(self.net4.new_addresses(3), self.gw4),
+            IPv6Configuration(self.net6.new_addresses(2), dns=self.dns6),
         )
 
         mac = '00:11:22:33:44:55:66'
         eth = network.EthernetInterface(
             'eth2',
             mac,
-            IPv4Configuration(
-                self.net4.new_addresses(3),
-                self.gw4
-            ),
-            IPv6Configuration(
-                self.net6.new_addresses(2),
-                dns=self.dns6
-            )
+            IPv4Configuration(self.net4.new_addresses(3), self.gw4),
+            IPv6Configuration(self.net6.new_addresses(2), dns=self.dns6),
         )
         self.assertEqual(eth.mac, mac)
 
@@ -88,7 +76,6 @@ class InterfaceTest(TestCase):
 
 
 class RouteTest(TestCase):
-
     def setUp(self) -> None:
         self.net1 = NetperfNet4('192.168.0.0/24')
         self.net2 = NetperfNet4('192.168.1.0/24')

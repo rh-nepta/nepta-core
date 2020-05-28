@@ -65,8 +65,14 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
 
 
 class Interface:
-    def __init__(self, name: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
-                 master_bridge: 'LinuxBridge' = None, mtu: int = 1500):
+    def __init__(
+        self,
+        name: str,
+        v4_conf: IPv4Configuration = None,
+        v6_conf: IPv6Configuration = None,
+        master_bridge: 'LinuxBridge' = None,
+        mtu: int = 1500,
+    ):
         self.name = name
         self.v4_conf = v4_conf
         self.v6_conf = v6_conf
@@ -84,16 +90,24 @@ class Interface:
 
 
 class EthernetInterface(Interface):
-    def __init__(self, name: str, mac: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
-                 bind_cores: List[int] = None, mtu: int = 1500):
+    def __init__(
+        self,
+        name: str,
+        mac: str,
+        v4_conf: IPv4Configuration = None,
+        v6_conf: IPv6Configuration = None,
+        bind_cores: List[int] = None,
+        mtu: int = 1500,
+    ):
         super().__init__(name, v4_conf, v6_conf, mtu=mtu)
         self.mac = mac.lower()
         self.bind_cores = bind_cores
 
 
 class VlanInterface(Interface):
-    def __init__(self, parrent: Interface, vlan_id: int, v4_conf: IPv4Configuration = None,
-                 v6_conf: IPv6Configuration = None):
+    def __init__(
+        self, parrent: Interface, vlan_id: int, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
+    ):
         name = f'{parrent.name}.{vlan_id}'
         super().__init__(name, v4_conf, v6_conf)
         self.vlan_id = vlan_id
@@ -105,6 +119,7 @@ class GenericGuestTap:
     """
     This is virtual interface interconnecting VM with specific switch in the hypervisor.
     """
+
     guest: system.VirtualGuest
     switch: Any
     mac: str
@@ -138,8 +153,9 @@ class TeamMasterInterface(Interface):
         )
         ACT_BCKP = '{"runner": {"name": "activebackup", "link_watch": "ethtool"}}'
 
-    def __init__(self, name: str, v4: IPv4Configuration = None, v6: IPv6Configuration = None,
-                 runner: Runner = Runner.LACP):
+    def __init__(
+        self, name: str, v4: IPv4Configuration = None, v6: IPv6Configuration = None, runner: Runner = Runner.LACP
+    ):
         super().__init__(name, v4, v6)
         self.runner = runner
 
@@ -161,8 +177,13 @@ class BondMasterInterface(Interface):
         LACP = 'mode=4 xmit_hash_policy=1'
         ACT_BCKP = 'mode=1'
 
-    def __init__(self, name: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
-                 bond_opts: BondOpts = BondOpts.LACP):
+    def __init__(
+        self,
+        name: str,
+        v4_conf: IPv4Configuration = None,
+        v6_conf: IPv6Configuration = None,
+        bond_opts: BondOpts = BondOpts.LACP,
+    ):
         super().__init__(name, v4_conf, v6_conf)
         self.bond_opts = bond_opts
 
@@ -294,8 +315,11 @@ class IPsecTunnel:
 
     @property
     def tags(self):
-        tags = [SoftwareInventoryTag(self.family), SoftwareInventoryTag('IPsec'),
-                SoftwareInventoryTag(self.mode.capitalize())]
+        tags = [
+            SoftwareInventoryTag(self.family),
+            SoftwareInventoryTag('IPsec'),
+            SoftwareInventoryTag(self.mode.capitalize()),
+        ]
         if self.encapsulation == self.Encapsulation.YES:
             tags.append(SoftwareInventoryTag('NatTraversal'))
         if self.replay_window:
@@ -327,8 +351,11 @@ class RouteGeneric:
 
     def __str__(self):
         return '{cls} {dest} {gw} dev {dev} metric {metric}'.format(
-            cls=self.__class__.__name__, dev=self.interface.name, metric=self.metric,
-            dest=self.destination, gw="" if self.gw is None else f'dev {self.gw}'
+            cls=self.__class__.__name__,
+            dev=self.interface.name,
+            metric=self.metric,
+            dest=self.destination,
+            gw="" if self.gw is None else f'dev {self.gw}',
         )
 
 
@@ -378,7 +405,8 @@ class OVSTunnel:
 
 
 class OVSIntPort(Interface):
-    def __init__(self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None,
-                 v6_conf: IPv6Configuration = None):
+    def __init__(
+        self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
+    ):
         self.ovs_switch = ovs_switch
         super(OVSIntPort, self).__init__(name, v4_conf, v6_conf)

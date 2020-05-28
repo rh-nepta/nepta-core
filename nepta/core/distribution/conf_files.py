@@ -117,6 +117,7 @@ class IPsecRHEL8ConnFile(IPsecConnFile):
     IPsec in RHEL8 has different libreswan version and some of old parameters are obsolete.
     (e.g.: connaddrfamily)
     """
+
     TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 
