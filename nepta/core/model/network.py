@@ -135,13 +135,15 @@ class LinuxBridge(Interface):
 
 
 class TeamMasterInterface(Interface):
-    LACP_RUNNER = (
-        '{"runner": {"active": true, "link_watch": "ethotool", "fast_rate": true, "name": "lacp", '
-        '"tx_hash": ["eth", "ipv4", "ipv6", "tcp"]}}'
-    )
-    ACT_BCKP_RUNNER = '{"runner": {"name": "activebackup", "link_watch": "ethtool"}}'
+    class Runner(Enum):
+        LACP = (
+            '{"runner": {"active": true, "link_watch": "ethotool", "fast_rate": true, "name": "lacp", '
+            '"tx_hash": ["eth", "ipv4", "ipv6", "tcp"]}}'
+        )
+        ACT_BCKP = '{"runner": {"name": "activebackup", "link_watch": "ethtool"}}'
 
-    def __init__(self, name: str, v4: IPv4Configuration = None, v6: IPv6Configuration = None, runner=LACP_RUNNER):
+    def __init__(self, name: str, v4: IPv4Configuration = None, v6: IPv6Configuration = None,
+                 runner: Runner = Runner.LACP):
         super().__init__(name, v4, v6)
         self.runner = runner
 
@@ -159,11 +161,12 @@ class TeamChildInterface(EthernetInterface):
 # Bond
 #
 class BondMasterInterface(Interface):
-    LACP_BOND_OPTS = 'mode=4 xmit_hash_policy=1'
-    ACT_BCKP_BOND_OPTS = 'mode=1'
+    class BondOpts(Enum):
+        LACP = 'mode=4 xmit_hash_policy=1'
+        ACT_BCKP = 'mode=1'
 
     def __init__(self, name: str, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None,
-                 bond_opts=LACP_BOND_OPTS):
+                 bond_opts: BondOpts = BondOpts.LACP):
         super().__init__(name, v4_conf, v6_conf)
         self.bond_opts = bond_opts
 

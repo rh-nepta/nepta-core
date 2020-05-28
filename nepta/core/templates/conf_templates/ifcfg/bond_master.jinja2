@@ -3,5 +3,5 @@
 {{ super() -}}
 TYPE=Bond
 BONDING_MASTER=yes
-BONDING_OPTS="{{ intf.bond_opts }}"
+BONDING_OPTS="{{ intf.bond_opts.value }}"
 {% endblock %}
