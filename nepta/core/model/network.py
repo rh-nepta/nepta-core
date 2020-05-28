@@ -36,8 +36,6 @@ class IPv6Configuration(IPBaseConfiguration):
 
 
 class NetFormatter(ipaddress._BaseNetwork):
-    CONF_OBJ = IPBaseConfiguration
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._ip_gen = self.hosts()
@@ -48,8 +46,8 @@ class NetFormatter(ipaddress._BaseNetwork):
     def new_addresses(self, n: int) -> List[IpInterface]:
         return [self.new_addr() for _ in range(n)]
 
-    def new_config(self, num_of_ips=1) -> 'IPBaseConfiguration':
-        return self.CONF_OBJ(self.new_addresses(num_of_ips))
+    def new_config(self, num_of_ips=1) -> IPBaseConfiguration:
+        return IPBaseConfiguration(self.new_addresses(num_of_ips))
 
     def subnets(self, prefixlen_diff=1, new_prefix=None):
         def new_gen(gen):
@@ -61,11 +59,13 @@ class NetFormatter(ipaddress._BaseNetwork):
 
 
 class NetperfNet4(NetFormatter, ipaddress.IPv4Network):
-    CONF_OBJ = IPv4Configuration
+    def new_config(self, num_of_ips=1) -> IPv4Configuration:
+        return IPv4Configuration(self.new_addresses(num_of_ips))
 
 
 class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
-    CONF_OBJ = IPv6Configuration
+    def new_config(self, num_of_ips=1) -> IPv6Configuration:
+        return IPv6Configuration(self.new_addresses(num_of_ips))
 
 
 class Interface:
