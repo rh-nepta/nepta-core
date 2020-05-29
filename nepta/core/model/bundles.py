@@ -3,6 +3,7 @@ import logging
 import itertools
 from collections import OrderedDict, defaultdict
 from nepta.core.model.system import Value
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 
@@ -289,7 +290,7 @@ class DisplayableNode(object):
 
 
 class HostBundle(Bundle):
-    _all_confs_register = defaultdict(dict)
+    _all_confs_register: Dict[str, Dict[str, 'HostBundle']] = defaultdict(dict)
     _properties = Bundle._properties + ['_hostname', '_conf_name']
 
     @classmethod
@@ -307,9 +308,10 @@ class HostBundle(Bundle):
                 return [conf] if conf is not None else []
         else:
             # get lists of conf list
-            all_confs = [list(host_conf.values()) for host_conf in cls._all_confs_register.values()]
-            # convert it into single list
-            all_confs = itertools.chain.from_iterable(all_confs)
+            # and convert it into single list
+            all_confs = itertools.chain.from_iterable(
+                [list(host_conf.values()) for host_conf in cls._all_confs_register.values()]
+            )
             if conf_name is None:
                 return list(all_confs)
             else:

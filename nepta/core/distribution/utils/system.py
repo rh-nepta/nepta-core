@@ -2,6 +2,7 @@ import logging
 import re
 import abc
 from enum import Enum
+from typing import Tuple
 
 from nepta.core.distribution.command import Command
 from nepta.core.model.system import SystemService, TunedAdmProfile, KernelModule
@@ -127,7 +128,7 @@ class GenericServiceHandler(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def run_service_cmd(cls, action: Actions, service: SystemService) -> (str, int):
+    def run_service_cmd(cls, action: Actions, service: SystemService) -> Tuple[str, int]:
         pass
 
     @classmethod

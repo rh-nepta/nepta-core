@@ -1,5 +1,5 @@
 from nepta.core.distribution.command import Command
-
+from typing import List
 
 class CommandToolException(Exception):
     """
@@ -37,7 +37,7 @@ class CommandArgument(object):
 class CommandTool(object):
 
     PROGRAM_NAME = ''
-    MAPPING = []
+    MAPPING: List[CommandArgument] = []
 
     def __init__(self, **kwargs):
         super().__init__()

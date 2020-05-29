@@ -1,4 +1,5 @@
 import itertools
+from typing import Dict
 
 
 class Strategy(object):
@@ -12,7 +13,7 @@ class Strategy(object):
 
     SCHEDULE_ATTR = '_scheduled'
     METHOD_COUNTER = itertools.count()
-    METHOD_INDEX = {}
+    METHOD_INDEX: Dict[str, int] = {}
 
     def __init__(self):
         super().__init__()

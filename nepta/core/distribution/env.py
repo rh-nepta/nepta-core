@@ -20,20 +20,23 @@ class RedhatRelease(object, metaclass=_MetaPrintedType):
     with open(_RELEASE_FILE_PATH, 'r') as _fd:
         _release_file_content = _fd.read()
     _m = re.match(_splitting_regex, _release_file_content)
-    brand = _m.group(1)
-    version = _m.group(3)
-    codename = _m.group(4)
+    if _m is not None:
+        brand = _m.group(1)
+        version = _m.group(3)
+        codename = _m.group(4)
 
 
 class Environment(object, metaclass=_MetaPrintedType):
     _env = os.environ
     kernel_version = Uname.get_version()
     kernel_src_rpm = RPMTool.get_src_name('kernel-%s' % kernel_version)
-    if not kernel_src_rpm:
-        kernel = 'unknown-' + kernel_version
-    else:
+    _match = None
+    if kernel_src_rpm:
         _match = re.search(r'(?P<src_name>.+)-(.+)-(.+)\.*\.src\.rpm', kernel_src_rpm)
+    if _match is not None:
         kernel = _match.group('src_name') + '-' + kernel_version
+    else:
+        kernel = 'unknown-' + kernel_version
     fqdn = Uname.get_hostname()
     distro = _env.get('RSTRNT_OSDISTRO', 'Linux')
     rhel_version = RedhatRelease.version

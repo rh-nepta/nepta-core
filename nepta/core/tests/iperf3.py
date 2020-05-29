@@ -4,6 +4,7 @@ import numpy as np
 from statistics import stdev
 from enum import Enum
 from singledispatchmethod import singledispatchmethod
+from typing import Dict
 
 from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
@@ -23,7 +24,7 @@ class Iperf3TestResult(object):
         GBPS = 1e9
 
     # _DIMENSIONS variables stores mapping key -> variable in object numpy array
-    _DIMENSIONS = {}
+    _DIMENSIONS: Dict[str, int] = {}
 
     @classmethod
     @abc.abstractmethod
