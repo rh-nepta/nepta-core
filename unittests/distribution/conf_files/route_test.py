@@ -10,6 +10,9 @@ class RouteConfigFile(TestCase):
         self.net4 = NetperfNet4('192.168.0.0/24')
         self.net6 = NetperfNet6('FE80::/64')
         self.int1 = Interface('eth1', self.net4.new_config(2), self.net6.new_config(2))
+        # for mypy
+        assert self.int1.v4_conf is not None
+        assert self.int1.v6_conf is not None
         self.routes_4 = [
             Route4(self.net4, self.int1, self.int1.v4_conf[0].ip, 10),
             Route4(self.net4, self.int1, self.int1.v4_conf[0].ip),

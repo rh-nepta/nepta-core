@@ -85,6 +85,11 @@ class RouteTest(TestCase):
         self.remote_int1 = network.Interface('eth3', self.net1.new_config())
         self.remote_int2 = network.Interface('eth4', self.net2.new_config())
 
+        assert self.local_int1.v4_conf is not None
+        assert self.local_int2.v4_conf is not None
+        assert self.remote_int1.v4_conf is not None
+        assert self.remote_int2.v4_conf is not None
+        
         self.path1 = schedule.Path(
             self.local_int1.v4_conf[0], self.remote_int1.v4_conf[0], [schedule.SoftwareInventoryTag('IPv4')]
         )
