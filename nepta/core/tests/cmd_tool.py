@@ -1,6 +1,7 @@
 from nepta.core.distribution.command import Command
 from typing import List
 
+
 class CommandToolException(Exception):
     """
     General exception of this package.
