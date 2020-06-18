@@ -318,7 +318,7 @@ class IPsecTunnel:
         tags = [
             SoftwareInventoryTag(self.family),
             SoftwareInventoryTag('IPsec'),
-            SoftwareInventoryTag(self.mode.capitalize()),
+            SoftwareInventoryTag(self.mode.value.capitalize()),
         ]
         if self.encapsulation == self.Encapsulation.YES:
             tags.append(SoftwareInventoryTag('NatTraversal'))
