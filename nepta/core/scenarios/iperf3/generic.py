@@ -25,7 +25,7 @@ def catch_and_log_exception(f):
             else:
                 logger.error(args[1].get_json_out())
             logger.error('Traceback of catch exception :')
-            traceback.print_exc(file=sys.stdout)
+            logger.error(traceback.print_exc(file=sys.stdout))
         return OrderedDict()
 
     return wrapper
