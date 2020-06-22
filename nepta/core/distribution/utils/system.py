@@ -2,15 +2,15 @@ import logging
 import re
 import abc
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, Optional
 
 from nepta.core.distribution.command import Command
-from nepta.core.model.system import SystemService, TunedAdmProfile, KernelModule
+from nepta.core.model.system import SystemService, KernelModule
 
 logger = logging.getLogger(__name__)
 
 
-class Uname(object):
+class Uname:
     UNAME_CMD = 'uname -a'
 
     @classmethod
@@ -32,11 +32,11 @@ class Uname(object):
         return cls._exec()[1]
 
 
-class RPMTool(object):
+class RPMTool:
     CMD_RPM = '/bin/rpm'
 
     @classmethod
-    def get_src_name(cls, pkg_nvr):
+    def get_src_name(cls, pkg_nvr) -> Optional[str]:
         rpm_cmd = Command('%s -q -i %s' % (cls.CMD_RPM, pkg_nvr))
         rpm_cmd.run()
         out, _ = rpm_cmd.get_output()
@@ -48,7 +48,17 @@ class RPMTool(object):
             return None
 
     @classmethod
-    def get_package_version(cls, package):
+    def get_src_name_from_file(cls, path) -> Optional[str]:
+        rpm_cmd = Command(f'{cls.CMD_RPM} -qif {path}').run()
+        out, _ = rpm_cmd.get_output()
+        re_match = re.search(r'Source\s+RPM\s*:\s+(?P<all_src_name>.*[^\n])', out, re.MULTILINE)
+        if re_match:
+            return re_match.group('all_src_name')
+        else:
+            return None
+
+    @classmethod
+    def get_package_version(cls, package) -> Optional[str]:
         rpm_cmd = Command('%s -qa %s' % (cls.CMD_RPM, package))
         rpm_cmd.run()
         out, ret_code = rpm_cmd.watch_output()
@@ -60,7 +70,7 @@ class RPMTool(object):
             return None
 
 
-class SELinux(object):
+class SELinux:
     @staticmethod
     def getenforce():
         cmd = Command('getenforce')
@@ -98,7 +108,7 @@ class Tuned(object):
             return None
 
 
-class Lscpu(object):
+class Lscpu:
     @staticmethod
     def parse_output_into_dict():
         cmd = Command('lscpu')
