@@ -7,6 +7,7 @@ from nepta.core.distribution.utils.system import SystemD
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
+from nepta.core.distribution.command import Command
 
 logger = logging.getLogger(__name__)
 
@@ -72,3 +73,17 @@ class Prepare(Strategy):
         Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
         """
         SystemD.restart_service(model.system.SystemService('ipsec'))
+
+    @Strategy.schedule
+    def setup_offloads(self):
+        """
+        This methods sets all offload attribute for each EthernetInterface object using ethtool -K.
+        """
+
+        for eth_int in self.conf.get_subset(m_type=model.network.EthernetInterface):
+            if eth_int.offloads:
+                cmd = Command(f'ethtool -K {eth_int.name} ' +
+                              ' '.join([f'{k} {v}' for k, v in eth_int.offloads.items()]))
+                _, ret_code = cmd.run().watch_output()
+                if ret_code:
+                    logger.error(f'Error occured during setting up {eth_int.name} offloads: f{eth_int.offloads}.')
