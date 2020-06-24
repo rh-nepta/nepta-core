@@ -28,7 +28,7 @@ class Bundle(object):
         self._bundles = OrderedDict()  # tree nodes (children)
         self._parents = []
         if clone is not None:
-            self += clone.clone()
+            self += clone
 
     def __str__(self):
         return 'Configuration bundle : \n' + '\n'.join([str(x) for x in self.get_all_components()])
@@ -199,7 +199,7 @@ class Bundle(object):
                 if attr_name in self._bundles:
                     self._bundles[attr_name].merge_bundles(value)
                 else:  # attr is not in local bundle so no merge is necessary
-                    setattr(self, attr_name, value.clone())
+                    setattr(self, attr_name, value.copy())
             else:  # if is not instance of Bundle
                 if attr_name in self._bundles:
                     raise MergeBundleException(
