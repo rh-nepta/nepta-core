@@ -66,6 +66,19 @@ class Bundle(object):
         else:
             super().__delattr__(item)
 
+    def __copy__(self):
+        local_bundles = self._serialize_by_bfs(bundles_only=True)
+        lookup_table = {x: Bundle() for x in local_bundles}
+
+        for local, new in lookup_table.items():
+            new._components.extend(local._components)
+            for local_child_name, local_child_value in local._bundles.items():
+                if isinstance(local_child_value, Bundle):
+                    setattr(new, local_child_name, lookup_table[local_child_value])
+                else:
+                    setattr(new, local_child_name, local_child_value)
+        return lookup_table[self]
+
     def __deepcopy__(self, memodict={}):
         local_bundles = self._serialize_by_bfs(bundles_only=True)
         lookup_table = {x: Bundle() for x in local_bundles}
@@ -122,7 +135,18 @@ class Bundle(object):
         return self
 
     def clone(self):
+        """
+        Create a now tree structure and duplicate objects.
+        :return:
+        """
         return copy.deepcopy(self)
+
+    def copy(self):
+        """
+        Create a new tree strucutre of Bundles, but objects pointers are the same.
+        :return:
+        """
+        return copy.copy(self)
 
     def _serialize_by_bfs(self, bundles_only=False):
 
@@ -164,7 +188,7 @@ class Bundle(object):
             else:
                 return False ^ exclude
 
-        ret_bundle = self.clone()
+        ret_bundle = self.copy()
         ret_bundle.filter_components(class_and_type_filter)
         return ret_bundle
 
