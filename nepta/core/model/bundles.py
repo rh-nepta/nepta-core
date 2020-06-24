@@ -28,7 +28,7 @@ class Bundle(object):
         self._bundles = OrderedDict()  # tree nodes (children)
         self._parents = []
         if clone is not None:
-            self += clone
+            self += clone.clone()
 
     def __str__(self):
         return 'Configuration bundle : \n' + '\n'.join([str(x) for x in self.get_all_components()])
@@ -76,7 +76,7 @@ class Bundle(object):
                 if isinstance(local_child_value, Bundle):
                     setattr(new, local_child_name, lookup_table[local_child_value])
                 else:
-                    setattr(new, local_child_name, local_child_value)
+                    setattr(new, local_child_name, copy.deepcopy(local_child_value))
         return lookup_table[self]
 
     def has_node(self, node_name):
