@@ -98,7 +98,7 @@ class EthernetInterface(Interface):
         v6_conf: IPv6Configuration = None,
         bind_cores: List[int] = None,
         mtu: int = 1500,
-        offloads: Dict[str, str] = None
+        offloads: Dict[str, str] = None,
     ):
         super().__init__(name, v4_conf, v6_conf, mtu=mtu)
         self.mac = mac.lower()

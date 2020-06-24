@@ -249,9 +249,7 @@ IPV6ADDR=fd00::1/64
         self.assertEqual(expected, ifcfg.get_content())
 
     def test_offloads(self):
-        intf = nm.EthernetInterface(
-            'int1', 'aa:bb:cc:dd:ee:ff', offloads={'gro': 'off', 'gso': 'on'}
-        )
+        intf = nm.EthernetInterface('int1', 'aa:bb:cc:dd:ee:ff', offloads={'gro': 'off', 'gso': 'on'})
         ifcfg = cf.IfcfgFile(intf)
 
         expected_result = '''\
