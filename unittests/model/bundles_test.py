@@ -402,6 +402,20 @@ class TestBundles(TestCase):
             self.assertNotIn(item, without_pckgs.get_all_components(), 'There are wrongobjects.')
             self.assertIn(item, main_withou_intf.get_all_components(), 'There are missing some specified objects.')
 
+    def test_clone_bundle(self):
+        b = bundles.Bundle()
+        b.packages.wget = system.Package('wget')
+        b.packages.iperf3 = system.Package('iperf3')
+        b.int1 = network.Interface('igb0')
+
+        clone = b.clone()
+
+        self.assertNotEqual(id(b), id(clone))
+        self.assertNotEqual(id(b.packages), id(clone.packages))
+        self.assertNotEqual(id(b.packages.wget), id(clone.packages.wget))
+        self.assertNotEqual(id(b.packages.iperf3), id(clone.packages.iperf3))
+        self.assertNotEqual(id(b.int1), id(clone.int1))
+
 
 class TestMergeBundles(TestCase):
     def test_merge_no_key_over_lap(self):

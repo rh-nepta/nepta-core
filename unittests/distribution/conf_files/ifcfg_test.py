@@ -248,6 +248,20 @@ IPV6ADDR=fd00::1/64
 '''
         self.assertEqual(expected, ifcfg.get_content())
 
+    def test_offloads(self):
+        intf = nm.EthernetInterface('int1', 'aa:bb:cc:dd:ee:ff', offloads={'gro': 'off', 'gso': 'on'})
+        ifcfg = cf.IfcfgFile(intf)
+
+        expected_result = '''\
+DEVICE=int1
+ONBOOT=yes
+BOOTPROTO=none
+MTU=1500
+HWADDR=aa:bb:cc:dd:ee:ff
+ETHTOOL_OPTS="-K int1 gro off gso on"
+'''
+        self.assertEqual(expected_result, ifcfg.get_content())
+
 
 class VariousIfcfgTest(TestCase):
     def __init__(self, *args, **kwargs):

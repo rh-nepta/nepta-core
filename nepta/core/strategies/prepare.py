@@ -7,6 +7,7 @@ from nepta.core.distribution.utils.system import SystemD
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
+from nepta.core.distribution.command import Command
 
 logger = logging.getLogger(__name__)
 
