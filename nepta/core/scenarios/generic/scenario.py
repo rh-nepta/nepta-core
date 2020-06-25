@@ -2,6 +2,7 @@ import logging
 import time
 import uuid
 import functools
+from typing import Tuple
 from nepta.dataformat import Section
 
 logger = logging.getLogger(__name__)
@@ -17,14 +18,14 @@ def info_log_func_output(f):
     return wrapper
 
 
-class ScenarioGeneric(object):
+class ScenarioGeneric:
     def __str__(self):
         return self.__class__.__name__
 
     def __call__(self) -> Section:
         return self.run_scenario()
 
-    def run_scenario(self) -> Section:
+    def run_scenario(self) -> [Section, bool]:
         raise NotImplementedError
 
 
@@ -36,6 +37,7 @@ class StreamGeneric(ScenarioGeneric):
         self.msg_sizes = msg_sizes
         self.cpu_pinning = cpu_pinning
         self.base_port = base_port
+        self.result = 1
 
     def __str__(self):
         ret_str = super().__str__()
@@ -54,7 +56,7 @@ class StreamGeneric(ScenarioGeneric):
 
         for path in self.paths:
             paths_section.subsections.append(self.run_path(path))
-        return root_sec
+        return root_sec, self.result
 
     def store_scenario(self, section):
         section.params['scenario_name'] = self.__class__.__name__
@@ -137,6 +139,7 @@ class SingleStreamGeneric(StreamGeneric):
             return self.store_instance(Section('run'), test)
         else:
             logger.error('Measurement fails. Returning results with zeros.')
+            self.result = False
             return Section('failed-test')
 
     def store_instance(self, section, test):
@@ -189,6 +192,7 @@ class MultiStreamsGeneric(StreamGeneric):
 
         else:  # if every attempt fails
             logger.error('Each measurement fails. Returning results with zeros.')
+            self.result = False
             return Section('failed-test')
 
         return self.store_instance(Section('run'), tests)

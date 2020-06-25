@@ -72,7 +72,7 @@ class IRQBalanceCheck(ScenarioGeneric):
         int_table = self.get_parsed_interrupts()
         cpu_sums = [sum(int_table[y][x] for y in range(len(int_table))) for x in range(len(int_table[0]))]
 
-        test_result = '1' if cpu_sums[0] < sum(cpu_sums[1:]) else '0'
+        test_result = 1 if cpu_sums[0] < sum(cpu_sums[1:]) else 0
 
         logger.info(f'Sums of interrupts per CPU: {cpu_sums}')
         logger.info(f'Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???')
@@ -84,10 +84,10 @@ class IRQBalanceCheck(ScenarioGeneric):
 
         runs = Section('runs')
         run = Section('run')
-        item = Section('item', key='irq_balance_check', value=test_result)
+        item = Section('item', key='irq_balance_check', value=str(test_result))
 
         root_sec.subsections.append(runs)
         runs.subsections.append(run)
         run.subsections.append(item)
 
-        return root_sec
+        return root_sec, test_result
