@@ -150,8 +150,16 @@ class SingleStreamGeneric(StreamGeneric):
 
 class MultiStreamsGeneric(StreamGeneric):
     def __init__(
-            self, paths, attempt_count, attempt_pause, test_length, test_runs, msg_sizes, cpu_pinning,
-            base_port, result=True,
+        self,
+        paths,
+        attempt_count,
+        attempt_pause,
+        test_length,
+        test_runs,
+        msg_sizes,
+        cpu_pinning,
+        base_port,
+        result=True,
     ):
         super().__init__(paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port, result)
         self.attempt_count = attempt_count
