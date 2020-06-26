@@ -30,14 +30,14 @@ class ScenarioGeneric:
 
 
 class StreamGeneric(ScenarioGeneric):
-    def __init__(self, paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port):
+    def __init__(self, paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port, result=True):
         self.paths = paths
         self.test_length = test_length
         self.test_runs = test_runs
         self.msg_sizes = msg_sizes
         self.cpu_pinning = cpu_pinning
         self.base_port = base_port
-        self.result = 1
+        self.result = result
 
     def __str__(self):
         ret_str = super().__str__()
@@ -149,8 +149,11 @@ class SingleStreamGeneric(StreamGeneric):
 
 
 class MultiStreamsGeneric(StreamGeneric):
-    def __init__(self, paths, attempt_count, attempt_pause, test_length, test_runs, msg_sizes, cpu_pinning, base_port):
-        super().__init__(paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port)
+    def __init__(
+            self, paths, attempt_count, attempt_pause, test_length, test_runs, msg_sizes, cpu_pinning,
+            base_port, result=True,
+    ):
+        super().__init__(paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port, result)
         self.attempt_count = attempt_count
         self.attempt_pause = attempt_pause
 
