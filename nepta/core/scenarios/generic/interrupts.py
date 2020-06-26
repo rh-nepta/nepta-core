@@ -90,4 +90,4 @@ class IRQBalanceCheck(ScenarioGeneric):
         runs.subsections.append(run)
         run.subsections.append(item)
 
-        return root_sec, test_result
+        return root_sec, bool(test_result)
