@@ -1,8 +1,11 @@
 import itertools
+from logging import getLogger
 from typing import Dict
 
+logger = getLogger(__name__)
 
-class Strategy(object):
+
+class Strategy:
     """
     This is generic object for strategies used by network performance testing. It defines interface of strategies
     and generic math operations (sum +), which is used to created single huge CompoundStrategy.
@@ -21,6 +24,7 @@ class Strategy(object):
 
     def __call__(self):
         for func in self.func_list:
+            logger.info(f'Executing {self.__class__.__name__}.{func}')
             getattr(self, func)()
 
     def __add__(self, other):
@@ -64,7 +68,7 @@ class Strategy(object):
         return func
 
 
-class CompoundStrategy(object):
+class CompoundStrategy:
     """
     This class store reference on several Strategy objects. Objects of this class are callable. When this object
     is called, it cycles through scheduled strategies and __call__ it with provided arguments.
@@ -90,4 +94,5 @@ class CompoundStrategy(object):
 
     def __call__(self):
         for strategy in self.strategies:
+            logger.info(f'Running strategy {strategy.__class__.__name__}')
             strategy()
