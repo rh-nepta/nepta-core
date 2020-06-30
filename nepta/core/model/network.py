@@ -126,8 +126,11 @@ class GenericGuestTap:
     switch: Any
     mac: str
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}_{self.guest.name}_{self.switch.name}_{self.mac}'
 
-@dataclass
+
+@dataclass(repr=False)
 class OVSGuestTap(GenericGuestTap):
     switch: 'OVSwitch'
 
@@ -136,8 +139,11 @@ class OVSGuestTap(GenericGuestTap):
 class OVSGuestVlanTap(GenericGuestTap):
     vlan: int
 
+    def __repr__(self):
+        return super().__repr__() + f'_{self.vlan}'
 
-@dataclass
+
+@dataclass(repr=False)
 class BridgeGuestTap(GenericGuestTap):
     switch: 'LinuxBridge'
 
@@ -408,7 +414,7 @@ class OVSTunnel:
 
 class OVSIntPort(Interface):
     def __init__(
-        self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
+            self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
     ):
         self.ovs_switch = ovs_switch
         super(OVSIntPort, self).__init__(name, v4_conf, v6_conf)
