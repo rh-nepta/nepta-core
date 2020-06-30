@@ -333,8 +333,14 @@ def main():
         desync()
         raise e
 
+    result = True
+    for strategy in final_strategy.strategies:
+        if isinstance(strategy, strategies.run.RunScenarios):
+            result &= strategy.aggregated_result
+
     logger.info('bye bye world...')
+    return not result  # reversed logic -> 0 is OK, 1 is FAIL
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
