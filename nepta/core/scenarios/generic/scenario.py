@@ -25,7 +25,7 @@ class ScenarioGeneric:
     def __call__(self) -> Section:
         return self.run_scenario()
 
-    def run_scenario(self) -> [Section, bool]:
+    def run_scenario(self) -> Tuple[Section, bool]:
         raise NotImplementedError
 
 
