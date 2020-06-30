@@ -135,6 +135,7 @@ class SingleStreamGeneric(StreamGeneric):
     def run_instance(self, path, size):
         test = self.init_test(path, size)
         test.run()
+        test.watch_output()
         if test.success():
             return self.store_instance(Section('run'), test)
         else:
