@@ -2,6 +2,7 @@ import logging
 import time
 import uuid
 import functools
+from typing import Tuple
 from nepta.dataformat import Section
 
 logger = logging.getLogger(__name__)
@@ -17,25 +18,26 @@ def info_log_func_output(f):
     return wrapper
 
 
-class ScenarioGeneric(object):
+class ScenarioGeneric:
     def __str__(self):
         return self.__class__.__name__
 
     def __call__(self) -> Section:
         return self.run_scenario()
 
-    def run_scenario(self) -> Section:
+    def run_scenario(self) -> [Section, bool]:
         raise NotImplementedError
 
 
 class StreamGeneric(ScenarioGeneric):
-    def __init__(self, paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port):
+    def __init__(self, paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port, result=True):
         self.paths = paths
         self.test_length = test_length
         self.test_runs = test_runs
         self.msg_sizes = msg_sizes
         self.cpu_pinning = cpu_pinning
         self.base_port = base_port
+        self.result = result
 
     def __str__(self):
         ret_str = super().__str__()
@@ -54,7 +56,7 @@ class StreamGeneric(ScenarioGeneric):
 
         for path in self.paths:
             paths_section.subsections.append(self.run_path(path))
-        return root_sec
+        return root_sec, self.result
 
     def store_scenario(self, section):
         section.params['scenario_name'] = self.__class__.__name__
@@ -133,8 +135,12 @@ class SingleStreamGeneric(StreamGeneric):
     def run_instance(self, path, size):
         test = self.init_test(path, size)
         test.run()
-        test.watch_output()
-        return self.store_instance(Section('run'), test)
+        if test.success():
+            return self.store_instance(Section('run'), test)
+        else:
+            logger.error('Measurement fails. Returning results with zeros.')
+            self.result = False
+            return Section('failed-test')
 
     def store_instance(self, section, test):
         for k, v in self.parse_results(test).items():
@@ -143,8 +149,19 @@ class SingleStreamGeneric(StreamGeneric):
 
 
 class MultiStreamsGeneric(StreamGeneric):
-    def __init__(self, paths, attempt_count, attempt_pause, test_length, test_runs, msg_sizes, cpu_pinning, base_port):
-        super().__init__(paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port)
+    def __init__(
+        self,
+        paths,
+        attempt_count,
+        attempt_pause,
+        test_length,
+        test_runs,
+        msg_sizes,
+        cpu_pinning,
+        base_port,
+        result=True,
+    ):
+        super().__init__(paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port, result)
         self.attempt_count = attempt_count
         self.attempt_pause = attempt_pause
 
@@ -186,6 +203,7 @@ class MultiStreamsGeneric(StreamGeneric):
 
         else:  # if every attempt fails
             logger.error('Each measurement fails. Returning results with zeros.')
+            self.result = False
             return Section('failed-test')
 
         return self.store_instance(Section('run'), tests)

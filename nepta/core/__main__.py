@@ -125,7 +125,7 @@ def create_desynchronize_strategy(strategy: CompoundStrategy, package: DataPacka
     desync_strategy += strategies.save.save_package.Save(package)
 
     if Environment.in_rstrnt:
-        desync_strategy += strategies.report.Report(package, False)
+        desync_strategy += strategies.report.Report(package, result=False)
 
     return desync_strategy
 
@@ -323,7 +323,7 @@ def main():
 
     # in the end of test tell beaker the test has PASSED
     if Environment.in_rstrnt:
-        final_strategy += strategies.report.Report(package, True)
+        final_strategy += strategies.report.Report(package, final_strategy)
 
     try:
         final_strategy()

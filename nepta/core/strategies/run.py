@@ -14,6 +14,7 @@ class RunScenarios(Strategy):
         self.conf = conf
         self.package = package
         self.filter_scenarios = filter_scenarios
+        self.aggregated_result = True  # result is Pass in default
 
     @Strategy.schedule
     def run_scenarios(self):
@@ -38,6 +39,6 @@ class RunScenarios(Strategy):
         run_items = [x for x in scenarios if x.__class__.__name__ in override_names]
         for item in run_items:
             logger.info('\n\nRunning scenario: %s', item)
-            result = item()
-            if result:
-                scenarios_section.subsections.append(result)
+            data, result = item()
+            scenarios_section.subsections.append(data)
+            self.aggregated_result &= result

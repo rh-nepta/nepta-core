@@ -414,7 +414,7 @@ class OVSTunnel:
 
 class OVSIntPort(Interface):
     def __init__(
-            self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
+        self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
     ):
         self.ovs_switch = ovs_switch
         super(OVSIntPort, self).__init__(name, v4_conf, v6_conf)
