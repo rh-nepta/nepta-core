@@ -2,12 +2,13 @@ import os
 import logging
 import time
 from jinja2 import Template
+from collections import defaultdict
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core import model
 from nepta.core.distribution import conf_files, env
 from nepta.core.distribution.command import Command
-from nepta.core.distribution.utils.system import Tuned, SysVInit, KernelModuleUtils
+from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemD, KernelModuleUtils
 from nepta.core.distribution.utils.fs import Fs
 from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl
 from nepta.core.distribution.utils.virt import Docker, Virsh
@@ -19,9 +20,11 @@ class Setup(Strategy):
     SETTLE_TIME = 30
 
     _INSTALLER = 'yum -y install '
-    _INSTALLER_COMMAND_TEMPLATE = Template("""{{ installer }} {{ pkg.value }} \
+    _INSTALLER_COMMAND_TEMPLATE = Template(
+        """{{ installer }} {{ pkg.name }} \
 {% for repo in pkg.disable_repos %}--disablerepo {{ repo.key }} {% endfor %}\
-{% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}""")
+{% for repo in pkg.enable_repos %}--enablerepo {{ repo.key }} {% endfor %}"""
+    )
 
     def __init__(self, conf):
         super().__init__()
@@ -32,13 +35,13 @@ class Setup(Strategy):
         logger.info('Adding repositories')
         repos = self.conf.get_subset(m_class=model.system.Repository)
         for repo in repos:
-            logger.info('Adding repo %s', repo.get_key())
+            logger.info('Adding repo %s', repo)
             conf_files.RepositoryFile(repo).apply()
 
     @Strategy.schedule
     def install_packages(self):
         pkgs = self.conf.get_subset(m_type=model.system.Package)
-        install_cmd = self._INSTALLER + " ".join([str(pkg.value) for pkg in pkgs])
+        install_cmd = self._INSTALLER + ' '.join([str(pkg.value) for pkg in pkgs])
         c = Command(install_cmd)
         c.run()
         out, retcode = c.watch_output()
@@ -57,19 +60,13 @@ class Setup(Strategy):
     @Strategy.schedule
     def configure_ssh(self):
         logger.info('Configuring SSH client')
-        pubkeys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
-        if len(pubkeys) > 0:
-            conf_files.SSHAuthorizedKeysFile(pubkeys).apply()
+        pub_keys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
+        conf_files.SSHAuthorizedKeysFile(pub_keys).apply()
 
         identities = self.conf.get_subset(m_class=model.system.SSHIdentity)
-        if len(identities) > 0:
-            # TODO : support more public keys
-            # curently only one private key is supported
-            first_identity = identities[0]
-
-            # install the SSH private key and corresponding public key
-            conf_files.SSHPrivateKey(first_identity).apply()
-            conf_files.SSHPublicKey(first_identity).apply()
+        for ident in identities:
+            conf_files.SSHPrivateKey(ident).apply()
+            conf_files.SSHPublicKey(ident).apply()
 
         confs = self.conf.get_subset(m_class=model.system.SSHConfigItem)
         conf_files.SSHConfig(confs).apply()
@@ -80,16 +77,14 @@ class Setup(Strategy):
     def configure_kdump(self):
         logger.info('Configuring KDump')
         confs = self.conf.get_subset(m_class=model.system.KDumpOption)
-        if len(confs):
-            conf_files.KDump(confs).apply()
+        conf_files.KDump(confs).apply()
 
     @Strategy.schedule
     def configure_kernel_variables(self):
         logger.info('Configuring sysctl variables')
         kvars = self.conf.get_subset(m_class=model.system.SysctlVariable)
         conf_files.SysctlFile(kvars).apply()
-        sysctl_cmd = 'sysctl --system'
-        c = Command(sysctl_cmd)
+        c = Command('sysctl --system')
         c.run()
         c.watch_output()
 
@@ -100,28 +95,24 @@ class Setup(Strategy):
             if len(profile) > 1:
                 logger.warning('Too many tuned profiles in configuration \n%s' % self.conf)
             profile = profile[0]
-            logger.info("Setting tuned-adm profile: %s" % profile)
+            logger.info('Setting tuned-adm profile: %s' % profile)
             out, retcode = Tuned.set_profile(profile.value)
             if retcode:
                 logger.error(out)
 
     @Strategy.schedule
     def configure_services(self):
-        # TODO systemD style config
-        sysv_services = self.conf.get_subset(model.system.SysVInitService)
-        systemd_services = self.conf.get_subset(model.system.SystemdService)
-
-        for vs in sysv_services + systemd_services:
-            SysVInit.configure_service(vs)
+        for service in self.conf.get_subset(model.system.SystemService):
+            SysVInit.configure_service(service)
 
     @Strategy.schedule
     def configure_kernel_modules(self):
-        logger.info("Configuring kernel modules")
+        logger.info('Configuring kernel modules')
         for mod in self.conf.get_subset(m_class=model.system.KernelModule):
             logger.info(f'Configuring module {mod}')
             conf_files.KernelLoadModuleConfig(mod).apply()
             conf_files.KernelModuleOptions(mod).apply()
-            logger.info(f"Inserting module {mod}")
+            logger.info(f'Inserting module {mod}')
             KernelModuleUtils.modprobe(mod)
 
     def stop_net(self):
@@ -140,20 +131,44 @@ class Setup(Strategy):
         if os.path.exists(conf_files.IPsecConnFile.IPSEC_CONF_DIR):
             ls_dir = Fs.list_path(conf_files.IPsecConnFile.IPSEC_CONF_DIR)
             for conn_file in [x for x in ls_dir if x.startswith(conf_files.IPsecConnFile.IPSEC_CONF_PREFIX)]:
-                logging.debug("Deleting : {}".format(conn_file))
+                logging.debug('Deleting : {}'.format(conn_file))
                 Fs.rm(os.path.join(conf_files.IPsecConnFile.IPSEC_CONF_DIR, conn_file))
 
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        SysVInit.stop_service('ipsec')
+        ipsec_service = model.system.SystemService('ipsec')
+        SystemD.stop_service(ipsec_service)
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        SysVInit.start_service('ipsec')
+        SystemD.start_service(ipsec_service)
+
+    @Strategy.schedule
+    def delete_old_wireguard_conf(self):
+        logging.info('Deleting old wireguard tunnel conf-files')
+
+        if os.path.exists(conf_files.WireGuardConnectionFile.CONF_DIR):
+            ls_dir = Fs.list_path(conf_files.WireGuardConnectionFile.CONF_DIR)
+            for conn_file in [x for x in ls_dir if x.endswith(conf_files.WireGuardConnectionFile.SUFFIX)]:
+                logging.debug('Deleting : {}'.format(conn_file))
+                Fs.rm(os.path.join(conf_files.WireGuardConnectionFile.CONF_DIR, conn_file))
+
+    @Strategy.schedule
+    def setup_wireguard(self):
+        logger.info('Setting up WireGuard subsystem')
+
+        tuns = self.conf.get_subset(m_class=model.network.WireGuardTunnel)
+        for tun in tuns:
+            # We must stop&start wg-quick for *every* connection
+            svc = model.system.SystemService(f'wg-quick@{tun.name}')
+            SystemD.stop_service(svc)
+            conf_files.WireGuardConnectionFile(tun).apply()
+            SystemD.start_service(svc)
+            SystemD.enable_service(svc)
 
     @staticmethod
     def wipe_interfaces_config():
@@ -181,7 +196,7 @@ class Setup(Strategy):
                 IpCommand.Link.up_interface(new_name)
 
     def store_persistent_cfg(self):
-        ifaces = self.conf.get_subset(m_class=model.network.EthernetInterface)
+        ifaces = self.conf.get_subset(m_class=model.network.Interface)
         for iface in ifaces:
             cf = conf_files.IfcfgFile(iface)
             cf.apply()
@@ -212,32 +227,19 @@ class Setup(Strategy):
             Fs.rm_path(w)
 
     def setup_routes(self):
-        # TODO default dict ?
         logger.info('Setting up routes')
         self.wipe_routes()
-        routes4 = self.conf.get_subset(m_class=model.network.Route4)
-        devs4 = {}
-        for r in routes4:
-            if_name = r.get_interface().name
-            if if_name not in devs4.keys():
-                devs4[if_name] = [r]
-            else:
-                devs4[if_name].append(r)
+        for route_class, route_cfg in [
+            [model.network.Route4, conf_files.Route4File],
+            [model.network.Route6, conf_files.Route6File],
+        ]:
+            routes = self.conf.get_subset(m_class=route_class)
+            routes_per_interface = defaultdict(list)
+            for r in routes:
+                routes_per_interface[r.interface.name].append(r)
 
-        routes6 = self.conf.get_subset(m_class=model.network.Route6)
-        devs6 = {}
-        for r in routes6:
-            if_name = r.get_interface().name
-            if if_name not in devs6.keys():
-                devs6[if_name] = [r]
-            else:
-                devs6[if_name].append(r)
-
-        for dev in devs4.keys():
-            conf_files.Route4File(routes=devs4[dev]).apply()
-
-        for dev in devs6.keys():
-            conf_files.Route6File(routes=devs6[dev]).apply()
+            for int_routes in routes_per_interface.items():
+                route_cfg(int_routes).apply()
 
     @Strategy.schedule
     def setup_hostname(self):
@@ -255,7 +257,7 @@ class Setup(Strategy):
         ovswitches = self.conf.get_subset(m_class=model.network.OVSwitch)
         for ovs in ovswitches:
             interfaces = ovs.interfaces
-            tunnels = ovs.tunnel_interfaces
+            tunnels = ovs.tunnels
             OvsVsctl.add_bridge(ovs)
             for iface in interfaces:
                 OvsVsctl.add_port(ovs, iface)
@@ -321,7 +323,7 @@ class Setup(Strategy):
             docker_conf_file = conf_files.DockerDaemonJson(setting)
             docker_conf_file.update()
         # after changing docker settings, daemon needs to be restarted
-        SysVInit.restart_service('docker')
+        SystemD.restart_service(model.system.SystemService('docker'))
 
         images = self.conf.get_subset(m_type=model.docker.Image)
         for img in images:
@@ -342,12 +344,11 @@ class Setup(Strategy):
 
 
 class Rhel6(Setup):
-
     def stop_net(self):
-        SysVInit.stop_service('network')
+        SysVInit.stop_service(model.system.SystemService('network'))
 
     def start_net(self):
-        SysVInit.start_service('network')
+        SysVInit.start_service(model.system.SystemService('network'))
 
     def setup_udev_rules(self):
         return  # no udev rules needed on rhel6
@@ -359,12 +360,16 @@ class Rhel6(Setup):
 
 
 class Rhel7(Setup):
+    @Strategy.schedule
+    def configure_services(self):
+        for service in self.conf.get_subset(model.system.SystemService):
+            SystemD.configure_service(service)
 
     def stop_net(self):
-        SysVInit.stop_service('NetworkManager')
+        SystemD.stop_service(model.system.SystemService('NetworkManager'))
 
     def start_net(self):
-        SysVInit.start_service('NetworkManager')
+        SystemD.start_service(model.system.SystemService('NetworkManager'))
         c0 = Command('nmcli connection reload')
         c0.run()
         c0.watch_output()
@@ -384,24 +389,23 @@ class Rhel7(Setup):
     @Strategy.schedule
     def setup_ntp(self):
         servers = self.conf.get_subset(m_class=model.system.NTPServer)
-        if len(servers) > 0:
-            conf_files.ChronyConf(servers[0]).apply()
+        conf_files.ChronyConf(servers).apply()
 
 
 class Rhel8(Rhel7):
-    _INSTALLER = 'dnf -y --allowerasing --skip-broken install '
+    _INSTALLER = 'dnf -y --allowerasing install '
 
     @Strategy.schedule
     def setup_ipsec(self):
         logger.info('Setting up ipsec subsystem')
-        SysVInit.stop_service('ipsec')
+        SystemD.stop_service(model.system.SystemService('ipsec'))
 
         tuns = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tun in tuns:
             conf_files.IPsecRHEL8ConnFile(tun).apply()
             conf_files.IPsecSecretsFile(tun).apply()
 
-        SysVInit.start_service('ipsec')
+        SystemD.start_service(model.system.SystemService('ipsec'))
 
     def stop_net(self):
         # FIXME: check if this WA is still necessary

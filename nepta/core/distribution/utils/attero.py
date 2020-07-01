@@ -7,12 +7,11 @@ try:
 except ImportError:
     logger.error('Pyattero library is not available in the system. Attero component cannot be used.')
 
-
     class Null(object):
         def __getattribute__(self, item):
-            raise ImportError('Attero library is not imported. If you want to use Attero component, '
-                              'install pyattero library.')
-
+            raise ImportError(
+                'Attero library is not imported. If you want to use Attero component, ' 'install pyattero library.'
+            )
 
     atteroctl = Null()
 
@@ -22,7 +21,7 @@ class Attero(object):
 
     @staticmethod
     def clear_existing_impairments():
-        logger.info("Clearing Attero existing configuration.")
+        logger.info('Clearing Attero existing configuration.')
         controler = atteroctl.attero.Control()
         controler.conn()
         controler.clear_impairments()
@@ -38,7 +37,8 @@ class Attero(object):
                 Attero.set_bandwidth(direction, bandwidth)
             except Exception as e:
                 logger.error(
-                    "Attero cannot set impairments [delay: %s, bandwidth: %s, attempt: %s]" % (delay, bandwidth, i))
+                    'Attero cannot set impairments [delay: %s, bandwidth: %s, attempt: %s]' % (delay, bandwidth, i)
+                )
                 logger.error(e)
                 i += 1
                 if i >= Attero.MaxAttempts:
@@ -48,7 +48,7 @@ class Attero(object):
 
     @staticmethod
     def set_delay(direction, delay):
-        logger.info("Setting Attero to create a delay of %s ms in %s direction." % (delay, direction))
+        logger.info('Setting Attero to create a delay of %s ms in %s direction.' % (delay, direction))
         controller = atteroctl.attero.Control()
         controller.conn()
         flow_option = atteroctl.options.Flow(direction)
@@ -59,7 +59,7 @@ class Attero(object):
 
     @staticmethod
     def set_bandwidth(direction, bandwidth):
-        logger.info("Setting Attero to create a bottleneck of %s kbps in %s direction." % (bandwidth, direction))
+        logger.info('Setting Attero to create a bottleneck of %s kbps in %s direction.' % (bandwidth, direction))
         controller = atteroctl.attero.Control()
         controller.conn()
         flow_option = atteroctl.options.Flow(direction)

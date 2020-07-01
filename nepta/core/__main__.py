@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime as dtdt
 
 from nepta.core import strategies, synchronization, model
+from nepta.core.strategies.generic import CompoundStrategy
 from nepta.core.distribution.utils.rstrnt import Rstrnt
 from nepta.core.distribution.env import Environment
 
@@ -38,8 +39,7 @@ try:
     file_handler.setLevel(logging.DEBUG)
     root_logger.addHandler(file_handler)
 except PermissionError:
-    logging.error(f"Cannot create file logger into {LOG_FILENAME}")
-
+    logging.error(f'Cannot create file logger into {LOG_FILENAME}')
 
 # Local logger instance
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 def get_configuration(fqdn, conf):
     conf_bundle = model.bundles.HostBundle.find(fqdn, conf)
     if conf_bundle is None:
-        raise FileNotFoundError("%s configuration for host %s does not exists." % (conf, fqdn))
+        raise FileNotFoundError('%s configuration for host %s does not exists.' % (conf, fqdn))
     else:
         return conf_bundle
 
@@ -64,8 +64,9 @@ def get_synchronization(sync, conf):
 
 def init_package(conf_name, start_time):
     pckg_path = '{}__{}__{}__{}__ts{}'.format(
-        Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time))
-    logger.info("Creating libres package in : {}".format(pckg_path))
+        Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time)
+    )
+    logger.info('Creating libres package in : {}'.format(pckg_path))
 
     package = DataPackage.create(pckg_path)
     package.store.root = init_root_store()
@@ -100,12 +101,33 @@ def delete_subtree(conf, deleting_subtrees):
             if current_node.has_node(subtree):
                 current_node = getattr(current_node, subtree)
             else:  # if there is a wrong name of subtree, end searching
-                logger.info("%s sub tree was NOT found", full_sub_tree_path)
+                logger.info('%s sub tree was NOT found', full_sub_tree_path)
                 break
         else:  # no break
             if current_node.has_node(tree_path[-1]):
-                logger.info("Deleting: %s", full_sub_tree_path)
+                logger.info('Deleting: %s', full_sub_tree_path)
                 delattr(current_node, tree_path[-1])
+
+
+def create_desynchronize_strategy(strategy: CompoundStrategy, package: DataPackage) -> CompoundStrategy:
+    """
+    From running strategies filter Synchronization strategies and generate a new compound strategy containing
+    de-synchronizations functions to prevent servers deadlock.
+    :param strategy: running compound strategy
+    :param package: dataformat result package
+    :return: de-synchronization strategy
+    """
+    desync_strategy = CompoundStrategy()
+    for strat in strategy.strategies:
+        if isinstance(strat, strategies.sync.Synchronize):
+            desync_strategy += strategies.sync.EndSyncBarriers(strat.configuration, strat.synchronizer, strat.condition)
+
+    desync_strategy += strategies.save.save_package.Save(package)
+
+    if Environment.in_rstrnt:
+        desync_strategy += strategies.report.Report(package, result=False)
+
+    return desync_strategy
 
 
 class CheckEnvVariable(argparse._AppendAction):
@@ -114,50 +136,103 @@ class CheckEnvVariable(argparse._AppendAction):
             super().__call__(parser, namespace, values, option_string)
         else:
             raise argparse.ArgumentError(
-                self, "Provided key \"{}\" is not defined in Environment so it cannot be overridden.".format(values[0]))
+                self, "Provided key \"{}\" is not defined in Environment so it cannot be overridden.".format(values[0])
+            )
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Script for running whole network performance test suite. This test is'
-                                                 ' divided into separate phases, which take care of : setup servers,'
-                                                 'execute tests, save results. Each of these phases can be run'
-                                                 'ane by one or together according to your preferences.')
+    parser = argparse.ArgumentParser(
+        description='Script for running whole network performance test suite. This test is'
+        ' divided into separate phases, which take care of : setup servers,'
+        'execute tests, save results. Each of these phases can be run'
+        'ane by one or together according to your preferences.'
+    )
 
-    parser.add_argument('-c', '--configuration', required=True, action='store',
-                        help='Specify which configuration is going to be run.')
+    parser.add_argument(
+        '-c', '--configuration', required=True, action='store', help='Specify which configuration is going to be run.'
+    )
 
     # phase arguments
     parser.add_argument('--setup', action='store_true', help='[phase] Setup server for test.')
     parser.add_argument('--prepare', action='store_true', help='[phase] Prepare non-persistent settings before test.')
     parser.add_argument('--execute', action='store_true', help='[phase] Run test scenarios.')
-    parser.add_argument('--store', action='store_true',
-                        help='[phase] Save test results and meta variables into dataformat package')
-    parser.add_argument('--store-logs', action='store_true',
-                        help='[phase] Save additional logs from testing server into dataformat package.')
-    parser.add_argument('--store-remote-logs', action='store_true',
-                        help='[phase] Save additional logs from remote testing servers into dataformat package.')
+    parser.add_argument(
+        '--store', action='store_true', help='[phase] Save test results and meta variables into dataformat package'
+    )
+    parser.add_argument(
+        '--store-logs',
+        action='store_true',
+        help='[phase] Save additional logs from testing server into dataformat package.',
+    )
+    parser.add_argument(
+        '--store-remote-logs',
+        action='store_true',
+        help='[phase] Save additional logs from remote testing servers into dataformat package.',
+    )
     parser.add_argument('--submit', action='store_true', help='[phase] Send dataformat package into result server.')
 
     # additional arguments
-    parser.add_argument('-e', '--environment', nargs=2, action=CheckEnvVariable, metavar=('ENV', 'VAR'),
-                        help='Override Environment object attribute with provided value.')
-    parser.add_argument('--sync', choices=['beaker', 'perfqe', 'none'], action='store', default='none',
-                        help='Specify synchronization method used before and after test execution '
-                             '[Default: %(default)s].')
-    parser.add_argument('-s', '--scenario', dest='scenarios', action='append', type=str,
-                        help="Run only specified scenario.")
-    parser.add_argument('-l', '--log', action='store', type=str.upper, help="Logging level [Default: %(default)s].",
-                        choices=["DEBUG", "WARNING", "INFO", "ERROR", "EXCEPTION"], default="INFO")
-    parser.add_argument('--meta', nargs=2, action='append', metavar=('KEY', 'VALUE'), default=[],
-                        help='Append meta variables into package.')
-    parser.add_argument('-f', '--filter', action='append', metavar='FILTERED_CLASS',
-                        help='Filter current configuration of these model object types.')
-    parser.add_argument('-d', '--delete-tree', action='append', metavar='SUBTREE_PATH',
-                        help='Specify which sub-tree of configuration tree will be deleted.')
-    parser.add_argument('-p', '--print', action='store_true',
-                        help='Print current configuration in tree format and exit.')
-    parser.add_argument('-i', '--import', dest='imp', action='append', nargs=2,  metavar=('MODULE_NAME', 'PATH'),
-                        help='Dynamically import test configurations.')
+    parser.add_argument(
+        '-e',
+        '--environment',
+        nargs=2,
+        action=CheckEnvVariable,
+        metavar=('ENV', 'VAR'),
+        help='Override Environment object attribute with provided value.',
+    )
+    parser.add_argument(
+        '--sync',
+        choices=['beaker', 'perfqe', 'none'],
+        action='store',
+        default='none',
+        help='Specify synchronization method used before and after test execution ' '[Default: %(default)s].',
+    )
+    parser.add_argument(
+        '-s', '--scenario', dest='scenarios', action='append', type=str, help='Run only specified scenario.'
+    )
+    parser.add_argument(
+        '-l',
+        '--log',
+        action='store',
+        type=str.upper,
+        help='Logging level [Default: %(default)s].',
+        choices=['DEBUG', 'WARNING', 'INFO', 'ERROR', 'EXCEPTION'],
+        default='INFO',
+    )
+    parser.add_argument(
+        '--meta',
+        nargs=2,
+        action='append',
+        metavar=('KEY', 'VALUE'),
+        default=[],
+        help='Append meta variables into package.',
+    )
+    parser.add_argument(
+        '-f',
+        '--filter',
+        action='append',
+        metavar='FILTERED_CLASS',
+        help='Filter current configuration of these model object types.',
+    )
+    parser.add_argument(
+        '-d',
+        '--delete-tree',
+        action='append',
+        metavar='SUBTREE_PATH',
+        help='Specify which sub-tree of configuration tree will be deleted.',
+    )
+    parser.add_argument(
+        '-p', '--print', action='store_true', help='Print current configuration in tree format and exit.'
+    )
+    parser.add_argument(
+        '-i',
+        '--import',
+        dest='imp',
+        action='append',
+        nargs=2,
+        metavar=('MODULE_NAME', 'PATH'),
+        help='Dynamically import test configurations.',
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -192,8 +267,7 @@ def main():
     conf = get_configuration(Environment.fqdn, args.configuration)
     sync = get_synchronization(args.sync, conf)
     package = init_package(args.configuration, timestamp)
-    final_strategy = strategies.generic.CompoundStrategy()
-    desync_strategy = strategies.generic.CompoundStrategy()  # used when exec failed to unlock opposite host
+    final_strategy = CompoundStrategy()
 
     if args.filter:
         filter_conf(conf, args.filter)
@@ -224,12 +298,8 @@ def main():
     # Run test code path, saving attachments only if running test
     if args.execute:
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
-        desync_strategy += strategies.sync.EndSyncBarriers(conf, sync, 'ready')
-
         final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios)
-
         final_strategy += strategies.sync.Synchronize(conf, sync, 'done')
-        desync_strategy += strategies.sync.EndSyncBarriers(conf, sync, 'done')
 
     if args.store:
         final_strategy += strategies.save.meta.SaveMeta(conf, package, extra_meta)
@@ -239,10 +309,8 @@ def main():
 
     # store dataformat package
     final_strategy += strategies.save.save_package.Save(package)
-    desync_strategy += strategies.save.save_package.Save(package)
 
     final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
-    desync_strategy += strategies.sync.EndSyncBarriers(conf, sync, 'log')
 
     if args.store_remote_logs:
         final_strategy += strategies.save.logs.RemoteLogs(conf, package)
@@ -255,18 +323,24 @@ def main():
 
     # in the end of test tell beaker the test has PASSED
     if Environment.in_rstrnt:
-        final_strategy += strategies.report.Report(package, True)
-        desync_strategy += strategies.report.Report(package, False)
+        final_strategy += strategies.report.Report(package, final_strategy)
 
     try:
         final_strategy()
     except BaseException as e:
-        logger.warning("Setting pass to all barriers")
-        desync_strategy()
+        logger.warning('Setting pass to all barriers')
+        desync = create_desynchronize_strategy(final_strategy, package)
+        desync()
         raise e
 
+    result = True
+    for strategy in final_strategy.strategies:
+        if isinstance(strategy, strategies.run.RunScenarios):
+            result &= strategy.aggregated_result
+
     logger.info('bye bye world...')
+    return not result  # reversed logic -> 0 is OK, 1 is FAIL
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

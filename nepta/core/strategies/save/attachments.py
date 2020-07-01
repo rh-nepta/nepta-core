@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class SaveAttachments(Strategy):
-
     def __init__(self, conf, package):
         super().__init__()
         self.conf = conf
@@ -32,12 +31,12 @@ class SaveAttachments(Strategy):
 
                 if isinstance(attach, attachments.Directory):
                     dir_attachment = self.package.attachments.new(
-                        AttachmentTypes.DIRECTORY, attach.d_path, attach.alias)
+                        AttachmentTypes.DIRECTORY, attach.d_path, attach.alias
+                    )
                     Fs.copy_dir(attach.d_path, os.path.join(self.package.path, str(dir_attachment.path)))
 
                 if isinstance(attach, attachments.File):
-                    file_attachment = self.package.attachments.new(
-                        AttachmentTypes.FILE, attach.f_path, attach.alias)
+                    file_attachment = self.package.attachments.new(AttachmentTypes.FILE, attach.f_path, attach.alias)
                     Fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
 
                 if isinstance(attach, attachments.CycleCommand):
@@ -57,8 +56,9 @@ class SaveAttachments(Strategy):
                     c.run()
                     output, retcode = c.watch_output()
                     command_attachment = self.package.attachments.new(
-                        AttachmentTypes.COMMAND, attach.cmdline, attach.alias)
+                        AttachmentTypes.COMMAND, attach.cmdline, attach.alias
+                    )
                     command_attachment.path.write(output)
 
             except Exception as e:
-                logger.error(f"Exception occur during execution of attachment {attach}. >>> Error: {e}")
+                logger.error(f'Exception occur during execution of attachment {attach}. >>> Error: {e}')

@@ -18,21 +18,20 @@ def catch_and_log_exception(f):
         try:
             return f(*args, **kwargs)
         except Exception as e:
-            logger.error("An error occurred during test execution. iPerf3 output is :")
-            if hasattr(args[1], "__iter__"):
+            logger.error(f'An error {e} occurred during test execution. iPerf3 output is :')
+            if hasattr(args[1], '__iter__'):
                 for test in args[1]:
                     logger.error(test.get_json_out())
             else:
                 logger.error(args[1].get_json_out())
-            logger.error("Traceback of catch exception :")
-            traceback.print_exc(file=sys.stdout)
+            logger.error('Traceback of catch exception :')
+            logger.error(traceback.print_exc(file=sys.stdout))
         return OrderedDict()
 
     return wrapper
 
 
 class GenericIPerf3Stream(object):
-
     @staticmethod
     def log_iperf3_error(out_json):
         try:
@@ -46,7 +45,7 @@ class GenericIPerf3Stream(object):
 
     @staticmethod
     def str_round(num, decimal=2):
-        return "{:.{}f}".format(num, decimal)
+        return '{:.{}f}'.format(num, decimal)
 
 
 #######################################################################################################################
@@ -55,7 +54,6 @@ class GenericIPerf3Stream(object):
 
 
 class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
-
     def init_test(self, path, size):
         iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
         if path.cpu_pinning:
@@ -80,14 +78,14 @@ class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
 
 
 class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
-
     def init_all_tests(self, path, size):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
-            new_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port,
-                                  interval=0.1)
-            new_test.affinity = ",".join([str(x) for x in cpu_pinning])
+            new_test = Iperf3Test(
+                client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port, interval=0.1
+            )
+            new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
         return tests
 
@@ -97,18 +95,15 @@ class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         result_dict = OrderedDict()
         total = sum([test.get_result() for test in tests])
         total.set_data_formatter(self.str_round)
-        result_dict.update(
-            {'total_' + key: value for key, value in total}
-        )
+        result_dict.update({'total_' + key: value for key, value in total})
         return result_dict
 
 
 class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
-
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
         if len(tests) > 2:
-            logger.error("Too much tests defined in DuplexStream configuration. Cutting excesses !!!")
+            logger.error('Too much tests defined in DuplexStream configuration. Cutting excesses !!!')
         tests[1].reverse = True
         return tests[:2]
 
@@ -121,7 +116,5 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
         total = stream_test_result + reversed_test_result
         result_dict['up_throughput'] = stream_test_result['throughput']
         result_dict['down_throughput'] = reversed_test_result['throughput']
-        result_dict.update(
-            {'total_' + key: value for key, value in total}
-        )
+        result_dict.update({'total_' + key: value for key, value in total})
         return result_dict

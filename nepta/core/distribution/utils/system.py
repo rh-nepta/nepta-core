@@ -1,18 +1,21 @@
 import logging
 import re
+import abc
+from enum import Enum
+from typing import Tuple, Optional
 
 from nepta.core.distribution.command import Command
-from nepta.core.model.system import AbstractService, KernelModule
+from nepta.core.model.system import SystemService, KernelModule
 
 logger = logging.getLogger(__name__)
 
 
-class Uname(object):
+class Uname:
     UNAME_CMD = 'uname -a'
 
     @classmethod
     def __str__(cls):
-        return f"Uname: kernel {cls.get_version()} at {cls.get_hostname()}"
+        return f'Uname: kernel {cls.get_version()} at {cls.get_hostname()}'
 
     @classmethod
     def _exec(cls):
@@ -29,11 +32,11 @@ class Uname(object):
         return cls._exec()[1]
 
 
-class RPMTool(object):
+class RPMTool:
     CMD_RPM = '/bin/rpm'
 
     @classmethod
-    def get_src_name(cls, pkg_nvr):
+    def get_src_name(cls, pkg_nvr) -> Optional[str]:
         rpm_cmd = Command('%s -q -i %s' % (cls.CMD_RPM, pkg_nvr))
         rpm_cmd.run()
         out, _ = rpm_cmd.get_output()
@@ -45,20 +48,29 @@ class RPMTool(object):
             return None
 
     @classmethod
-    def get_package_version(cls, package):
-        rpm_cmd = Command("%s -qa %s" % (cls.CMD_RPM, package))
+    def get_src_name_from_file(cls, path) -> Optional[str]:
+        rpm_cmd = Command(f'{cls.CMD_RPM} -qif {path}').run()
+        out, _ = rpm_cmd.get_output()
+        re_match = re.search(r'Source\s+RPM\s*:\s+(?P<all_src_name>.*[^\n])', out, re.MULTILINE)
+        if re_match:
+            return re_match.group('all_src_name')
+        else:
+            return None
+
+    @classmethod
+    def get_package_version(cls, package) -> Optional[str]:
+        rpm_cmd = Command('%s -qa %s' % (cls.CMD_RPM, package))
         rpm_cmd.run()
         out, ret_code = rpm_cmd.watch_output()
         if ret_code == 0 and len(out):
             first_match = out.split()[0]  # strip whitespaces
             #  "kernel-4.18.0-67.el8.x86_64".split("kernel-") -> [[], ['4.18.0-67.el8.x86_64']]
-            return first_match.split("%s-" % package)[1]
+            return first_match.split('%s-' % package)[1]
         else:
             return None
 
 
-class SELinux(object):
-
+class SELinux:
     @staticmethod
     def getenforce():
         cmd = Command('getenforce')
@@ -76,7 +88,6 @@ class SELinux(object):
 
 
 class Tuned(object):
-
     @staticmethod
     def set_profile(profile):
         cmd = Command('tuned-adm profile %s' % profile)
@@ -97,8 +108,7 @@ class Tuned(object):
             return None
 
 
-class Lscpu(object):
-
+class Lscpu:
     @staticmethod
     def parse_output_into_dict():
         cmd = Command('lscpu')
@@ -108,7 +118,7 @@ class Lscpu(object):
         for line in out.split('\n'):
             if line:  # skip blank line
                 first_double_dot = line.find(':')
-                ret_dict[line[:first_double_dot].strip()] = line[first_double_dot + 1:].strip()
+                ret_dict[line[:first_double_dot].strip()] = line[first_double_dot + 1 :].strip()
 
         return ret_dict
 
@@ -117,79 +127,97 @@ class Lscpu(object):
         return Lscpu.parse_output_into_dict()['Architecture']
 
 
-class SysVInit(object):
-
-    @staticmethod
-    def start_service(service):
-        logger.info('starting service %s', service)
-        c = Command('service %s start' % service)
-        c.run()
-        c.watch_output()
-
-    @staticmethod
-    def stop_service(service):
-        logger.info('stopping service %s', service)
-        c = Command('service %s stop' % service)
-        c.run()
-        c.watch_output()
-
-    @staticmethod
-    def restart_service(service):
-        logger.info('restarting service %s', service)
-        c = Command('service %s restart' % service)
-        c.run()
-        c.watch_output()
-
-    @staticmethod
-    def enable_service(service):
-        logger.info('enabling service %s', service)
-        c = Command('chkconfig %s on' % service)
-        c.run()
-        c.watch_output()
-        pass
-
-    @staticmethod
-    def disable_service(service):
-        logger.info('disabling service %s', service)
-        c = Command('chkconfig %s off' % service)
-        c.run()
-        c.watch_output()
-
-    @staticmethod
-    def is_running(service):
-        c = Command('service %s status' % service)
-        c.run()
-        _, exit_code = c.get_output()
-        return exit_code == 0
+class GenericServiceHandler(abc.ABC):
+    class Actions(Enum):
+        START = 'start'
+        STOP = 'stop'
+        RESTART = 'restart'
+        STATUS = 'status'
+        ENABLE = 'enable'
+        DISABLE = 'disable'
 
     @classmethod
-    def configure_service(cls, model: AbstractService):
-        service_name = model.get_name()
-        if model.is_enabled():
-            logger.info('configuring service %s to be enabled' % service_name)
-            cls.enable_service(service_name)
-            if cls.is_running(service_name):
-                logger.info('service %s is running at the moment, no further action required' % service_name)
+    @abc.abstractmethod
+    def run_service_cmd(cls, action: Actions, service: SystemService) -> Tuple[str, int]:
+        pass
+
+    @classmethod
+    def start_service(cls, service: SystemService):
+        logger.info('starting service %s', service)
+        cls.run_service_cmd(cls.Actions.START, service)
+
+    @classmethod
+    def stop_service(cls, service: SystemService):
+        logger.info('stopping service %s', service)
+        cls.run_service_cmd(cls.Actions.STOP, service)
+
+    @classmethod
+    def restart_service(cls, service: SystemService):
+        logger.info('restarting service %s', service)
+        cls.run_service_cmd(cls.Actions.RESTART, service)
+
+    @classmethod
+    def enable_service(cls, service: SystemService):
+        logger.info('enabling service %s', service)
+        cls.run_service_cmd(cls.Actions.ENABLE, service)
+
+    @classmethod
+    def disable_service(cls, service: SystemService):
+        logger.info('disabling service %s', service)
+        cls.run_service_cmd(cls.Actions.DISABLE, service)
+
+    @classmethod
+    def is_running(cls, service: SystemService) -> bool:
+        _, exit_code = cls.run_service_cmd(cls.Actions.STATUS, service)
+        return not exit_code
+
+    @classmethod
+    def configure_service(cls, service: SystemService):
+        if service.enable:
+            logger.info('configuring service %s to be enabled' % service)
+            cls.enable_service(service)
+            if cls.is_running(service):
+                logger.info('service %s is running at the moment, no further action required' % service)
             else:
-                logger.info('service %s is not running at the moment, starting' % service_name)
-                cls.start_service(service_name)
+                logger.info('service %s is not running at the moment, starting' % service)
+                cls.start_service(service)
         else:
-            logger.info('configuring service %s to be disabled' % service_name)
-            cls.disable_service(service_name)
-            if cls.is_running(service_name):
-                logger.info('service %s is running at the moment, disabling' % service_name)
-                cls.stop_service(service_name)
+            logger.info('configuring service %s to be disabled' % service)
+            cls.disable_service(service)
+            if cls.is_running(service):
+                logger.info('service %s is running at the moment, disabling' % service)
+                cls.stop_service(service)
             else:
-                logger.info('service %s is not running at the moment, no further action required' % service_name)
+                logger.info('service %s is not running at the moment, no further action required' % service)
+
+
+class SysVInit(GenericServiceHandler):
+    @classmethod
+    def run_service_cmd(cls, action, service):
+        if action == cls.Actions.ENABLE:
+            c = Command(f'chkconfig {service.name} on')
+        elif action == cls.Actions.DISABLE:
+            c = Command(f'chkconfig {service.name} off')
+        else:
+            c = Command(f'service {service.name} {action.value}')
+        c.run()
+        return c.watch_output()
+
+
+class SystemD(GenericServiceHandler):
+    @classmethod
+    def run_service_cmd(cls, action, service):
+        c = Command(f'systemctl {action.value} {service.name}')
+        c.run()
+        return c.watch_output()
 
 
 class KernelModuleUtils:
-
     @staticmethod
     def modprobe(module: KernelModule):
-        opts = " ".join([f"{k}={v}" for k, v in module.options.items()])
-        cmd = Command(f"modprobe {module.name} {opts}")
+        opts = ' '.join([f'{k}={v}' for k, v in module.options.items()])
+        cmd = Command(f'modprobe {module.name} {opts}')
         cmd.run()
         out, ret = cmd.get_output()
         if ret:
-            logger.error(f"Error during modprobe module {module.name} with options {module.options}")
+            logger.error(f'Error during modprobe module {module.name} with options {module.options}')

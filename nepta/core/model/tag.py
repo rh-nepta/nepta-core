@@ -2,14 +2,13 @@ from collections import OrderedDict
 
 
 class GenericTag(object):
-
     def __init__(self, name, value=None):
         self.name = name
         self.value = value
 
     def __repr__(self):
         if self.value:
-            return "{}-{}".format(self.name, self.value)
+            return '{}-{}'.format(self.name, self.value)
         else:
             return self.name
 
@@ -29,5 +28,3 @@ class HardwareInventoryTag(GenericTag):
 
 class SoftwareInventoryTag(GenericTag):
     pass
-
-

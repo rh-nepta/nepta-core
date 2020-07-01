@@ -3,7 +3,6 @@ from nepta.core.strategies.generic import Strategy, CompoundStrategy
 
 
 class JoinStrategies(unittest.TestCase):
-
     def test_strategy_plus_strategy(self):
         a = Strategy()
         b = Strategy()
@@ -47,6 +46,3 @@ class JoinStrategies(unittest.TestCase):
 
         self.assertEqual(cs4.strategies[0], a)
         self.assertEqual(cs4.strategies[1], b)
-
-
-

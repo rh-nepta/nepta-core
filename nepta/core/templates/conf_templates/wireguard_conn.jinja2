@@ -1,0 +1,19 @@
+[Interface]
+Address = {{ local_ip }}
+PrivateKey = {{ private_key }}
+ListenPort = {{ local_port }}
+{% for peer in peers %}
+
+[Peer]
+PublicKey = {{ peer.public_key }}
+    {% if peer.allowed_ips %}
+AllowedIPs =
+        {%- for net in peer.allowed_ips %}
+ {{ net }}{% if not loop.last %},{% endif %}
+        {%- endfor %}
+    {% endif %}
+
+    {% if peer.endpoint %}
+Endpoint = {{ peer.endpoint }}
+    {% endif %}
+{% endfor %}

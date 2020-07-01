@@ -11,8 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class RemoteLogs(Strategy):
-    _RSYNC_TEMPLATE = jinja2.Template("""rsync -e ssh -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X  \
-    {{ host }}:{{ directory }}/ {{ local_path }}""")
+    _RSYNC_TEMPLATE = jinja2.Template(
+        """rsync -e ssh -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X  \
+    {{ host }}:{{ directory }}/ {{ local_path }}"""
+    )
 
     def __init__(self, conf: Bundle, package: DataPackage):
         super().__init__()
@@ -25,8 +27,9 @@ class RemoteLogs(Strategy):
 
         for host in remote_hosts:
             remote_log = self.package.remote_packages.new(host.hostname)
-            logger.info(f"Stealing df-pck from {host.hostname} into {remote_log.path}.")
-            cmd = Command(self._RSYNC_TEMPLATE.render(
-                host=host.hostname, directory=Save.SYMLINK_NAME, local_path=remote_log.path))
+            logger.info(f'Stealing df-pck from {host.hostname} into {remote_log.path}.')
+            cmd = Command(
+                self._RSYNC_TEMPLATE.render(host=host.hostname, directory=Save.SYMLINK_NAME, local_path=remote_log.path)
+            )
             cmd.run()
             logger.info(cmd.get_output()[0])

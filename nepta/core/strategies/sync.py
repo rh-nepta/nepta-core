@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class Synchronize(Strategy):
-
     def __init__(self, configuration, synchronizer, condition):
         super().__init__()
         self.configuration = configuration

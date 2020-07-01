@@ -3,10 +3,9 @@ from nepta.core.model import bundles, network, system, attachments
 
 
 class TestBundles(TestCase):
-
     def test_budnle_variables(self):
-        host = "popicci.server.u.nas"
-        conf = "LetNaMesiac"
+        host = 'popicci.server.u.nas'
+        conf = 'LetNaMesiac'
         host_b = bundles.HostBundle(host, conf)
 
         self.assertEqual(host, host_b.get_hostname())
@@ -79,7 +78,7 @@ class TestBundles(TestCase):
 
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -94,7 +93,7 @@ class TestBundles(TestCase):
     def test_new_hierarchical_bundles(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -116,19 +115,19 @@ class TestBundles(TestCase):
 
         test_items = [sys1, sys2, sys3, net1, net2, net3]
         for item in main_bundle:
-            self.assertIn(item, test_items, "There are more objects than is specified.")
+            self.assertIn(item, test_items, 'There are more objects than is specified.')
 
         for item in test_items:
-            self.assertIn(item, main_bundle.get_all_components(), "There are missing some specified objects.")
+            self.assertIn(item, main_bundle.get_all_components(), 'There are missing some specified objects.')
 
-        self.assertIs(sys2, main_bundle.sys.sys2, "Cannot access correct model.")
-        self.assertIs(sys3, main_bundle.sys.sys3, "Cannot access correct model.")
+        self.assertIs(sys2, main_bundle.sys.sys2, 'Cannot access correct model.')
+        self.assertIs(sys3, main_bundle.sys.sys3, 'Cannot access correct model.')
         self.assertEqual(len(main_bundle), len(test_items), 'There are more/less models than shoudl be!')
 
     def test_cycle_in_hierarchical_bundles(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -143,7 +142,6 @@ class TestBundles(TestCase):
 
         net5 = network.TeamMasterInterface('team1')
         net6 = network.TeamMasterInterface('team1')
-
 
         main_bundle = bundles.Bundle()
         main_bundle.add_multiple_components(sys1)
@@ -176,19 +174,19 @@ class TestBundles(TestCase):
 
         self.assertEqual(len(main_bundle), len(test_items), 'There are more/less models than shoudl be!')
         for item in main_bundle:
-            self.assertIn(item, test_items, "There are more objects than is specified.")
+            self.assertIn(item, test_items, 'There are more objects than is specified.')
 
         for item in test_items:
-            self.assertIn(item, main_bundle.get_all_components(), "There are missing some specified objects.")
+            self.assertIn(item, main_bundle.get_all_components(), 'There are missing some specified objects.')
 
     def test_override_bundle(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         sys4 = system.Package('ip')
         sys5 = system.Repository('epel-universe', 'http://internet.com')
-        sys6 = system.AbstractService('NetworkManager', system.AbstractService.ENABLED)
+        sys6 = system.SystemService('NetworkManager')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -209,15 +207,15 @@ class TestBundles(TestCase):
 
         test_items = [sys1, sys4, sys5, sys6, net1, net2, net3]
         for item in main_bundle:
-            self.assertIn(item, test_items, "There are more objects than is specified.")
+            self.assertIn(item, test_items, 'There are more objects than is specified.')
 
         for item in test_items:
-            self.assertIn(item, main_bundle.get_all_components(), "There are missing some specified objects.")
+            self.assertIn(item, main_bundle.get_all_components(), 'There are missing some specified objects.')
 
     def test_delete_local_bundle(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -242,15 +240,15 @@ class TestBundles(TestCase):
         self.assertNotIn(sys_bundle, main_bundle._bundles.values())
 
         for item in main_bundle:
-            self.assertIn(item, test_items, "There are more objects than is specified.")
+            self.assertIn(item, test_items, 'There are more objects than is specified.')
 
         for item in test_items:
-            self.assertIn(item, main_bundle.get_all_components(), "There are missing some specified objects.")
+            self.assertIn(item, main_bundle.get_all_components(), 'There are missing some specified objects.')
 
     def test_bundle_flush(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         net1 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
         net2 = network.EthernetInterface('eth1', '00:11:22:33:44:55:66')
@@ -273,7 +271,7 @@ class TestBundles(TestCase):
     def test_filter(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -288,7 +286,6 @@ class TestBundles(TestCase):
 
         net5 = network.TeamMasterInterface('team1')
         net6 = network.TeamMasterInterface('team1')
-
 
         main_bundle = bundles.Bundle()
         main_bundle.add_multiple_components(sys1)
@@ -321,27 +318,27 @@ class TestBundles(TestCase):
         test_pckgs = [sys1, p1, p2]
         pckgs = main_bundle.get_subset(m_type=system.Package)
 
-        self.assertIsNot(main_bundle.intf, interfaces.intf, "Deep copy uses shallow copy in subtrees.")
-        self.assertIsNot(main_bundle.sys.pckg, pckgs.sys.pckg, "Deep copy uses shallow copy in subtrees.")
-        self.assertIn(net1, interfaces.intf, "Tree has different structure.")
-        self.assertIn(p1, pckgs.sys.pckg, "Tree has different structure.")
+        self.assertIsNot(main_bundle.intf, interfaces.intf, 'Deep copy uses shallow copy in subtrees.')
+        self.assertIsNot(main_bundle.sys.pckg, pckgs.sys.pckg, 'Deep copy uses shallow copy in subtrees.')
+        self.assertIn(net1, interfaces.intf, 'Tree has different structure.')
+        self.assertIn(p1, pckgs.sys.pckg, 'Tree has different structure.')
 
         for item in interfaces:
-            self.assertIn(item, test_interfaces, "There are more objects than is specified.")
+            self.assertIn(item, test_interfaces, 'There are more objects than is specified.')
 
         for item in test_interfaces:
-            self.assertIn(item, interfaces.get_all_components(), "There are missing some specified objects.")
+            self.assertIn(item, interfaces.get_all_components(), 'There are missing some specified objects.')
 
         for item in pckgs:
-            self.assertIn(item, test_pckgs, "There are more objects than is specified.")
+            self.assertIn(item, test_pckgs, 'There are more objects than is specified.')
 
         for item in test_pckgs:
-            self.assertIn(item, pckgs.get_all_components(), "There are missing some specified objects.")
+            self.assertIn(item, pckgs.get_all_components(), 'There are missing some specified objects.')
 
     def test_filter_exclude(self):
         sys1 = system.Package('wget')
         sys2 = system.Repository('epel', 'http://internet.com')
-        sys3 = system.AbstractService('network', system.AbstractService.ENABLED)
+        sys3 = system.SystemService('network')
 
         p1 = system.Package('python3')
         p2 = system.Package('gcc')
@@ -356,7 +353,6 @@ class TestBundles(TestCase):
 
         net5 = network.TeamMasterInterface('team1')
         net6 = network.TeamMasterInterface('team1')
-
 
         main_bundle = bundles.Bundle()
         main_bundle.add_multiple_components(sys1)
@@ -389,25 +385,39 @@ class TestBundles(TestCase):
         test_pckgs = [sys1, p1, p2]
         without_pckgs = main_bundle.get_subset(m_type=system.Package, exclude=True)
 
-        self.assertIsNot(main_bundle.intf, main_withou_intf.intf, "Deep copy uses shallow copy in subtrees.")
-        self.assertIsNot(main_bundle.sys.pckg, without_pckgs.sys.pckg, "Deep copy uses shallow copy in subtrees.")
+        self.assertIsNot(main_bundle.intf, main_withou_intf.intf, 'Deep copy uses shallow copy in subtrees.')
+        self.assertIsNot(main_bundle.sys.pckg, without_pckgs.sys.pckg, 'Deep copy uses shallow copy in subtrees.')
 
         for item in main_withou_intf:
-            self.assertNotIn(item, test_interfaces, "There are more objects than is specified.")
+            self.assertNotIn(item, test_interfaces, 'There are more objects than is specified.')
 
         for item in test_interfaces:
-            self.assertNotIn(item, main_withou_intf.get_all_components(), "There are wrong objects.")
-            self.assertIn(item, without_pckgs.get_all_components(), "There are missing some specified objects.")
+            self.assertNotIn(item, main_withou_intf.get_all_components(), 'There are wrong objects.')
+            self.assertIn(item, without_pckgs.get_all_components(), 'There are missing some specified objects.')
 
         for item in without_pckgs:
-            self.assertNotIn(item, test_pckgs, "There are more objects than is specified.")
+            self.assertNotIn(item, test_pckgs, 'There are more objects than is specified.')
 
         for item in test_pckgs:
-            self.assertNotIn(item, without_pckgs.get_all_components(), "There are wrongobjects.")
-            self.assertIn(item, main_withou_intf.get_all_components(), "There are missing some specified objects.")
+            self.assertNotIn(item, without_pckgs.get_all_components(), 'There are wrongobjects.')
+            self.assertIn(item, main_withou_intf.get_all_components(), 'There are missing some specified objects.')
+
+    def test_clone_bundle(self):
+        b = bundles.Bundle()
+        b.packages.wget = system.Package('wget')
+        b.packages.iperf3 = system.Package('iperf3')
+        b.int1 = network.Interface('igb0')
+
+        clone = b.clone()
+
+        self.assertNotEqual(id(b), id(clone))
+        self.assertNotEqual(id(b.packages), id(clone.packages))
+        self.assertNotEqual(id(b.packages.wget), id(clone.packages.wget))
+        self.assertNotEqual(id(b.packages.iperf3), id(clone.packages.iperf3))
+        self.assertNotEqual(id(b.int1), id(clone.int1))
+
 
 class TestMergeBundles(TestCase):
-
     def test_merge_no_key_over_lap(self):
         b1 = bundles.Bundle()
 
@@ -596,7 +606,7 @@ class TestMergeBundles(TestCase):
         b3.attch.cmd.ipx = attachments.Command('ip x sta')
 
         try:
-            b4 = b2 + b3
+            b2 + b3
         except bundles.MergeBundleException:
             pass
         else:  # if exception is not raised
@@ -644,4 +654,3 @@ class TestMergeBundles(TestCase):
 
         print()
         print(b2.str_tree())
-

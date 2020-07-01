@@ -6,9 +6,7 @@ from nepta.core.tests.iperf3 import Iperf3TCPTestResult, Iperf3Test
 
 
 class Iperf3TestResultTest(TestCase):
-    JSON_FILENAME = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), 'sample_json.json'
-    )
+    JSON_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sample_json.json')
 
     def setUp(self) -> None:
         self.json_data = json.load(open(self.JSON_FILENAME))
@@ -42,7 +40,7 @@ class Iperf3TestResultTest(TestCase):
 
     def test_format(self):
         def str_round(num, decimal=3):
-            return "{:.{}f}".format(num, decimal)
+            return '{:.{}f}'.format(num, decimal)
 
         result = Iperf3TCPTestResult.from_json(self.json_data)
         result.set_data_formatter(str_round)
@@ -70,4 +68,6 @@ class Iperf3TestResultTest(TestCase):
         self.assertLessEqual(result['throughput'], 10e4)
 
         result = test.get_result(Iperf3TCPTestResult.ThroughputFormat.GBPS)
-        self.assertLessEqual(result['throughput'], 100, )
+        self.assertLessEqual(
+            result['throughput'], 100,
+        )

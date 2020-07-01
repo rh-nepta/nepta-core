@@ -1,7 +1,11 @@
 from collections import OrderedDict
 
-from nepta.core.scenarios.iperf3.tcp import Iperf3TCPStream, Iperf3TCPReversed, Iperf3TCPMultiStream, \
-    Iperf3TCPDuplexStream
+from nepta.core.scenarios.iperf3.tcp import (
+    Iperf3TCPStream,
+    Iperf3TCPReversed,
+    Iperf3TCPMultiStream,
+    Iperf3TCPDuplexStream,
+)
 from nepta.core.scenarios.iperf3.generic import catch_and_log_exception
 from nepta.core.scenarios.generic.scenario import info_log_func_output
 

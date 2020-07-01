@@ -1,5 +1,9 @@
-from nepta.core.scenarios.iperf3.tcp import Iperf3TCPStream, Iperf3TCPReversed, Iperf3TCPMultiStream, \
-    Iperf3TCPDuplexStream
+from nepta.core.scenarios.iperf3.tcp import (
+    Iperf3TCPStream,
+    Iperf3TCPReversed,
+    Iperf3TCPMultiStream,
+    Iperf3TCPDuplexStream,
+)
 
 
 class Iperf3TCPStreamZeroCopy(Iperf3TCPStream):

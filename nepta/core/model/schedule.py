@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 class Path(object):
-
     def __init__(self, mine_ip, their_ip, tags, cpu_pinning=None):
         self.mine_ip = mine_ip.ip
         self.their_ip = their_ip.ip
@@ -28,14 +27,15 @@ class Path(object):
     def id(self):
         sorted_tags = copy.deepcopy(self.tags)
         sorted_tags.sort()
-        uid = uuid.uuid5(uuid.NAMESPACE_DNS, ",".join(map(str, sorted_tags)))
-        logger.debug("Sorted tags : {}, generated uid: {}".format(sorted_tags, uid))
+        uid = uuid.uuid5(uuid.NAMESPACE_DNS, ','.join(map(str, sorted_tags)))
+        logger.debug('Sorted tags : {}, generated uid: {}'.format(sorted_tags, uid))
         return uid
 
     @property
     def desc(self):
         return '{} {} <=> {}, tags:{}'.format(
-            self.__class__.__name__, self.mine_ip, self.their_ip, (self.hw_inventory + self.sw_inventory))
+            self.__class__.__name__, self.mine_ip, self.their_ip, (self.hw_inventory + self.sw_inventory)
+        )
 
     def dict(self):
         return OrderedDict(uuid=self.id, srcip=self.mine_ip, dstip=self.their_ip, desc=self.desc)
@@ -43,8 +43,11 @@ class Path(object):
 
 class CongestedPath(Path):
     def __init__(self, mine_ip, their_ip, limit_bandwidth, delay, cca, tags, cpu_pinning=None):
-        path_tags = [SoftwareInventoryTag('delay', delay), SoftwareInventoryTag('bandwidth', limit_bandwidth),
-                     SoftwareInventoryTag('congestion_control_alg', cca)]
+        path_tags = [
+            SoftwareInventoryTag('delay', delay),
+            SoftwareInventoryTag('bandwidth', limit_bandwidth),
+            SoftwareInventoryTag('congestion_control_alg', cca),
+        ]
         super().__init__(mine_ip, their_ip, tags + path_tags, cpu_pinning)
         self.limit_bandwidth = limit_bandwidth
         self.delay = delay
@@ -58,7 +61,6 @@ class CongestedPath(Path):
 
 
 class PathList(list):
-
     def clone(self):
         return copy.deepcopy(self)
 
@@ -96,7 +98,7 @@ class RsyncHost(object):
         self.attempt_delays = attempt_delays if attempt_delays is not None else [0]
 
     def __repr__(self):
-        return f"{self.__class__.__name__}: {self.__dict__}"
+        return f'{self.__class__.__name__}: {self.__dict__}'
 
     def __str__(self):
-        return f"{self.__class__.__name__}: server address: {self.server}, destination: {self.destination}"
+        return f'{self.__class__.__name__}: server address: {self.server}, destination: {self.destination}'

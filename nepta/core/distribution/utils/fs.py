@@ -24,6 +24,7 @@ class Fs(object):
         _slugify_hyphenate_re = re.compile(r'[-\s]+')
 
         import unicodedata
+
         if not isinstance(value, str):
             value = str(value)
 

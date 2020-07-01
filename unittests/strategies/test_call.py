@@ -35,8 +35,11 @@ class MethCallLogger(object):
     def infect_all_public(cls, obj, mockup=False, exclude=None):
         if exclude is None:
             exclude = []
-        for meth in [meth for meth in dir(obj) if not meth.startswith('__') and callable(getattr(obj, meth))
-                                                  and meth not in exclude]:
+        for meth in [
+            meth
+            for meth in dir(obj)
+            if not meth.startswith('__') and callable(getattr(obj, meth)) and meth not in exclude
+        ]:
             cls.infect(obj, getattr(obj, meth), mockup)
 
 
@@ -171,12 +174,12 @@ class CallFunctionTest(unittest.TestCase):
         self.assertFalse(setup.wipe_routes.was_called)
 
     def test_call_save_meta_check_meta(self):
-        bundle = HostBundle("klacek1", "Standard")
+        bundle = HostBundle('klacek1', 'Standard')
         package = df.DataPackage.create(self.PACKAGE_PATH)
         meta = {
             'UUID': 741852963,
-            'Tag': "wertyui",
-            'Specific': "a;lskdjfoiqwe;lrfskdf",
+            'Tag': 'wertyui',
+            'Specific': 'a;lskdjfoiqwe;lrfskdf',
         }
 
         save_meta = SaveMeta(bundle, package, meta)

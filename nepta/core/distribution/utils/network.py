@@ -3,14 +3,13 @@ import re
 
 from nepta.core import model
 from nepta.core.distribution.command import Command
-from nepta.core.distribution.utils.system import Uname, SysVInit
+from nepta.core.distribution.utils.system import Uname, SystemD
 
 logger = logging.getLogger(__name__)
 
 
 class IpCommand(object):
     class Link(object):
-
         @classmethod
         def get_interface_name(cls, mac):
             mac_regex = r'[0-9]*: (.*):.*\n.*link/ether (%s)' % mac
@@ -24,7 +23,7 @@ class IpCommand(object):
 
         @classmethod
         def get_all_interfaces(cls):
-            logger.debug("Getting all interfaces")
+            logger.debug('Getting all interfaces')
             link_cmd = Command('ip link')
             link_cmd.run()
 
@@ -84,12 +83,13 @@ class LldpTool(object):
     def restart_lldpad():
         # waitng to be sure if network is up
         from time import sleep
+
         sleep(5)
 
         # TODO : make something better
         # Warning: bad_hack
-        lldpad = model.system.SystemdService('lldpad', model.system.AbstractService.ENABLED)
-        SysVInit.configure_service(lldpad)
+        lldpad = model.system.SystemService('lldpad')
+        SystemD.configure_service(lldpad)
 
     @classmethod
     def enable_on_interfaces(cls, interfaces):
@@ -139,10 +139,9 @@ class LldpTool(object):
 
 
 class Tuna(object):
-
     @staticmethod
     def list_all_irqs():
-        cmd_line = "tuna --show_irqs"
+        cmd_line = 'tuna --show_irqs'
         cmd = Command(cmd_line)
         cmd.run()
         output, _ = cmd.get_output()
@@ -151,7 +150,7 @@ class Tuna(object):
 
     @staticmethod
     def get_irq_of_interface(interface):
-        cmd_line = "tuna --show_irqs | grep %s" % interface
+        cmd_line = 'tuna --show_irqs | grep %s' % interface
         cmd = Command(cmd_line)
         cmd.run()
         all_irq, _ = cmd.get_output()
@@ -165,9 +164,9 @@ class Tuna(object):
     @classmethod
     def set_irq_cpu_binding(cls, interface, cpu):
         interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ", ".join(interface_irq)
+        irqs = ', '.join(interface_irq)
 
-        cmd_line = "tuna --irqs=%s --cpu=%s --move" % (irqs, cpu)
+        cmd_line = 'tuna --irqs=%s --cpu=%s --move' % (irqs, cpu)
         cmd = Command(cmd_line)
         cmd.run()
         cmd.get_output()
@@ -175,9 +174,9 @@ class Tuna(object):
     @classmethod
     def set_irq_socket_binding(cls, interface, socket):
         interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ", ".join(interface_irq)
+        irqs = ', '.join(interface_irq)
 
-        cmd_line = "tuna --irqs=%s --sockets=%s --move" % (irqs, socket)
+        cmd_line = 'tuna --irqs=%s --sockets=%s --move' % (irqs, socket)
         cmd = Command(cmd_line)
         cmd.run()
         cmd.get_output()
@@ -190,7 +189,6 @@ class Tuna(object):
 
 
 class OvsVsctl(object):
-
     @staticmethod
     def add_bridge(bridge):
         bridge_name = bridge.name
@@ -236,10 +234,18 @@ class OvsVsctl(object):
         tunnel_rem_ip = tunnel.remote_ip
         tunnel_key = tunnel.key
 
-        logger.info('adding interface %s to bridge %s, type = %s, remote ip = %s'
-                    % (tunnel.name, bridge.name, tunnel.type, tunnel.remote_ip))
-        cmd_line = 'ovs-vsctl add-port %s %s -- set Interface %s type=%s options:remote_ip=%s options:key=%s' \
-                   % (bridge_name, tunnel_name, tunnel_name, tunnel_type, tunnel_rem_ip, tunnel_key)
+        logger.info(
+            'adding interface %s to bridge %s, type = %s, remote ip = %s'
+            % (tunnel.name, bridge.name, tunnel.type, tunnel.remote_ip)
+        )
+        cmd_line = 'ovs-vsctl add-port %s %s -- set Interface %s type=%s options:remote_ip=%s options:key=%s' % (
+            bridge_name,
+            tunnel_name,
+            tunnel_name,
+            tunnel_type,
+            tunnel_rem_ip,
+            tunnel_key,
+        )
         cmd = Command(cmd_line)
         cmd.run()
         output, retcode = cmd.get_output()

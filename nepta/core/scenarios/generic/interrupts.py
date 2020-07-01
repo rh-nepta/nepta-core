@@ -38,7 +38,7 @@ class IRQBalanceCheck(ScenarioGeneric):
 
         # split every line by column
         # -1 to columns are separated by num_of_columns - 1 spaces
-        int_table = [line.split(maxsplit=num_of_columns-1) for line in lines]
+        int_table = [line.split(maxsplit=num_of_columns - 1) for line in lines]
 
         # if ignore_cpu_interrupt option is enabled, it allows only interrupts which names starts with numbers
         if ignore_cpu_interrupts:
@@ -67,27 +67,27 @@ class IRQBalanceCheck(ScenarioGeneric):
             iperf3_test.run()
             out, ret = iperf3_test.watch_output()
             if ret:
-                logger.error(f"iPerf3 {iperf3_test} test failed!!!")
+                logger.error(f'iPerf3 {iperf3_test} test failed!!!')
 
         int_table = self.get_parsed_interrupts()
         cpu_sums = [sum(int_table[y][x] for y in range(len(int_table))) for x in range(len(int_table[0]))]
 
-        test_result = '1' if cpu_sums[0] < sum(cpu_sums[1:]) else '0'
+        test_result = 1 if cpu_sums[0] < sum(cpu_sums[1:]) else 0
 
-        logger.info(f"Sums of interrupts per CPU: {cpu_sums}")
-        logger.info(f"Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???")
-        logger.info(f"{self.__class__.__name__} test result: {test_result}.")
+        logger.info(f'Sums of interrupts per CPU: {cpu_sums}')
+        logger.info(f'Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???')
+        logger.info(f'{self.__class__.__name__} test result: {test_result}.')
 
-        root_sec = Section("scenario")
+        root_sec = Section('scenario')
         root_sec.params['scenario_name'] = self.__class__.__name__
         root_sec.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
 
         runs = Section('runs')
         run = Section('run')
-        item = Section('item', key='irq_balance_check', value=test_result)
+        item = Section('item', key='irq_balance_check', value=str(test_result))
 
         root_sec.subsections.append(runs)
         runs.subsections.append(run)
         run.subsections.append(item)
 
-        return root_sec
+        return root_sec, bool(test_result)

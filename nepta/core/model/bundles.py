@@ -3,27 +3,35 @@ import logging
 import itertools
 from collections import OrderedDict, defaultdict
 from nepta.core.model.system import Value
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 
 
-class BundleException(Exception): pass
-class MergeBundleException(BundleException): pass
-class DupliciteConfException(BundleException): pass
+class BundleException(Exception):
+    pass
+
+
+class MergeBundleException(BundleException):
+    pass
+
+
+class DupliciteConfException(BundleException):
+    pass
 
 
 class Bundle(object):
-    _properties = ["_bundles", "_components", "_parents", "__deepcopy__", "__getstate__"]
+    _properties = ['_bundles', '_components', '_parents', '__deepcopy__', '__getstate__']
 
     def __init__(self, clone=None):
-        self._components = []           # configuration objects of this bundle
-        self._bundles = OrderedDict()   # tree nodes (children)
+        self._components = []  # configuration objects of this bundle
+        self._bundles = OrderedDict()  # tree nodes (children)
         self._parents = []
         if clone is not None:
             self += clone
 
     def __str__(self):
-        return 'Configuration bundle : \n' + "\n".join([str(x) for x in self.get_all_components()])
+        return 'Configuration bundle : \n' + '\n'.join([str(x) for x in self.get_all_components()])
 
     def __iter__(self):
         return self.item_generator()
@@ -46,7 +54,7 @@ class Bundle(object):
             if isinstance(value, Bundle) and new_item:
                 value._parents.append(self)
                 if len(value._parents) > 1:
-                    logger.warning("You are using cyclic graph structure!!! Be careful!!!")
+                    logger.warning('You are using cyclic graph structure!!! Be careful!!!')
         else:
             super().__setattr__(key, value)
 
@@ -58,7 +66,7 @@ class Bundle(object):
         else:
             super().__delattr__(item)
 
-    def __deepcopy__(self, memodict={}):
+    def __copy__(self):
         local_bundles = self._serialize_by_bfs(bundles_only=True)
         lookup_table = {x: Bundle() for x in local_bundles}
 
@@ -69,6 +77,19 @@ class Bundle(object):
                     setattr(new, local_child_name, lookup_table[local_child_value])
                 else:
                     setattr(new, local_child_name, local_child_value)
+        return lookup_table[self]
+
+    def __deepcopy__(self, memodict={}):
+        local_bundles = self._serialize_by_bfs(bundles_only=True)
+        lookup_table = {x: Bundle() for x in local_bundles}
+
+        for local, new in lookup_table.items():
+            new._components.extend(local._components)
+            for local_child_name, local_child_value in local._bundles.items():
+                if isinstance(local_child_value, Bundle):
+                    setattr(new, local_child_name, lookup_table[local_child_value])
+                else:
+                    setattr(new, local_child_name, copy.deepcopy(local_child_value))
         return lookup_table[self]
 
     def has_node(self, node_name):
@@ -114,7 +135,18 @@ class Bundle(object):
         return self
 
     def clone(self):
+        """
+        Create a now tree structure and duplicate objects.
+        :return:
+        """
         return copy.deepcopy(self)
+
+    def copy(self):
+        """
+        Create a new tree strucutre of Bundles, but objects pointers are the same.
+        :return:
+        """
+        return copy.copy(self)
 
     def _serialize_by_bfs(self, bundles_only=False):
 
@@ -156,7 +188,7 @@ class Bundle(object):
             else:
                 return False ^ exclude
 
-        ret_bundle = self.clone()
+        ret_bundle = self.copy()
         ret_bundle.filter_components(class_and_type_filter)
         return ret_bundle
 
@@ -167,11 +199,13 @@ class Bundle(object):
                 if attr_name in self._bundles:
                     self._bundles[attr_name].merge_bundles(value)
                 else:  # attr is not in local bundle so no merge is necessary
-                    setattr(self, attr_name, value.clone())
+                    setattr(self, attr_name, value.copy())
             else:  # if is not instance of Bundle
                 if attr_name in self._bundles:
-                    raise MergeBundleException("%s -> {%s} model is defined in both trees."
-                                               " I do NOT know which should I use." % (attr_name, value))
+                    raise MergeBundleException(
+                        '%s -> {%s} model is defined in both trees.'
+                        ' I do NOT know which should I use.' % (attr_name, value)
+                    )
                 else:
                     self._bundles[attr_name] = value
 
@@ -195,13 +229,14 @@ class Bundle(object):
         return new_bundle
 
     def str_tree(self):
-        return "\n".join([str(x) for x in DisplayableNode.from_bundle('RootBundle', self)])
+        return '\n'.join([str(x) for x in DisplayableNode.from_bundle('RootBundle', self)])
 
 
 class DisplayableNode(object):
     """
     Inspired by : https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
     """
+
     child_prefix_middle = '├──'
     child_prefix_last = '└──'
     parent_prefix_middle = '|   '
@@ -264,21 +299,23 @@ class DisplayableNode(object):
         while parent and parent.parent is not None:
             parent_prefix_list.append(self.parent_prefix_last if parent.is_last else self.parent_prefix_middle)
             parent = parent.parent
-        return "".join(reversed(parent_prefix_list))
+        return ''.join(reversed(parent_prefix_list))
 
     def __str__(self):
         if self.parent is None:
             return self.name
 
-        bundle_name = "{!s} {!s}".format(self.child_prefix_last if self.is_last else self.child_prefix_middle, self.name)
-        model_value_str = "" if self.label is None else self.format_label_str()
+        bundle_name = '{!s} {!s}'.format(
+            self.child_prefix_last if self.is_last else self.child_prefix_middle, self.name
+        )
+        model_value_str = '' if self.label is None else self.format_label_str()
 
         return self.parent_prefix + bundle_name + model_value_str
 
 
 class HostBundle(Bundle):
-    _all_confs_register = defaultdict(dict)
-    _properties = Bundle._properties + ['_hostname', "_conf_name"]
+    _all_confs_register: Dict[str, Dict[str, 'HostBundle']] = defaultdict(dict)
+    _properties = Bundle._properties + ['_hostname', '_conf_name']
 
     @classmethod
     def find(cls, hostname, conf_name):
@@ -295,9 +332,10 @@ class HostBundle(Bundle):
                 return [conf] if conf is not None else []
         else:
             # get lists of conf list
-            all_confs = [list(host_conf.values()) for host_conf in cls._all_confs_register.values()]
-            # convert it into single list
-            all_confs = itertools.chain.from_iterable(all_confs)
+            # and convert it into single list
+            all_confs = itertools.chain.from_iterable(
+                [list(host_conf.values()) for host_conf in cls._all_confs_register.values()]
+            )
             if conf_name is None:
                 return list(all_confs)
             else:
@@ -318,7 +356,7 @@ class HostBundle(Bundle):
         self._add_configuration(self)
 
     def __str__(self):
-        return 'Host configuration bundle : \n' + "\n".join([str(x) for x in self.get_all_components()])
+        return 'Host configuration bundle : \n' + '\n'.join([str(x) for x in self.get_all_components()])
 
     @property
     def hostname(self):
@@ -336,7 +374,6 @@ class HostBundle(Bundle):
 
 
 class SyncHost(object):
-
     def __init__(self, hostname):
         self._hostname = hostname
 

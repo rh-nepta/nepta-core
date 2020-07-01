@@ -20,9 +20,5 @@ setup(
     install_requires=['jinja2==2.10.1', 'xml-diff==0.7.0', 'numpy==1.18.1', 'singledispatchmethod==1.0'],
     namespace_packages=['nepta'],
     include_package_data=True,
-    entry_points={
-        'console_scripts': [
-            'nepta = nepta.core.__main__:main'
-        ]
-    },
+    entry_points={'console_scripts': ['nepta = nepta.core.__main__:main']},
 )

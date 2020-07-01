@@ -1,11 +1,7 @@
 {% extends "generic.jinja2" %}
 {% block additional_values %}
 HWADDR={{ intf.mac }}
-{% endblock %}
-{% block addresses %}
-	{% if intf.master_bridge_name %}
-BRIDGE={{ intf.master_bridge_name }}
-	{% else %}
-{{ super() -}}
-	{% endif %}
+    {% if intf.offloads %}
+ETHTOOL_OPTS="-K {{ intf.name }}{% for k,v in intf.offloads.items() %} {{ k }} {{ v }}{% endfor %}"
+    {% endif %}
 {% endblock %}

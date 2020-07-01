@@ -2,7 +2,6 @@ from . import network
 
 
 class Image(object):
-
     def __init__(self, name, context, dockerfile):
         self.name = name
         self.context = context
@@ -10,26 +9,21 @@ class Image(object):
 
 
 class Volume(object):
-
     def __init__(self, name):
         self.name = name
 
 
 class Network(object):
-
     def __init__(self, name, v4=None, v6=None):
         self.name = name
         self.v4 = v4 if v4 is None else DockerSubnetV4(v4)
         self.v6 = v6 if v6 is None else DockerSubnetV6(v6)
 
     def __str__(self):
-        return "Docker network: {}\n" \
-               "\tV4: {}\n" \
-               "\tV6: {}\n".format(self.name, self.v4, self.v6)
+        return 'Docker network: {}\n' '\tV4: {}\n' '\tV6: {}\n'.format(self.name, self.v4, self.v6)
 
 
 class GenericDockerSubnet(object):
-
     def __init__(self, net):
         super(GenericDockerSubnet, self).__init__(net)
         self.gw = self.new_addr()
@@ -49,7 +43,15 @@ class DockerSubnetV6(GenericDockerSubnet, network.NetperfNet6):
 
 class Containter(object):
 
-    DEFAULT_INHERIT_ENV = ['JOBID', 'TEST', 'ARCH', 'DISTRO', 'BEAKER_JOB_WHITEBOARD', 'LAB_CONTROLLER', 'RECIPEID',]
+    DEFAULT_INHERIT_ENV = [
+        'JOBID',
+        'TEST',
+        'ARCH',
+        'DISTRO',
+        'BEAKER_JOB_WHITEBOARD',
+        'LAB_CONTROLLER',
+        'RECIPEID',
+    ]
 
     def __init__(self, image, hostname=None, network=None, volumes=None, extra_arguments=None, inherit_env=None):
         self.image = image
@@ -63,12 +65,11 @@ class Containter(object):
 
 
 class DockerDaemonSettings(dict):
-
     def __hash__(self):
         return hash(frozenset(self))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     net = Network('dickernetq', network.NetperfNet4('192.168.22.0/24'), network.NetperfNet6('fd01::/64'))
     print(net)
     print(DockerSubnetV4.__mro__)

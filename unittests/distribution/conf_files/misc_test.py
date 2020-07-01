@@ -8,7 +8,6 @@ from nepta.core.distribution.conf_files import RepositoryFile, Route4File, Route
 
 
 class MiscTest(TestCase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.maxDiff = None
@@ -23,7 +22,9 @@ name={name}
 enabled=1
 gpgcheck=0
 baseurl={baseurl}
-""".format(name=repo.key, baseurl=repo.value)
+""".format(
+            name=repo.key, baseurl=repo.value
+        )
 
         self.assertEqual(expected_out, repo_file._make_content())
 
@@ -33,8 +34,9 @@ baseurl={baseurl}
         route_nogw = Route4(IPv4Network('10.0.0.0/24'), eth)
         route_file = Route4File([route, route_nogw])
 
-        expected_output = '10.0.0.0/24 via 10.0.0.2 dev bnxt metric 0\n' \
-                          '10.0.0.0/24 via 10.0.0.0/24 dev bnxt metric 0\n'
+        expected_output = (
+            '10.0.0.0/24 via 10.0.0.2 dev bnxt metric 0\n' '10.0.0.0/24 via 10.0.0.0/24 dev bnxt metric 0\n'
+        )
 
         self.assertEqual(expected_output, route_file.get_content())
 
@@ -44,7 +46,8 @@ baseurl={baseurl}
         route_nogw = Route4(IPv6Network('2001:32::/64'), eth)
         route_file = Route4File([route, route_nogw])
 
-        expected_output = '2001:32::/64 via fd00::ff dev bnxt metric 0\n' \
-                          '2001:32::/64 via 2001:32::/64 dev bnxt metric 0\n'
+        expected_output = (
+            '2001:32::/64 via fd00::ff dev bnxt metric 0\n' '2001:32::/64 via 2001:32::/64 dev bnxt metric 0\n'
+        )
 
         self.assertEqual(expected_output, route_file.get_content())
