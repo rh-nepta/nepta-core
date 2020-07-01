@@ -186,7 +186,7 @@ class Setup(Strategy):
             Fs.rm_path(w)
 
     def rename_ifaces_runtime(self):
-        ifaces = self.conf.get_subset(m_type=model.network.Interface)
+        ifaces = self.conf.get_subset(m_type=model.network.EthernetInterface)
         for iface in ifaces:
             old_name = IpCommand.Link.get_interface_name(iface.mac)
             new_name = iface.name
