@@ -37,7 +37,7 @@ class RunScenarios(Strategy):
         # creating data section and running filtered scenarios
         scenarios_section = Section('scenarios')
         self.package.store.root.subsections.append(scenarios_section)
-        
+
         pcp_confs = self.conf.get_subset(m_type=PCPConfiguration)
         if len(pcp_confs):
             pcp_conf = pcp_confs[0]
@@ -49,7 +49,9 @@ class RunScenarios(Strategy):
         for item in run_items:
             logger.info('\n\nRunning scenario: %s', item)
             logger.info('Running pmlogger')
-            pmlogger = Command(f'pmlogger -c {pcp_conf.config_path} -t {pcp_conf.interval} /root/{item.__class__.__name__}').run()
+            pmlogger = Command(
+                f'pmlogger -c {pcp_conf.config_path} -t {pcp_conf.interval} /root/{item.__class__.__name__}'
+            ).run()
             data, result = item()
             pmlogger.terminate()  # stop pmlogger
             scenarios_section.subsections.append(data)
