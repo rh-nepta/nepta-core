@@ -407,6 +407,7 @@ class TestBundles(TestCase):
         b.packages.wget = system.Package('wget')
         b.packages.iperf3 = system.Package('iperf3')
         b.int1 = network.Interface('igb0')
+        b += network.Interface('igb1')
 
         clone = b.clone()
 
@@ -415,6 +416,7 @@ class TestBundles(TestCase):
         self.assertNotEqual(id(b.packages.wget), id(clone.packages.wget))
         self.assertNotEqual(id(b.packages.iperf3), id(clone.packages.iperf3))
         self.assertNotEqual(id(b.int1), id(clone.int1))
+        self.assertNotEqual(id(b[0]), id(clone[0]))
 
 
 class TestMergeBundles(TestCase):
