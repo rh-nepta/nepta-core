@@ -345,6 +345,7 @@ class Setup(Strategy):
                 logger.info('PCP config already exists >> Deleting ')
                 os.remove(pcp.config_path)
 
+            os.makedirs(pcp.log_path, exist_ok=True)
             cmd = Command(f'pmlogconf -c {pcp.config_path}').run()
             out, ret_code = cmd.watch_output()
             if ret_code:

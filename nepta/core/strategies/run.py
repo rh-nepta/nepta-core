@@ -1,4 +1,5 @@
 import logging
+import os
 
 from nepta.dataformat import Section
 
@@ -50,7 +51,8 @@ class RunScenarios(Strategy):
             logger.info('\n\nRunning scenario: %s', item)
             logger.info('Running pmlogger')
             pmlogger = Command(
-                f'pmlogger -c {pcp_conf.config_path} -t {pcp_conf.interval} /root/{item.__class__.__name__}'
+                f'pmlogger -c {pcp_conf.config_path} -t {pcp_conf.interval} '
+                f'{os.path.join(pcp_conf.log_path, item.__class__.__name__)}'
             ).run()
             data, result = item()
             pmlogger.terminate()  # stop pmlogger
