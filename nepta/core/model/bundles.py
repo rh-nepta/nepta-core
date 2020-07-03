@@ -84,7 +84,7 @@ class Bundle(object):
         lookup_table = {x: Bundle() for x in local_bundles}
 
         for local, new in lookup_table.items():
-            new._components.extend(local._components)
+            new._components.extend(copy.deepcopy(local._components))
             for local_child_name, local_child_value in local._bundles.items():
                 if isinstance(local_child_value, Bundle):
                     setattr(new, local_child_name, lookup_table[local_child_value])
