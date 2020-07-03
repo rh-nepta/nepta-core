@@ -7,6 +7,7 @@ from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
 from nepta.core.model.system import PCPConfiguration
 from nepta.core.distribution.command import Command
+from nepta.core.model.attachments import Directory
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,8 @@ class RunScenarios(Strategy):
         else:
             logger.error('PCP configuration is missing, using default values!!!')
             pcp_conf = PCPConfiguration()
+
+        self.conf.attachments.scenarios.pcp = Directory(pcp_conf.log_path, 'pcp')
 
         run_items = [x for x in scenarios if x.__class__.__name__ in override_names]
         for item in run_items:
