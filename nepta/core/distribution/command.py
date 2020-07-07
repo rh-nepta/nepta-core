@@ -18,10 +18,14 @@ class Command(object):
     def __init__(self, cmdline, enable_debug_log=True):
         self._cmdline = cmdline.split()
         self._command_handle = None
-        self.log_debug = logger.debug if enable_debug_log else lambda *_: None
+        self.enable_debug = enable_debug_log
 
     def __str__(self):
         return '{cls}: {cmd}'.format(cls=self.__class__.__name__, cmd=self._cmd_str())
+
+    def log_debug(self, *args, **kwargs):
+        if self.enable_debug:
+            logger.debug(*args, **kwargs)
 
     def _cmd_str(self):
         return ' '.join(self._cmdline)
