@@ -20,11 +20,12 @@ class IRQBalanceCheck(ScenarioGeneric):
         self.paths = paths
         self.test_length = test_length
         self.msg_size = msg_size
-        self.interrupt_cmd = 'cat /proc/interrupts'
+        self.interrupt_cmd = Command('cat /proc/interrupts')
 
     def get_parsed_interrupts(self, ignore_cpu_interrupts=True):
         # TODO think about ignoring IRQ0: timer
-        cmd_out = Command(self.interrupt_cmd).run().watch_output()[0].strip()
+        self.interrupt_cmd.run()
+        cmd_out = self.interrupt_cmd.watch_output()[0].strip()
 
         # split output by lines
         lines = cmd_out.split('\n')
