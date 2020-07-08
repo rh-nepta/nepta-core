@@ -2,6 +2,7 @@ import logging
 import re
 
 from nepta.core import model
+from nepta.core.model.network import Interface
 from nepta.core.distribution.command import Command
 from nepta.core.distribution.utils.system import Uname, SystemD
 
@@ -57,6 +58,26 @@ class IpCommand:
             link_cmd.run()
             _, retcode = link_cmd.get_output()
             return retcode
+
+
+class NmCli:
+    class Con:
+        PREFIX_CMD = 'nmcli con'
+
+        @classmethod
+        def up(cls, interface: Interface):
+            cmd = Command(f'{cls.PREFIX_CMD} up ifname {interface.name}')
+            cmd.run().watch_and_log_error()
+
+        @classmethod
+        def down(cls, interface: Interface):
+            cmd = Command(f'{cls.PREFIX_CMD} down ifname {interface.name}')
+            cmd.run().watch_and_log_error()
+
+        @classmethod
+        def reload(cls):
+            cmd = Command(f'{cls.PREFIX_CMD} reload')
+            cmd.run().watch_and_log_error()
 
 
 class LldpTool:
