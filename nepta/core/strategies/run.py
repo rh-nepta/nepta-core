@@ -42,8 +42,7 @@ class RunScenarios(Strategy):
         if self._pmlogger_cmd and self.pcp_conf:
             self._pmlogger_cmd.terminate()
 
-    @Strategy.schedule
-    def run_scenarios(self):
+    def get_running_scenarios(self):
         scenarios = self.conf.get_subset(m_class=ScenarioGeneric)
         scenario_names = [item.__class__.__name__ for item in scenarios]
         override_names = self.filter_scenarios if self.filter_scenarios is not None else scenario_names
@@ -58,12 +57,15 @@ class RunScenarios(Strategy):
         if len(excluded_names) > 0:
             logger.warning('Scenarios %s are disabled by commandline options. They won\'t be run.' % excluded_names)
 
+        return [x for x in scenarios if x.__class__.__name__ in override_names]
+
+    @Strategy.schedule
+    def run_scenarios(self):
         # creating data section and running filtered scenarios
         scenarios_section = Section('scenarios')
         self.package.store.root.subsections.append(scenarios_section)
 
-        run_items = [x for x in scenarios if x.__class__.__name__ in override_names]
-        for item in run_items:
+        for item in self.get_running_scenarios():
             logger.info('\n\nRunning scenario: %s', item)
             logger.info('Running pmlogger')
             self.start_pmlogger(item.__class__.__name__)
