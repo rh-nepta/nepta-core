@@ -8,8 +8,8 @@ from nepta.core.distribution.utils.system import Uname, SystemD
 logger = logging.getLogger(__name__)
 
 
-class IpCommand(object):
-    class Link(object):
+class IpCommand:
+    class Link:
         @classmethod
         def get_interface_name(cls, mac):
             mac_regex = r'[0-9]*: (.*):.*\n.*link/ether (%s)' % mac
@@ -59,7 +59,7 @@ class IpCommand(object):
             return retcode
 
 
-class LldpTool(object):
+class LldpTool:
     LLD_ENABLED_INTERFACE_TYPES = [model.network.EthernetInterface]
     SET_LLDP_CMDS = [
         'lldptool -L -i %s adminStatus=rxtx',
@@ -138,7 +138,7 @@ class LldpTool(object):
         return out_string
 
 
-class Tuna(object):
+class Tuna:
     @staticmethod
     def list_all_irqs():
         cmd_line = 'tuna --show_irqs'
@@ -188,7 +188,7 @@ class Tuna(object):
         cls.set_irq_socket_binding(interface, 0)
 
 
-class OvsVsctl(object):
+class OvsVsctl:
     @staticmethod
     def add_bridge(bridge):
         bridge_name = bridge.name
