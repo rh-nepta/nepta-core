@@ -1,4 +1,5 @@
 from unittest import TestCase
+from copy import deepcopy
 
 from nepta.core.distribution.command import Command, ShellCommand
 
@@ -26,3 +27,8 @@ class CommandTest(TestCase):
         out, ret = cmd.get_output()
         self.assertEqual(out.strip(), input_str.split()[-1])
         self.assertEqual(ret, 0)
+
+    def test_deepcopy(self):
+        cmd = Command('asdf')
+        cmd2 = deepcopy(cmd)
+        self.assertNotEqual(id(cmd), id(cmd2))
