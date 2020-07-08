@@ -31,3 +31,4 @@ class CommandTest(TestCase):
     def test_deepcopy(self):
         cmd = Command('asdf')
         cmd2 = deepcopy(cmd)
+        self.assertNotEqual(id(cmd), id(cmd2))
