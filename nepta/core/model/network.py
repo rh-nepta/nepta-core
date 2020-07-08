@@ -333,7 +333,7 @@ class IPsecTunnel:
         if self.replay_window:
             tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
         if self.nic_offload != self.Offload.NO:
-            tags.append(SoftwareInventoryTag('NicOffload', self.nic_offload))
+            tags.append(SoftwareInventoryTag('NicOffload-yes'))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
 
