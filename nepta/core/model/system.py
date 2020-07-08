@@ -100,5 +100,5 @@ class KernelModule(_NamedOptions):
 @dataclass
 class PCPConfiguration:
     config_path: str = '/root/config.default'
-    interval: int = '1'
+    interval: int = 1
     log_path: str = '/root/pcp_log/'
