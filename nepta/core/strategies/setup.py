@@ -406,7 +406,7 @@ class Rhel8(Rhel7):
         # FIXME: check if this WA is still necessary
         # ifdown all interfaces in the system
         for iface in IpCommand.Link.get_all_interfaces():
-            NmCli.Con.down(iface)
+            NmCli.Con.down(model.network.Interface(iface))
 
         super().stop_net()
 
