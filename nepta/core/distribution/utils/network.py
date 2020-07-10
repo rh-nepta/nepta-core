@@ -94,7 +94,7 @@ class NmCli:
             if human_readable:
                 cmd = Command(f'{cls.PREFIX_CMD} show')
             else:
-                cmd = Command(f'nmcli -t con show')
+                cmd = Command('nmcli -t con show')
             out = cmd.run().watch_and_log_error()[0]
             return out
 
