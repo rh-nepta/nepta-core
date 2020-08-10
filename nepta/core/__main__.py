@@ -237,7 +237,7 @@ def main():
         '-t',
         '--tag',
         action='append',
-        help='Filter testing paths by specifying HW or SW tag. Only paths with specified tag will be tested.'
+        help='Filter testing paths by specifying HW or SW tag. Only paths with specified tag will be tested.',
     )
 
     # Highest priority have arguments directly given from the commandline.

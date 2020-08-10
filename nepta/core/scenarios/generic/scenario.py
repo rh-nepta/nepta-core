@@ -32,8 +32,16 @@ class ScenarioGeneric:
 
 
 class StreamGeneric(ScenarioGeneric):
-    def __init__(self, paths: List[Path], test_length: int, test_runs: int, msg_sizes: List[int], cpu_pinning,
-                 base_port: int, result: bool = True):
+    def __init__(
+        self,
+        paths: List[Path],
+        test_length: int,
+        test_runs: int,
+        msg_sizes: List[int],
+        cpu_pinning,
+        base_port: int,
+        result: bool = True,
+    ):
         self.paths = paths
         self.test_length = test_length
         self.test_runs = test_runs
