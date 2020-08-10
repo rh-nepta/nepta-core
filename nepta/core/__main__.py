@@ -233,6 +233,12 @@ def main():
         metavar=('MODULE_NAME', 'PATH'),
         help='Dynamically import test configurations.',
     )
+    parser.add_argument(
+        '-t',
+        '--tag',
+        action='append',
+        help='Filter testing paths by specifying HW or SW tag. Only paths with specified tag will be tested.'
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -298,7 +304,7 @@ def main():
     # Run test code path, saving attachments only if running test
     if args.execute:
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
-        final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios)
+        final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios, args.tag)
         final_strategy += strategies.sync.Synchronize(conf, sync, 'done')
 
     if args.store:
