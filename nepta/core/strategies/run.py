@@ -1,20 +1,35 @@
 import logging
+from typing import List
 
 from nepta.dataformat import Section
 
+from nepta.core.model.schedule import SoftwareInventoryTag, HardwareInventoryTag
 from nepta.core.strategies.generic import Strategy
-from nepta.core.scenarios.generic.scenario import ScenarioGeneric
+from nepta.core.scenarios.generic.scenario import ScenarioGeneric, StreamGeneric
 
 logger = logging.getLogger(__name__)
 
 
 class RunScenarios(Strategy):
-    def __init__(self, conf, package, filter_scenarios=None):
+    def __init__(self, conf, package, filter_scenarios=None, path_tags=None):
         super().__init__()
         self.conf = conf
         self.package = package
         self.filter_scenarios = filter_scenarios
+        self.path_tags = path_tags
         self.aggregated_result = True  # result is Pass in default
+
+    def filter_paths(self, scenarios: List[StreamGeneric]):
+        if self.path_tags:
+            for scenario in scenarios:
+                if isinstance(scenario, StreamGeneric):
+                    new_paths = []
+                    for path in scenario.paths:
+                        for tag in path.hw_inventory + path.sw_inventory:
+                            if tag.name in self.path_tags:
+                                new_paths.append(path)
+                                break
+                    scenario.paths = new_paths
 
     @Strategy.schedule
     def run_scenarios(self):
@@ -37,6 +52,7 @@ class RunScenarios(Strategy):
         self.package.store.root.subsections.append(scenarios_section)
 
         run_items = [x for x in scenarios if x.__class__.__name__ in override_names]
+        self.filter_paths(run_items)
         for item in run_items:
             logger.info('\n\nRunning scenario: %s', item)
             data, result = item()
