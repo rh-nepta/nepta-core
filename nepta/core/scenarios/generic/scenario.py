@@ -2,7 +2,7 @@ import logging
 import time
 import uuid
 import functools
-from typing import Tuple, List
+from typing import Tuple, List, Union
 from nepta.dataformat import Section
 
 from nepta.core.model.schedule import PathList, Path
@@ -34,7 +34,7 @@ class ScenarioGeneric:
 class StreamGeneric(ScenarioGeneric):
     def __init__(
         self,
-        paths: List[Path],
+        paths: Union[List[Path], PathList],
         test_length: int,
         test_runs: int,
         msg_sizes: List[int],
