@@ -3,7 +3,6 @@ from typing import List
 
 from nepta.dataformat import Section
 
-from nepta.core.model.schedule import SoftwareInventoryTag, HardwareInventoryTag
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric, StreamGeneric
 
@@ -16,20 +15,24 @@ class RunScenarios(Strategy):
         self.conf = conf
         self.package = package
         self.filter_scenarios = filter_scenarios
-        self.path_tags = path_tags
+        self.path_tags = set(path_tags)
         self.aggregated_result = True  # result is Pass in default
 
     def filter_paths(self, scenarios: List[StreamGeneric]):
+        """
+        Cycle through all paths of each scenario and checks if path contains at least one of specifies tags. If not,
+        remove path from the list.
+        :param scenarios: List of running scenarios
+        :return: None -> modifying scenarios directly
+        """
         if self.path_tags:
             for scenario in scenarios:
                 if isinstance(scenario, StreamGeneric):
-                    new_paths = []
-                    for path in scenario.paths:
-                        for tag in path.hw_inventory + path.sw_inventory:
-                            if tag.name in self.path_tags:
-                                new_paths.append(path)
-                                break
-                    scenario.paths = new_paths
+                    for path in list(scenario.paths):
+                        current_path_tags = set([tag.name for tag in path.sw_inventory + path.hw_inventory])
+                        # if union of these sets is zero, none tag is not matched and the path is removed
+                        if not self.path_tags & current_path_tags:
+                            scenario.paths.remove(path)
 
     @Strategy.schedule
     def run_scenarios(self):
