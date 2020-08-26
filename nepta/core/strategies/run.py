@@ -15,7 +15,7 @@ class RunScenarios(Strategy):
         self.conf = conf
         self.package = package
         self.filter_scenarios = filter_scenarios
-        self.path_tags = set(path_tags)
+        self.path_tags = set(path_tags) if path_tags else set()
         self.aggregated_result = True  # result is Pass in default
 
     def filter_paths(self, scenarios: List[StreamGeneric]):
