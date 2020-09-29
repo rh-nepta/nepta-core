@@ -69,5 +69,6 @@ class Iperf3TestResultTest(TestCase):
 
         result = test.get_result(Iperf3TCPTestResult.ThroughputFormat.GBPS)
         self.assertLessEqual(
-            result['throughput'], 100,
+            result['throughput'],
+            100,
         )
