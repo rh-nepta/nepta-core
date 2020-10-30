@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Optional
 
-from nepta.dataformat import Section
+from nepta.dataformat import Section, Compression
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
@@ -26,7 +26,7 @@ class RunScenarios(Strategy):
     def init_pcp_conf(self):
         pcp_confs = self.conf.get_subset(m_type=PCPConfiguration)
         if len(pcp_confs):
-            self.conf.attachments.scenarios.pcp = Directory(pcp_confs[0].log_path, 'pcp')
+            self.conf.attachments.scenarios.pcp = Directory(pcp_confs[0].log_path, 'pcp', compression=Compression.XZ)
             return pcp_confs[0]
         else:
             return None
