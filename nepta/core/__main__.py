@@ -66,7 +66,7 @@ def init_package(conf_name, start_time):
     pckg_path = '{}__{}__{}__{}__ts{}'.format(
         Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time)
     )
-    logger.info('Creating libres package in : {}'.format(pckg_path))
+    logger.info('Creating nepta-dataformat package in : {}'.format(pckg_path))
 
     package = DataPackage.create(pckg_path)
     package.store.root = init_root_store()
@@ -233,6 +233,12 @@ def main():
         metavar=('MODULE_NAME', 'PATH'),
         help='Dynamically import test configurations.',
     )
+    parser.add_argument(
+        '--pcp',
+        action='store_true',
+        help='Enable PCP logging during testing.',
+        default=False,
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -298,7 +304,12 @@ def main():
     # Run test code path, saving attachments only if running test
     if args.execute:
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
-        final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios)
+
+        if args.pcp:
+            final_strategy += strategies.run.RunScenariosPCP(conf, package, args.scenarios)
+        else:
+            final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios)
+
         final_strategy += strategies.sync.Synchronize(conf, sync, 'done')
 
     if args.store:
