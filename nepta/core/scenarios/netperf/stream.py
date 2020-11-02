@@ -14,11 +14,7 @@ def round_f(num, decimal=2):
 class NetperfTCPStream(SingleStreamGeneric):
     def init_test(self, path, size):
         netperf_test = NetperStreamfTest(
-            src_ip=path.mine_ip,
-            dst_ip=path.their_ip,
-            length=self.test_length,
-            local_send=size,
-            test='TCP_STREAM',
+            src_ip=path.mine_ip, dst_ip=path.their_ip, length=self.test_length, local_send=size, test='TCP_STREAM',
         )
         if self.cpu_pinning:
             netperf_test.local_cpu = self.cpu_pinning[0]

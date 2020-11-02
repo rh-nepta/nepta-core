@@ -43,9 +43,7 @@ class ReliableSubmit(Submit):
         for delay in rsync.attempt_delays:
             sleep(delay * 60)
             dest = ':'.join([rsync.server, rsync.destination])
-            logger.info(
-                f'Rsyncing results to {dest}',
-            )
+            logger.info(f'Rsyncing results to {dest}',)
 
             c = Command(cmd)
             c.run()

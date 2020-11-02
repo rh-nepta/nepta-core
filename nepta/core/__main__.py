@@ -240,10 +240,7 @@ def main():
         help='Filter testing paths by specifying HW or SW tag. Only paths with specified tag will be tested.',
     )
     parser.add_argument(
-        '--pcp',
-        action='store_true',
-        help='Enable PCP logging during testing.',
-        default=False,
+        '--pcp', action='store_true', help='Enable PCP logging during testing.', default=False,
     )
 
     # Highest priority have arguments directly given from the commandline.

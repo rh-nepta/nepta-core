@@ -9,10 +9,7 @@ class GenericNetperfTest(CommandTool):
     PROGRAM_NAME = 'netperf'
 
     MAPPING = [
-        CommandArgument(
-            'src_ip',
-            '-L',
-        ),
+        CommandArgument('src_ip', '-L',),
         CommandArgument('dst_ip', '-H', True),
         CommandArgument('length', '-l'),
         CommandArgument('report_local_cpu', '-c', argument_type=bool, default_value=True),
