@@ -20,27 +20,6 @@ class RunScenarios(Strategy):
         self.package = package
         self.filter_scenarios = filter_scenarios
         self.aggregated_result = True  # result is Pass in default
-        self._pmlogger_cmd: Optional[Command] = None
-        self.pcp_conf = self.init_pcp_conf()
-
-    def init_pcp_conf(self):
-        pcp_confs = self.conf.get_subset(m_type=PCPConfiguration)
-        if len(pcp_confs):
-            self.conf.attachments.scenarios.pcp = Directory(pcp_confs[0].log_path, 'pcp', compression=Compression.XZ)
-            return pcp_confs[0]
-        else:
-            return None
-
-    def start_pmlogger(self, archive_name):
-        if self.pcp_conf:
-            self._pmlogger_cmd = Command(
-                f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
-                f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
-            ).run()
-
-    def stop_pmlogger(self):
-        if self._pmlogger_cmd and self.pcp_conf:
-            self._pmlogger_cmd.terminate()
 
     def get_running_scenarios(self):
         scenarios = self.conf.get_subset(m_class=ScenarioGeneric)
@@ -58,6 +37,44 @@ class RunScenarios(Strategy):
             logger.warning('Scenarios %s are disabled by commandline options. They won\'t be run.' % excluded_names)
 
         return [x for x in scenarios if x.__class__.__name__ in override_names]
+
+    @Strategy.schedule
+    def run_scenarios(self):
+        # creating data section and running filtered scenarios
+        scenarios_section = Section('scenarios')
+        self.package.store.root.subsections.append(scenarios_section)
+
+        for item in self.get_running_scenarios():
+            logger.info('\n\nRunning scenario: %s', item)
+            data, result = item()
+            scenarios_section.subsections.append(data)
+            self.aggregated_result &= result
+
+
+class RunScenariosPCP(RunScenarios):
+    def __init__(self, conf, package, filter_scenarios=None):
+        super().__init__(conf, package, filter_scenarios)
+        self._pmlogger_cmd: Optional[Command] = None
+        self.pcp_conf = self.init_pcp_conf()
+
+    def init_pcp_conf(self):
+        pcp_confs = self.conf.get_subset(m_type=PCPConfiguration)
+        if len(pcp_confs):
+            self.conf.attachments.scenarios.pcp = Directory(pcp_confs[0].log_path, 'pcp', compression=Compression.XZ)
+            return pcp_confs[0]
+        else:
+            logger.error('PCP configuration is missing!!! Cannot continue in testing. Please define PCPConfiguration!')
+            raise ValueError('PCP config is missing!')
+
+    def start_pmlogger(self, archive_name):
+        self._pmlogger_cmd = Command(
+            f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
+            f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
+        ).run()
+
+    def stop_pmlogger(self):
+        if self._pmlogger_cmd:
+            self._pmlogger_cmd.terminate()
 
     @Strategy.schedule
     def run_scenarios(self):
