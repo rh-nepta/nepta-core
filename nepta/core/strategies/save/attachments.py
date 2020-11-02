@@ -62,7 +62,7 @@ class SaveAttachments(Strategy):
                     c.run()
                     output, retcode = c.watch_output()
                     command_attachment = self.package.attachments.new(
-                        AttachmentTypes.COMMAND, attach.cmdline, attach.alias, attach.compression
+                        AttachmentTypes.COMMAND, attach.cmdline, attach.alias, attach.compression,
                     )
                     command_attachment.path.write(output)
 
