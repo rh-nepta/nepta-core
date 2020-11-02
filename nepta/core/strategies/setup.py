@@ -10,7 +10,7 @@ from nepta.core.distribution import conf_files, env
 from nepta.core.distribution.command import Command
 from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemD, KernelModuleUtils
 from nepta.core.distribution.utils.fs import Fs
-from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl
+from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl, NmCli
 from nepta.core.distribution.utils.virt import Docker, Virsh
 
 logger = logging.getLogger(__name__)
@@ -186,7 +186,7 @@ class Setup(Strategy):
             Fs.rm_path(w)
 
     def rename_ifaces_runtime(self):
-        ifaces = self.conf.get_subset(m_type=model.network.EthernetInterface)
+        ifaces = self.conf.get_subset(m_class=model.network.EthernetInterface)
         for iface in ifaces:
             old_name = IpCommand.Link.get_interface_name(iface.mac)
             new_name = iface.name
@@ -384,17 +384,12 @@ class Rhel7(Setup):
 
     def start_net(self):
         SystemD.start_service(model.system.SystemService('NetworkManager'))
-        c0 = Command('nmcli connection reload')
-        c0.run()
-        c0.watch_output()
+
+        NmCli.Con.reload()
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
         for iface in ifaces:
-            c1 = Command('ifdown %s' % iface.name)
-            c1.run()
-            c1.watch_output()
-            c2 = Command('ifup %s' % iface.name)
-            c2.run()
-            c2.watch_output()
+            NmCli.Con.down(iface)
+            NmCli.Con.up(iface)
 
     def setup_udev_rules(self):
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
@@ -425,9 +420,7 @@ class Rhel8(Rhel7):
         # FIXME: check if this WA is still necessary
         # ifdown all interfaces in the system
         for iface in IpCommand.Link.get_all_interfaces():
-            cmd = Command('ifdown %s' % iface)
-            cmd.run()
-            cmd.watch_output()
+            NmCli.Con.down(model.network.Interface(iface))
 
         super().stop_net()
 

@@ -234,6 +234,12 @@ def main():
         help='Dynamically import test configurations.',
     )
     parser.add_argument(
+        '-t',
+        '--tag',
+        action='append',
+        help='Filter testing paths by specifying HW or SW tag. Only paths with specified tag will be tested.',
+    )
+    parser.add_argument(
         '--pcp',
         action='store_true',
         help='Enable PCP logging during testing.',
@@ -306,9 +312,9 @@ def main():
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
 
         if args.pcp:
-            final_strategy += strategies.run.RunScenariosPCP(conf, package, args.scenarios)
+            final_strategy += strategies.run.RunScenariosPCP(conf, package, args.scenarios, args.tag)
         else:
-            final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios)
+            final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios, args.tag)
 
         final_strategy += strategies.sync.Synchronize(conf, sync, 'done')
 

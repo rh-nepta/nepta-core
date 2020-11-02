@@ -2,8 +2,10 @@ import logging
 import time
 import uuid
 import functools
-from typing import Tuple
+from typing import Tuple, List, Union
 from nepta.dataformat import Section
+
+from nepta.core.model.schedule import PathList, Path
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +32,16 @@ class ScenarioGeneric:
 
 
 class StreamGeneric(ScenarioGeneric):
-    def __init__(self, paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port, result=True):
+    def __init__(
+        self,
+        paths: Union[List[Path], PathList],
+        test_length: int,
+        test_runs: int,
+        msg_sizes: List[int],
+        cpu_pinning,
+        base_port: int,
+        result: bool = True,
+    ):
         self.paths = paths
         self.test_length = test_length
         self.test_runs = test_runs

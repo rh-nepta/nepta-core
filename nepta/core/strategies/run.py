@@ -1,25 +1,44 @@
 import logging
 import os
-from typing import Optional
+from typing import Optional, List
 
 from nepta.dataformat import Section, Compression
 
 from nepta.core.strategies.generic import Strategy
-from nepta.core.scenarios.generic.scenario import ScenarioGeneric
 from nepta.core.model.system import PCPConfiguration
 from nepta.core.distribution.command import Command
 from nepta.core.model.attachments import Directory
+from nepta.core.scenarios.generic.scenario import ScenarioGeneric, StreamGeneric
 
 logger = logging.getLogger(__name__)
 
 
 class RunScenarios(Strategy):
-    def __init__(self, conf, package, filter_scenarios=None):
+    def __init__(self, conf, package, filter_scenarios=None, path_tags=None):
         super().__init__()
         self.conf = conf
         self.package = package
         self.filter_scenarios = filter_scenarios
+        self.path_tags = set(path_tags) if path_tags else set()
         self.aggregated_result = True  # result is Pass in default
+
+    def filter_paths(self, scenarios: List[StreamGeneric]):
+        """
+        Cycle through all paths of each scenario and checks if path contains at least one of specifies tags. If not,
+        remove path from the list.
+        Warning: Modifying input list directly!
+        :param scenarios: List of running scenarios
+        :return:  modified list of scenarios
+        """
+        if self.path_tags:
+            for scenario in scenarios:
+                if isinstance(scenario, StreamGeneric):
+                    for path in list(scenario.paths):
+                        current_path_tags = set([tag.name for tag in path.sw_inventory + path.hw_inventory])
+                        # if union of these sets is zero, none tag is not matched and the path is removed
+                        if not self.path_tags & current_path_tags:
+                            scenario.paths.remove(path)
+        return scenarios
 
     def get_running_scenarios(self):
         scenarios = self.conf.get_subset(m_class=ScenarioGeneric)
@@ -36,7 +55,7 @@ class RunScenarios(Strategy):
         if len(excluded_names) > 0:
             logger.warning('Scenarios %s are disabled by commandline options. They won\'t be run.' % excluded_names)
 
-        return [x for x in scenarios if x.__class__.__name__ in override_names]
+        return self.filter_paths([x for x in scenarios if x.__class__.__name__ in override_names])
 
     @Strategy.schedule
     def run_scenarios(self):

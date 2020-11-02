@@ -20,18 +20,6 @@ py36:
   stage: pytest
   script: pipenv run tox -e py36
 
-py37:
-  tags:
-    - docker
-  stage: pytest
-  script: pipenv run tox -e py37
-
-py38:
-  tags:
-    - docker
-  stage: pytest
-  script: pipenv run tox -e py38
-
 nepta-print-conf:
   tags:
     - docker
