@@ -71,8 +71,8 @@ class RunScenarios(Strategy):
 
 
 class RunScenariosPCP(RunScenarios):
-    def __init__(self, conf, package, filter_scenarios=None):
-        super().__init__(conf, package, filter_scenarios)
+    def __init__(self, conf, package, filter_scenarios=None, path_tags=None):
+        super().__init__(conf, package, filter_scenarios, path_tags)
         self._pmlogger_cmd: Optional[Command] = None
         self.pcp_conf = self.init_pcp_conf()
 
