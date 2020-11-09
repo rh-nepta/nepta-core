@@ -38,6 +38,6 @@ class CycleCommand(Command):
 
 
 class Url(GenericAttachment):
-    def __init__(self, url, alias=None, compression=None):
+    def __init__(self, url, alias=None, compression=Compression.NONE):
         super().__init__(alias, compression)
         self.url = url
