@@ -33,13 +33,19 @@ class SaveAttachments(Strategy):
 
                 if isinstance(attach, attachments.Directory):
                     dir_attachment = self.package.attachments.new(
-                        AttachmentTypes.DIRECTORY, attach.d_path, attach.alias, attach.compression,
+                        AttachmentTypes.DIRECTORY,
+                        attach.d_path,
+                        attach.alias,
+                        attach.compression,
                     )
                     Fs.copy_dir(attach.d_path, os.path.join(self.package.path, str(dir_attachment.path)))
 
                 if isinstance(attach, attachments.File):
                     file_attachment = self.package.attachments.new(
-                        AttachmentTypes.FILE, attach.f_path, attach.alias, attach.compression,
+                        AttachmentTypes.FILE,
+                        attach.f_path,
+                        attach.alias,
+                        attach.compression,
                     )
                     Fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
 
@@ -53,7 +59,9 @@ class SaveAttachments(Strategy):
                         log_cmd = ShellCommand(log_cmd_str)
                         log_cmd.run()
                         cmd_attachment = self.package.attachments.new(
-                            AttachmentTypes.COMMAND, log_cmd_str, compression=attach.compression,
+                            AttachmentTypes.COMMAND,
+                            log_cmd_str,
+                            compression=attach.compression,
                         )
                         cmd_attachment.path.write(log_cmd.watch_output()[0])
 
@@ -62,7 +70,10 @@ class SaveAttachments(Strategy):
                     c.run()
                     output, retcode = c.watch_output()
                     command_attachment = self.package.attachments.new(
-                        AttachmentTypes.COMMAND, attach.cmdline, attach.alias, attach.compression,
+                        AttachmentTypes.COMMAND,
+                        attach.cmdline,
+                        attach.alias,
+                        attach.compression,
                     )
                     command_attachment.path.write(output)
 
