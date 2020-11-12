@@ -338,6 +338,20 @@ class Setup(Strategy):
             Docker.Volume.create(vol)
 
     @Strategy.schedule
+    def generate_pcp_config(self):
+        for pcp in self.conf.get_subset(m_type=model.system.PCPConfiguration):
+            logger.info(f'Generating PCP configuration: {pcp}')
+            if os.path.exists(pcp.config_path):
+                logger.info('PCP config already exists >> Deleting ')
+                os.remove(pcp.config_path)
+
+            os.makedirs(pcp.log_path, exist_ok=True)
+            cmd = Command(f'pmlogconf -c {pcp.config_path}').run()
+            out, ret_code = cmd.watch_output()
+            if ret_code:
+                logger.error(f'PCP cannot generate configuration! Log: {out}')
+
+    @Strategy.schedule
     def wait(self):
         logger.info('Sleeping for %s secs, to give background processes time to settle' % self.SETTLE_TIME)
         time.sleep(self.SETTLE_TIME)

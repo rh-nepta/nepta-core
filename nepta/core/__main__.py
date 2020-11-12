@@ -66,7 +66,7 @@ def init_package(conf_name, start_time):
     pckg_path = '{}__{}__{}__{}__ts{}'.format(
         Environment.hostname, conf_name, Environment.distro, Environment.kernel, int(start_time)
     )
-    logger.info('Creating libres package in : {}'.format(pckg_path))
+    logger.info('Creating nepta-dataformat package in : {}'.format(pckg_path))
 
     package = DataPackage.create(pckg_path)
     package.store.root = init_root_store()
@@ -239,6 +239,12 @@ def main():
         action='append',
         help='Filter testing paths by specifying HW or SW tag. Only paths with specified tag will be tested.',
     )
+    parser.add_argument(
+        '--pcp',
+        action='store_true',
+        help='Enable PCP logging during testing.',
+        default=False,
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -304,7 +310,12 @@ def main():
     # Run test code path, saving attachments only if running test
     if args.execute:
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
-        final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios, args.tag)
+
+        if args.pcp:
+            final_strategy += strategies.run.RunScenariosPCP(conf, package, args.scenarios, args.tag)
+        else:
+            final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios, args.tag)
+
         final_strategy += strategies.sync.Synchronize(conf, sync, 'done')
 
     if args.store:
@@ -319,9 +330,9 @@ def main():
     final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
 
     if args.store_remote_logs:
+        final_strategy += strategies.save.save_package.OpenRemotePackages(package)
         final_strategy += strategies.save.logs.RemoteLogs(conf, package)
-        # store dataformat package once again after adding remote packages
-        final_strategy += strategies.save.save_package.Save(package)
+        final_strategy += strategies.save.save_package.SaveRemotePackages(package)
 
     # submit results to result server
     if args.submit:
@@ -334,6 +345,8 @@ def main():
     try:
         final_strategy()
     except BaseException as e:
+        logger.error('Error occurred during strategy execution.')
+        logger.error(e)
         logger.warning('Setting pass to all barriers')
         desync = create_desynchronize_strategy(final_strategy, package)
         desync()
