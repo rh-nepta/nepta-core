@@ -330,9 +330,9 @@ def main():
     final_strategy += strategies.sync.Synchronize(conf, sync, 'log')
 
     if args.store_remote_logs:
+        final_strategy += strategies.save.save_package.OpenRemotePackages(package)
         final_strategy += strategies.save.logs.RemoteLogs(conf, package)
-        # store dataformat package once again after adding remote packages
-        final_strategy += strategies.save.save_package.Save(package)
+        final_strategy += strategies.save.save_package.SaveRemotePackages(package)
 
     # submit results to result server
     if args.submit:
