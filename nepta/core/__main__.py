@@ -345,6 +345,8 @@ def main():
     try:
         final_strategy()
     except BaseException as e:
+        logger.error('Error occurred during strategy execution.')
+        logger.error(e)
         logger.warning('Setting pass to all barriers')
         desync = create_desynchronize_strategy(final_strategy, package)
         desync()
