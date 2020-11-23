@@ -2,14 +2,15 @@ import logging
 import re
 
 from nepta.core import model
+from nepta.core.model.network import Interface
 from nepta.core.distribution.command import Command
 from nepta.core.distribution.utils.system import Uname, SystemD
 
 logger = logging.getLogger(__name__)
 
 
-class IpCommand(object):
-    class Link(object):
+class IpCommand:
+    class Link:
         @classmethod
         def get_interface_name(cls, mac):
             mac_regex = r'[0-9]*: (.*):.*\n.*link/ether (%s)' % mac
@@ -59,7 +60,55 @@ class IpCommand(object):
             return retcode
 
 
-class LldpTool(object):
+class NmCli:
+    class Con:
+        PREFIX_CMD = 'nmcli con'
+
+        @classmethod
+        def up(cls, interface: Interface):
+            logger.info(f'Enabling interface {interface}')
+            uuid = cls.get_interface_uuid(interface)
+            if uuid:
+                cmd = Command(f'{cls.PREFIX_CMD} up {uuid}')
+                cmd.run().watch_and_log_error()
+            else:
+                logger.error(f'Cannot find interface uuid: {interface}')
+
+        @classmethod
+        def down(cls, interface: Interface):
+            logger.info(f'Disabling interface {interface}')
+            uuid = cls.get_interface_uuid(interface)
+            if uuid:
+                cmd = Command(f'{cls.PREFIX_CMD} down {uuid}')
+                cmd.run().watch_and_log_error()
+            else:
+                logger.error(f'Cannot find interface uuid: {interface}')
+
+        @classmethod
+        def reload(cls):
+            cmd = Command(f'{cls.PREFIX_CMD} reload')
+            cmd.run().watch_and_log_error()
+
+        @classmethod
+        def show(cls, human_readable=True):
+            if human_readable:
+                cmd = Command(f'{cls.PREFIX_CMD} show')
+            else:
+                cmd = Command('nmcli -t con show')
+            out = cmd.run().watch_and_log_error()[0]
+            return out
+
+        @classmethod
+        def get_interface_uuid(cls, interface: Interface):
+            for line in cls.show(human_readable=False).strip().split('\n'):
+                if len(line):
+                    name, uuid, dev_type, device = line.split(':')
+                    if device == interface.name or name.find(interface.name) != -1:
+                        return uuid
+            return None  # explicit notation
+
+
+class LldpTool:
     LLD_ENABLED_INTERFACE_TYPES = [model.network.EthernetInterface]
     SET_LLDP_CMDS = [
         'lldptool -L -i %s adminStatus=rxtx',
@@ -138,7 +187,7 @@ class LldpTool(object):
         return out_string
 
 
-class Tuna(object):
+class Tuna:
     @staticmethod
     def list_all_irqs():
         cmd_line = 'tuna --show_irqs'
@@ -188,7 +237,7 @@ class Tuna(object):
         cls.set_irq_socket_binding(interface, 0)
 
 
-class OvsVsctl(object):
+class OvsVsctl:
     @staticmethod
     def add_bridge(bridge):
         bridge_name = bridge.name

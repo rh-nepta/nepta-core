@@ -26,17 +26,27 @@ class SaveAttachments(Strategy):
                 if isinstance(attach, attachments.Url):
                     url_response = urllib.request.urlopen(attach.url)
                     url_content = url_response.read().decode('ISO-8859-1')
-                    url_attachment = self.package.attachments.new(AttachmentTypes.URL, attach.url, attach.alias)
+                    url_attachment = self.package.attachments.new(
+                        AttachmentTypes.URL, attach.url, attach.alias, attach.compression
+                    )
                     url_attachment.path.write(url_content)
 
                 if isinstance(attach, attachments.Directory):
                     dir_attachment = self.package.attachments.new(
-                        AttachmentTypes.DIRECTORY, attach.d_path, attach.alias
+                        AttachmentTypes.DIRECTORY,
+                        attach.d_path,
+                        attach.alias,
+                        attach.compression,
                     )
                     Fs.copy_dir(attach.d_path, os.path.join(self.package.path, str(dir_attachment.path)))
 
                 if isinstance(attach, attachments.File):
-                    file_attachment = self.package.attachments.new(AttachmentTypes.FILE, attach.f_path, attach.alias)
+                    file_attachment = self.package.attachments.new(
+                        AttachmentTypes.FILE,
+                        attach.f_path,
+                        attach.alias,
+                        attach.compression,
+                    )
                     Fs.copy(attach.f_path, os.path.join(self.package.path, str(file_attachment.path)))
 
                 if isinstance(attach, attachments.CycleCommand):
@@ -48,7 +58,11 @@ class SaveAttachments(Strategy):
                         log_cmd_str = attach.cmdline.format(item)
                         log_cmd = ShellCommand(log_cmd_str)
                         log_cmd.run()
-                        cmd_attachment = self.package.attachments.new(AttachmentTypes.COMMAND, log_cmd_str)
+                        cmd_attachment = self.package.attachments.new(
+                            AttachmentTypes.COMMAND,
+                            log_cmd_str,
+                            compression=attach.compression,
+                        )
                         cmd_attachment.path.write(log_cmd.watch_output()[0])
 
                 if isinstance(attach, attachments.Command):
@@ -56,7 +70,10 @@ class SaveAttachments(Strategy):
                     c.run()
                     output, retcode = c.watch_output()
                     command_attachment = self.package.attachments.new(
-                        AttachmentTypes.COMMAND, attach.cmdline, attach.alias
+                        AttachmentTypes.COMMAND,
+                        attach.cmdline,
+                        attach.alias,
+                        attach.compression,
                     )
                     command_attachment.path.write(output)
 

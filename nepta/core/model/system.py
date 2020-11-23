@@ -95,3 +95,10 @@ class _NamedOptions(_VariousOptions):
 
 class KernelModule(_NamedOptions):
     pass
+
+
+@dataclass
+class PCPConfiguration:
+    config_path: str = '/root/config.default'
+    interval: int = 1
+    log_path: str = '/root/pcp_log/'

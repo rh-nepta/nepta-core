@@ -10,7 +10,7 @@ from nepta.core.distribution import conf_files, env
 from nepta.core.distribution.command import Command
 from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemD, KernelModuleUtils
 from nepta.core.distribution.utils.fs import Fs
-from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl
+from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl, NmCli
 from nepta.core.distribution.utils.virt import Docker, Virsh
 
 logger = logging.getLogger(__name__)
@@ -338,6 +338,20 @@ class Setup(Strategy):
             Docker.Volume.create(vol)
 
     @Strategy.schedule
+    def generate_pcp_config(self):
+        for pcp in self.conf.get_subset(m_type=model.system.PCPConfiguration):
+            logger.info(f'Generating PCP configuration: {pcp}')
+            if os.path.exists(pcp.config_path):
+                logger.info('PCP config already exists >> Deleting ')
+                os.remove(pcp.config_path)
+
+            os.makedirs(pcp.log_path, exist_ok=True)
+            cmd = Command(f'pmlogconf -c {pcp.config_path}').run()
+            out, ret_code = cmd.watch_output()
+            if ret_code:
+                logger.error(f'PCP cannot generate configuration! Log: {out}')
+
+    @Strategy.schedule
     def wait(self):
         logger.info('Sleeping for %s secs, to give background processes time to settle' % self.SETTLE_TIME)
         time.sleep(self.SETTLE_TIME)
@@ -370,17 +384,12 @@ class Rhel7(Setup):
 
     def start_net(self):
         SystemD.start_service(model.system.SystemService('NetworkManager'))
-        c0 = Command('nmcli connection reload')
-        c0.run()
-        c0.watch_output()
+
+        NmCli.Con.reload()
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
         for iface in ifaces:
-            c1 = Command('ifdown %s' % iface.name)
-            c1.run()
-            c1.watch_output()
-            c2 = Command('ifup %s' % iface.name)
-            c2.run()
-            c2.watch_output()
+            NmCli.Con.down(iface)
+            NmCli.Con.up(iface)
 
     def setup_udev_rules(self):
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
@@ -411,9 +420,7 @@ class Rhel8(Rhel7):
         # FIXME: check if this WA is still necessary
         # ifdown all interfaces in the system
         for iface in IpCommand.Link.get_all_interfaces():
-            cmd = Command('ifdown %s' % iface)
-            cmd.run()
-            cmd.watch_output()
+            NmCli.Con.down(model.network.Interface(iface))
 
         super().stop_net()
 

@@ -84,6 +84,12 @@ class Command(object):
     def terminate(self):
         self._command_handle.terminate()
 
+    def watch_and_log_error(self):
+        out, ret_code = self.watch_output()
+        if ret_code:
+            logger.error(out)
+        return out, ret_code
+
 
 class ShellCommand(Command):
     """
