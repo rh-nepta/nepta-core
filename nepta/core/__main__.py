@@ -287,6 +287,9 @@ def main():
     if args.delete_tree:
         delete_subtree(conf, args.delete_tree)
 
+    if not args.pcp:
+        conf.filter_components(lambda x: type(x) != model.system.PCPConfiguration)
+
     if args.print:
         print(conf.str_tree())
         return
