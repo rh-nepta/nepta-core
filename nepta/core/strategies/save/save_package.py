@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class PackagesStrategy(Strategy):
-
     def __init__(self, package: DataPackage):
         super().__init__()
         self.package = package
@@ -31,14 +30,12 @@ class Save(PackagesStrategy):
 
 
 class OpenRemotePackages(PackagesStrategy):
-
     @Strategy.schedule
     def save_remote_packages(self):
         self.package.remote_packages.unarchive()
 
 
 class SaveRemotePackages(PackagesStrategy):
-
     @Strategy.schedule
     def save_remote_packages(self):
         self.package.remote_packages.save()
