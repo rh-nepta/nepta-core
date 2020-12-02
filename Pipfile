@@ -12,12 +12,11 @@ pytest-mypy = "*"
 black = "*"
 
 [packages]
-jinja2 = "==2.10.1"
-xml-diff = "==0.7.0"
+jinja2 = "*"
+xml-diff = "*"
 nepta-dataformat = {editable = true,git = "https://gitlab.cee.redhat.com/kernel-perf-net/nepta-dataformat",ref = "unstable"}
-numpy = "==1.18.1"
-singledispatchmethod = "==1.0"
-pytest-mypy = "*"
+numpy = "*"
+singledispatchmethod = "*"
 dataclasses = "*"
 
 [requires]
