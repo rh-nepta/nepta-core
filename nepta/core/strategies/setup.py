@@ -228,7 +228,6 @@ class Setup(Strategy):
 
     def setup_routes(self):
         logger.info('Setting up routes')
-        self.wipe_routes()
         for route_class, route_cfg in [
             [model.network.Route4, conf_files.Route4File],
             [model.network.Route6, conf_files.Route6File],
