@@ -1,5 +1,6 @@
 from unittest import TestCase, skip
 from nepta.core.model import bundles, network, system, attachments
+import ipaddress as ia
 
 
 class TestBundles(TestCase):
@@ -287,6 +288,10 @@ class TestBundles(TestCase):
         net5 = network.TeamMasterInterface('team1')
         net6 = network.TeamMasterInterface('team1')
 
+        r1 = network.Route4(ia.IPv4Network('10.0.0.0/24'), net5, ia.IPv4Address('8.8.8.8'))
+        r2 = network.Route4(ia.IPv4Network('10.1.0.0/24'), net6, ia.IPv4Address('8.8.8.8'))
+        r3 = network.Route4(ia.IPv4Network('10.2.0.0/24'), net6, ia.IPv4Address('8.8.8.8'))
+
         main_bundle = bundles.Bundle()
         main_bundle.add_multiple_components(sys1)
 
@@ -295,6 +300,8 @@ class TestBundles(TestCase):
         team_master_bundle.team0 = net5
         team_master_bundle.team1 = net6
         sys_bundle = bundles.Bundle().add_multiple_components(sys2, sys3)
+        route_bundle = bundles.Bundle().add_multiple_components(r1, r2)
+        route_bundle.r2 = [r3]
 
         # creating tree of bundles
         pckg_bundle = bundles.Bundle().add_component(p1)
@@ -306,6 +313,7 @@ class TestBundles(TestCase):
         main_bundle.intf = intf_bundle
         main_bundle.team_master = team_master_bundle
         main_bundle.sys = sys_bundle
+        main_bundle.routes = route_bundle
 
         # creating bypass
         team_master_bundle.intf = intf_bundle
@@ -317,6 +325,7 @@ class TestBundles(TestCase):
         interfaces = main_bundle.get_subset(m_class=network.Interface)
         test_pckgs = [sys1, p1, p2]
         pckgs = main_bundle.get_subset(m_type=system.Package)
+        routes = main_bundle.get_subset(m_class=network.Route4)
 
         self.assertIsNot(main_bundle.intf, interfaces.intf, 'Deep copy uses shallow copy in subtrees.')
         self.assertIsNot(main_bundle.sys.pckg, pckgs.sys.pckg, 'Deep copy uses shallow copy in subtrees.')
@@ -334,6 +343,9 @@ class TestBundles(TestCase):
 
         for item in test_pckgs:
             self.assertIn(item, pckgs.get_all_components(), 'There are missing some specified objects.')
+
+        for route in [r1, r2, r3]:
+            self.assertIn(route, routes, f'{route} is missing in configuration bundle')
 
     def test_filter_exclude(self):
         sys1 = system.Package('wget')
