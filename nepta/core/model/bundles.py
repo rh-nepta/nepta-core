@@ -51,7 +51,7 @@ class Bundle(object):
         if key not in self.__class__._properties:
             new_item = not (key in self._bundles and value == self._bundles[key])
             if isinstance(value, list):
-                self._bundles[key] = self.__class__().add_multiple_components(*value)
+                self._bundles[key] = Bundle().add_multiple_components(*value)
             else:
                 self._bundles[key] = value
             if isinstance(value, Bundle) and new_item:
