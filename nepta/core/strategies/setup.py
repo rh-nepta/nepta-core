@@ -237,7 +237,7 @@ class Setup(Strategy):
             for r in routes:
                 routes_per_interface[r.interface.name].append(r)
 
-            for int_routes in routes_per_interface.items():
+            for int_routes in routes_per_interface.values():
                 route_cfg(int_routes).apply()
 
     @Strategy.schedule
