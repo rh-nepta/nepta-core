@@ -101,7 +101,8 @@ class NmCli:
         @classmethod
         def get_interface_uuid(cls, interface: Interface):
             for line in cls.show(human_readable=False).strip().split('\n'):
-                if len(line):
+                if len(line.strip()):
+                    logger.debug(f'Inspecting line: {line}')
                     name, uuid, dev_type, device = line.split(':')
                     if device == interface.name or name.find(interface.name) != -1:
                         return uuid
