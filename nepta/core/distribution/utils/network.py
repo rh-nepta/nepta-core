@@ -103,9 +103,14 @@ class NmCli:
             for line in cls.show(human_readable=False).strip().split('\n'):
                 if len(line.strip()):
                     logger.debug(f'Inspecting line: {line}')
-                    name, uuid, dev_type, device = line.split(':')
-                    if device == interface.name or name.find(interface.name) != -1:
-                        return uuid
+                    try:
+                        name, uuid, dev_type, device = line.split(':')
+                        if device == interface.name or name.find(interface.name) != -1:
+                            return uuid
+                    except ValueError as e:
+                        logger.error(f'Unexpected line. Cannot parse.')
+                        logger.error(f'Line: {line}')
+                        logger.error(e)
             return None  # explicit notation
 
 
