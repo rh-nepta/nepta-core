@@ -34,6 +34,7 @@ class SaveMeta(Strategy):
             root['Distribution'] = Environment.distro
             root['WhiteBoard'] = Environment.whiteboard
             root['BeakerJobID'] = Environment.job_id
+            root['BeakerHUB'] = Environment.hub
 
         # In some special cases, tuned profile is not set (e.g.: Docker) or tuned-adm is not installed
         tuned_profile = Tuned.get_profile()
