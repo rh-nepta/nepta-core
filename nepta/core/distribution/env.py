@@ -40,6 +40,7 @@ class Environment(metaclass=_MetaPrintedType):
     rhel_version = RedhatRelease.version
     hostname = fqdn.split('.')[0]
     whiteboard = _env.get('BEAKER_JOB_WHITEBOARD')
+    hub = _env.get('BEAKER_HUB_URL')
     job_id = _env.get('RSTRNT_JOBID')
     recipe_id = _env.get('RSTRNT_RECIPESETID')
     arch = _env.get('RSTRNT_OSARCH')
