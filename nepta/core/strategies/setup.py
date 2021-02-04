@@ -385,6 +385,9 @@ class Rhel7(Setup):
         SystemD.start_service(model.system.SystemService('NetworkManager'))
 
         NmCli.Con.reload()
+        # give it some time to think
+        time.sleep(5)
+
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
         for iface in ifaces:
             NmCli.Con.down(iface)
