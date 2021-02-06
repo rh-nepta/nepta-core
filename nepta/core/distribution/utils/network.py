@@ -105,6 +105,7 @@ class NmCli:
                     logger.debug(f'Inspecting line: {line}')
                     try:
                         name, uuid, dev_type, device = line.split(':')
+                        name = name.split()[-1]
                         if device == interface.name or name.find(interface.name) != -1:
                             return uuid
                     except ValueError as e:
