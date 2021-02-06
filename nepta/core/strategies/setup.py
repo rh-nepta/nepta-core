@@ -384,7 +384,11 @@ class Rhel7(Setup):
     def start_net(self):
         SystemD.start_service(model.system.SystemService('NetworkManager'))
 
+        # give it some time to think
+        time.sleep(5)
+
         NmCli.Con.reload()
+
         # give it some time to think
         time.sleep(5)
 
