@@ -106,7 +106,7 @@ class NmCli:
                     try:
                         name, uuid, dev_type, device = line.split(':')
                         name = name.split()[-1]
-                        if device == interface.name or name.find(interface.name) != -1:
+                        if device == interface.name or name == interface.name:
                             return uuid
                     except ValueError as e:
                         logger.error(f'Unexpected line. Cannot parse.')
