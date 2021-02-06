@@ -101,10 +101,17 @@ class NmCli:
         @classmethod
         def get_interface_uuid(cls, interface: Interface):
             for line in cls.show(human_readable=False).strip().split('\n'):
-                if len(line):
-                    name, uuid, dev_type, device = line.split(':')
-                    if device == interface.name or name.find(interface.name) != -1:
-                        return uuid
+                if len(line.strip()):
+                    logger.debug(f'Inspecting line: {line}')
+                    try:
+                        name, uuid, dev_type, device = line.split(':')
+                        name = name.split()[-1]
+                        if device == interface.name or name.find(interface.name) != -1:
+                            return uuid
+                    except ValueError as e:
+                        logger.error(f'Unexpected line. Cannot parse.')
+                        logger.error(f'Line: {line}')
+                        logger.error(e)
             return None  # explicit notation
 
 
