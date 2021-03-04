@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Submit(Strategy):
     _RSYNC_TEMPLATE = jinja2.Template(
-        """rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X {{ path }} \
+        """rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X,o-t {{ path }} \
 {{ rsync.server }}::{{ rsync.destination }}"""
     )
 
