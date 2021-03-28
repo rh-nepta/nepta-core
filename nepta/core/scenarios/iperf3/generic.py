@@ -78,12 +78,18 @@ class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
 
 
 class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
+
+    def __init__(self, *args, parallel=None, **kwargs):
+        self.parallel = parallel
+        super().__init__(*args, **kwargs)
+
     def init_all_tests(self, path, size):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
             new_test = Iperf3Test(
-                client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port, interval=0.1
+                client=path.their_ip, bind=path.mine_ip, time=self.test_length,
+                len=size, port=port, interval=0.1, parallel=self.parallel,
             )
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
