@@ -86,13 +86,22 @@ class RunScenariosPCP(RunScenarios):
             raise ValueError('PCP config is missing!')
 
     def start_pmlogger(self, archive_name):
+        logger.info(f'Running pmlogger with conf >> {self.pcp_conf}')
         self._pmlogger_cmd = Command(
             f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
             f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
         ).run()
+        self.check_pmlogger()
+
+    def check_pmlogger(self):
+        if self._pmlogger_cmd.poll() is not None:
+            logger.error('PCP >> pmlogger failed to run')
+            logger.error(f'PCP >> pmlogger error: {self._pmlogger_cmd.get_output()}')
 
     def stop_pmlogger(self):
+        logger.info(f'Stopping pmlogger with conf >> {self.pcp_conf}')
         if self._pmlogger_cmd:
+            self.check_pmlogger()
             self._pmlogger_cmd.terminate()
 
     @Strategy.schedule
