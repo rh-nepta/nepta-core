@@ -32,6 +32,12 @@ def catch_and_log_exception(f):
 
 
 class GenericIPerf3Stream(object):
+
+    def __init__(self, *args, interval=None, parallel=None, **kwargs):
+        super(GenericIPerf3Stream, self).__init__(*args, **kwargs)
+        self.interval = interval
+        self.parallel = parallel
+
     @staticmethod
     def log_iperf3_error(out_json):
         try:
@@ -53,9 +59,11 @@ class GenericIPerf3Stream(object):
 #######################################################################################################################
 
 
-class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
+class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
+
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
+        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length,
+                                len=size, interval=self.interval)
         if path.cpu_pinning:
             iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
         elif self.cpu_pinning:
@@ -77,11 +85,7 @@ class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
 #######################################################################################################################
 
 
-class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
-
-    def __init__(self, *args, parallel=None, **kwargs):
-        self.parallel = parallel
-        super().__init__(*args, **kwargs)
+class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
 
     def init_all_tests(self, path, size):
         tests = []
@@ -89,7 +93,7 @@ class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
             new_test = Iperf3Test(
                 client=path.their_ip, bind=path.mine_ip, time=self.test_length,
-                len=size, port=port, interval=0.1, parallel=self.parallel,
+                len=size, port=port, interval=self.interval, parallel=self.parallel,
             )
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
