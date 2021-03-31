@@ -113,16 +113,22 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
         if len(tests) > 2:
-            logger.error('Too much tests defined in DuplexStream configuration. Cutting excesses !!!')
-        tests[1].reverse = True
-        return tests[:2]
+            logger.error('Too much tests defined in DuplexStream configuration. This test should run 2 streams.'
+                         f'Running {len(tests)} streams.')
+        for i in range(1, len(tests), 2):
+            tests[i].reverse = True
+        return tests
 
     @info_log_func_output
     @catch_and_log_exception
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
-        stream_test_result = tests[0].get_result().set_data_formatter(self.str_round)
-        reversed_test_result = tests[1].get_result().set_data_formatter(self.str_round)
+
+        stream_test_result = sum([test.get_result() for test in tests[::2]])
+        stream_test_result.set_data_formatter(self.str_round)
+        reversed_test_result = sum([test.get_result() for test in tests[1::2]])
+        reversed_test_result.set_data_formatter(self.str_round)
+
         total = stream_test_result + reversed_test_result
         result_dict['up_throughput'] = stream_test_result['throughput']
         result_dict['down_throughput'] = reversed_test_result['throughput']
