@@ -5,7 +5,6 @@ logger = logging.getLogger(__name__)
 
 
 class GenericNetperfTest(CommandTool):
-
     PROGRAM_NAME = 'netperf'
 
     MAPPING = [
@@ -42,16 +41,22 @@ class GenericNetperfTest(CommandTool):
 
 
 class NetperStreamfTest(GenericNetperfTest):
-    LABELS = [
+    ALL_LABELS = [
         'rcv_socket_size',
         'snd_socket_size',
         'msg_size',
         'time',
         'throughput',
-        'loc_util',
-        'rem_util',
+        'loc_cpu',
+        'rem_cpu',
         'service_local',
         'service_remote',
+    ]
+
+    RESULT_LABELS = [
+        'throughput',
+        'loc_cpu',
+        'rem_cpu',
     ]
 
     def get_results(self):
@@ -68,15 +73,36 @@ class NetperStreamfTest(GenericNetperfTest):
 
         warning_string = 'catcher: timer popped with times_up != 0'
         if self._output.find(warning_string) >= 0:
-            output_parts = self._output[len(warning_string) :].split()
+            output_parts = self._output[len(warning_string):].split()
             ret['warning'] = warning_string
         else:
             output_parts = self._output.split()
 
         log_line = ''
-        for label in self.LABELS:
-            ret[label] = output_parts[self.LABELS.index(label)]
+        for label in self.ALL_LABELS:
+            ret[label] = output_parts[self.ALL_LABELS.index(label)]
             log_line += '%s=%s ' % (label, ret[label])
 
         logger.info('test results: %s', log_line)
-        return ret
+        return {k: v for k, v in ret.items() if k in self.RESULT_LABELS}
+
+
+class NetperfRrTest(NetperStreamfTest):
+    ALL_LABELS = [
+        'rcv_socket_size',
+        'snd_socket_size',
+        'req_size',
+        'rep_size',
+        'time',
+        'transactions',
+        'loc_cpu',
+        'rem_cpu',
+        'service_local',
+        'service_remote',
+    ]
+
+    RESULT_LABELS = [
+        'transactions',
+        'loc_cpu',
+        'rem_cpu',
+    ]
