@@ -1,7 +1,30 @@
 import logging
+from collections import Counter
 from nepta.core.tests.cmd_tool import CommandArgument, CommandTool
 
 logger = logging.getLogger(__name__)
+
+
+class NetperfStreamResult(dict):
+
+    def __init__(self, *args, **kwargs):
+        super(NetperfStreamResult, self).__init__(*args, **kwargs)
+        self._format_func = lambda x: f'{x:.2f}'
+
+    def __add__(self, other):
+        result = self.__class__()
+        for k, v in self.items():
+            if isinstance(other, int):
+                result[k] = v + other
+            else:
+                result[k] = v + other[k]
+        return result
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __iter__(self):
+        return iter({k: self._format_func(v) for k, v in self.items()}.items())
 
 
 class GenericNetperfTest(CommandTool):
@@ -78,13 +101,10 @@ class NetperStreamfTest(GenericNetperfTest):
         else:
             output_parts = self._output.split()
 
-        log_line = ''
-        for label in self.ALL_LABELS:
-            ret[label] = output_parts[self.ALL_LABELS.index(label)]
-            log_line += '%s=%s ' % (label, ret[label])
+        ret.update({k: float(v) for k, v in zip(self.ALL_LABELS, output_parts)})
 
-        logger.info('test results: %s', log_line)
-        return {k: v for k, v in ret.items() if k in self.RESULT_LABELS}
+        logger.info('test results: %s', ret)
+        return NetperfStreamResult({k: v for k, v in ret.items() if k in self.RESULT_LABELS})
 
 
 class NetperfRrTest(NetperStreamfTest):
