@@ -414,8 +414,11 @@ class DockerDaemonJson(ConfigFile):
         return json.dumps(old)
 
     def _load_content(self):
-        with open(self.DOCKER_DAEMON_FILE, 'r') as json_file:
-            return json.load(json_file)
+        if os.path.exists(self.DOCKER_DAEMON_FILE):
+            with open(self.DOCKER_DAEMON_FILE, 'r') as json_file:
+                return json.load(json_file)
+        else:
+            return {}
 
     def update(self):
         logger.info('Updating docker daemon file')
