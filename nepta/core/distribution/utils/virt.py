@@ -3,6 +3,7 @@ import os
 
 from nepta.core.distribution.command import Command
 from nepta.core.model.system import VirtualGuest
+from nepta.core.model.docker import RemoteImage, LocalImage, DockerCredentials
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +46,30 @@ class Docker(object):
         self.network = Docker.Network()
         self.volume = Docker.Volume()
 
+    @classmethod
+    def login(cls, cred: DockerCredentials):
+        cmd = f'{cls.CMD} login --username {cred.username} --password {cred.password}'
+        if cred.registry:
+            cmd += ' ' + cred.registry
+        cmd = Command(cmd)
+        cmd.run()
+        out, retcode = cmd.watch_output()
+        if retcode:
+            logger.error(out)
+
+    @classmethod
+    def pull(cls, image: RemoteImage):
+        cmd = f'{cls.CMD} pull {image.repository}'
+        if image.tag:
+            cmd += ':' + image.tag
+        cmd = Command(cmd)
+        cmd.run()
+        out, retcode = cmd.watch_output()
+        if retcode:
+            logger.error(out)
+
     @staticmethod
-    def build(image):
+    def build(image: LocalImage):
         # TODO f string
         cmd_prototype = '{} build {} -f {} -t {}'.format(Docker.CMD, image.context, image.dockerfile, image.name)
         cmd = Command(cmd_prototype)

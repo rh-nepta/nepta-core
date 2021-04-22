@@ -324,7 +324,15 @@ class Setup(Strategy):
         # after changing docker settings, daemon needs to be restarted
         SystemD.restart_service(model.system.SystemService('docker'))
 
-        images = self.conf.get_subset(m_type=model.docker.Image)
+        creds = self.conf.get_subset(m_type=model.docker.DockerCredentials)
+        for cred in creds:
+            Docker.login(cred)
+
+        images = self.conf.get_subset(m_type=model.docker.RemoteImage)
+        for image in images:
+            Docker.pull(image)
+
+        images = self.conf.get_subset(m_type=model.docker.LocalImage)
         for img in images:
             Docker.build(img)
 

@@ -1,16 +1,30 @@
-from . import network
+from dataclasses import dataclass
+from nepta.core.model import network
 
 
-class Image(object):
-    def __init__(self, name, context, dockerfile):
-        self.name = name
-        self.context = context
-        self.dockerfile = dockerfile
+@dataclass
+class DockerCredentials:
+    username: str
+    password: str
+    registry: str = None
 
 
-class Volume(object):
-    def __init__(self, name):
-        self.name = name
+@dataclass
+class LocalImage:
+    name: str
+    context: str
+    dockerfile: str
+
+
+@dataclass
+class RemoteImage:
+    repository: str
+    tag: str = None
+
+
+@dataclass
+class Volume:
+    name: str
 
 
 class Network(object):
@@ -42,7 +56,6 @@ class DockerSubnetV6(GenericDockerSubnet, network.NetperfNet6):
 
 
 class Containter(object):
-
     DEFAULT_INHERIT_ENV = [
         'JOBID',
         'TEST',
@@ -67,14 +80,3 @@ class Containter(object):
 class DockerDaemonSettings(dict):
     def __hash__(self):
         return hash(frozenset(self))
-
-
-if __name__ == '__main__':
-    net = Network('dickernetq', network.NetperfNet4('192.168.22.0/24'), network.NetperfNet6('fd01::/64'))
-    print(net)
-    print(DockerSubnetV4.__mro__)
-    print(net.v4)
-    print(net.v4.gw)
-    print(net.v6.gw)
-    print(net.v4.new_config())
-    print(net.v6.new_config())
