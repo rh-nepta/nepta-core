@@ -16,7 +16,7 @@ class _MetaPrintedType(type):
 class RedhatRelease(metaclass=_MetaPrintedType):
     _RELEASE_FILE_PATH = '/etc/redhat-release'
 
-    _splitting_regex = r'(.*) (release) ([0-9\.]*) \(?(.*)\)?'
+    _splitting_regex = r'(.*) (release) ([0-9\.]*) ?\(?(.*)\)?'
     with open(_RELEASE_FILE_PATH, 'r') as _fd:
         _release_file_content = _fd.read()
     _m = re.match(_splitting_regex, _release_file_content)
