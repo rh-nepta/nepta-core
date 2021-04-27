@@ -57,13 +57,14 @@ class DockerSubnetV6(GenericDockerSubnet, network.NetperfNet6):
 
 class Containter(object):
     DEFAULT_INHERIT_ENV = [
-        'JOBID',
+        'RSTRNT_JOBID',
         'TEST',
-        'ARCH',
-        'DISTRO',
+        'RSTRNT_OSDISTRO',
+        'RSTRNT_OSARCH',
         'BEAKER_JOB_WHITEBOARD',
         'LAB_CONTROLLER',
         'RECIPEID',
+        'BEAKER_HUB_URL',
     ]
 
     def __init__(self, image, hostname=None, network=None, volumes=None, extra_arguments=None, inherit_env=None):
