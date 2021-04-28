@@ -113,9 +113,10 @@ class Docker(object):
 
         cmd = Command(cmd_prototype)
         cmd.run()
-        out, ret_code = cmd.watch_output()
-        if ret_code:
-            logger.error(out)
+        # run container and continue
+        # out, ret_code = cmd.watch_output()
+        if cmd.poll() is not None:
+            logger.error(cmd.get_output())
 
 
 class Virsh:
