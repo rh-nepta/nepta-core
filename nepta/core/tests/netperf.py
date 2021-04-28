@@ -50,6 +50,7 @@ class GenericNetperfTest(CommandTool):
         CommandArgument('remote_send', '-m ,'),
         CommandArgument('local_recv', '-M'),
         CommandArgument('remote_recv', '-M ,'),
+        CommandArgument('request_size', '-r'),
     ]
 
     def _init_class_attr(self):
