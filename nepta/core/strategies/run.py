@@ -72,8 +72,11 @@ class RunScenarios(Strategy):
 
 
 class RunScenariosPCP(RunScenarios):
-    def __init__(self, conf, package, filter_scenarios=None, path_tags=None):
+    def __init__(self, conf, package, filter_scenarios=None, path_tags=None, local_pcp=None, remote_pcp=None):
         super().__init__(conf, package, filter_scenarios, path_tags)
+        self.local_pcp = local_pcp
+        self.remote_pcp = remote_pcp
+
         self._pmlogger_cmds: List[Command] = []
         self.pcp_conf = self.init_pcp_conf()
 
@@ -90,18 +93,20 @@ class RunScenariosPCP(RunScenarios):
 
     def start_pmlogger(self, archive_name):
         logger.info(f'Running pmlogger with conf >> {self.pcp_conf}')
-        self._pmlogger_cmds.append(Command(
-            f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
-            f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
-        ).run())
-        for host in self.remote_pcp_hosts:
-            self._pmlogger_cmds.append(
-                Command(
-                    f'ssh {host.hostname} '
-                    f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
-                    f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
-                ).run()
-            )
+        if self.local_pcp:
+            self._pmlogger_cmds.append(Command(
+                f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
+                f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
+            ).run())
+        if self.remote_pcp:
+            for host in self.remote_pcp_hosts:
+                self._pmlogger_cmds.append(
+                    Command(
+                        f'ssh {host.hostname} '
+                        f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
+                        f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
+                    ).run()
+                )
         self.check_pmlogger()
 
     def check_pmlogger(self):

@@ -245,6 +245,12 @@ def main():
         help='Enable PCP logging during testing.',
         default=False,
     )
+    parser.add_argument(
+        '--remote-pcp',
+        action='store_true',
+        help='Enable PCP logging during testing on remote machines.',
+        default=False,
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -315,7 +321,10 @@ def main():
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
 
         if args.pcp:
-            final_strategy += strategies.run.RunScenariosPCP(conf, package, args.scenarios, args.tag)
+            final_strategy += strategies.run.RunScenariosPCP(
+                conf, package, args.scenarios, args.tag,
+                args.pcp, args.remote_pcp,
+            )
         else:
             final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios, args.tag)
 
