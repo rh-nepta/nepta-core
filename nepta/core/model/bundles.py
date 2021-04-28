@@ -376,7 +376,7 @@ class HostBundle(Bundle):
         return self._conf_name
 
 
-class SyncHost(object):
+class SyncHost:
     def __init__(self, hostname):
         self._hostname = hostname
 
@@ -389,6 +389,11 @@ class SyncHost(object):
 
     def get_hostname(self):
         return self._hostname
+
+    @classmethod
+    def sync_all(cls, *args: HostBundle, subtree='sync'):
+        for a, b in itertools.permutations(args, 2):
+            getattr(a, subtree).add_component(cls(b.hostname))
 
 
 class SyncServer(Value):
