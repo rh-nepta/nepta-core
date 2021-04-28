@@ -39,14 +39,15 @@ class Prepare(Strategy):
             logger.info('There is no host for synchronization')
             return
 
-        oposite_host_hostname = sync_objs[0].hostname
-        oposite_host_configuration = model.bundles.HostBundle.find(oposite_host_hostname, self.conf.conf_name)
-        oposite_scenarios = oposite_host_configuration.get_subset(m_class=GenericIPerf3Stream)
+        remote_scenarios = model.bundles.Bundle()
+        for host in sync_objs:
+            host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
+            remote_scenarios += host_conf.get_subset(m_class=GenericIPerf3Stream)
 
         max_iperf3_instances = 0
         base_port = 0
 
-        for scenario in oposite_scenarios:
+        for scenario in remote_scenarios:
             base_port = scenario.base_port
             instances = [max_iperf3_instances, len(scenario.cpu_pinning)]
             for path in scenario.paths:
@@ -69,11 +70,12 @@ class Prepare(Strategy):
             logger.info('There is no host for synchronization')
             return
 
-        oposite_host_hostname = sync_objs[0].hostname
-        oposite_host_configuration = model.bundles.HostBundle.find(oposite_host_hostname, self.conf.conf_name)
-        oposite_scenarios = oposite_host_configuration.get_subset(m_class=ScenarioGeneric)
+        remote_scenarios = model.bundles.Bundle()
+        for host in sync_objs:
+            host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
+            remote_scenarios += host_conf.get_subset(m_class=ScenarioGeneric)
 
-        if any(map(lambda x: x.__class__.__name__.find('Netperf') > -1, oposite_scenarios)):
+        if any(map(lambda x: x.__class__.__name__.find('Netperf') > -1, remote_scenarios)):
             logger.info('Starting netserver')
             cmd = Command('netserver')
             cmd.run()
