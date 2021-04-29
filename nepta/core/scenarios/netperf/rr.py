@@ -21,8 +21,8 @@ class NetperfTcpRr(SingleStreamGeneric):
             test=self.TEST,
         )
         if cpu_pinning:
-            netperf_test.local_cpu = cpu_pinning[0]
-            netperf_test.remote_cpu = cpu_pinning[1]
+            netperf_test.local_cpu = cpu_pinning[0][0]
+            netperf_test.remote_cpu = cpu_pinningi[0][1]
         return netperf_test
 
     def parse_results(self, test):
