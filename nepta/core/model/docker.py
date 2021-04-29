@@ -63,8 +63,10 @@ class Containter(object):
         'RSTRNT_OSARCH',
         'BEAKER_JOB_WHITEBOARD',
         'LAB_CONTROLLER',
-        'RECIPEID',
+        'BEAKER_RECIPE_ID',
         'BEAKER_HUB_URL',
+        'TASKID',
+        'RECIPE_URL',
     ]
 
     def __init__(self, image, hostname=None, network=None, volumes=None, extra_arguments=None, inherit_env=None):

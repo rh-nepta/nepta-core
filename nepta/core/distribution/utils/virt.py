@@ -112,6 +112,7 @@ class Docker(object):
             cmd_prototype += container.extra_arguments
 
         cmd = Command(cmd_prototype)
+        logger.info(f'Starting container: {cmd}')
         cmd.run()
         # run container and continue
         # out, ret_code = cmd.watch_output()
