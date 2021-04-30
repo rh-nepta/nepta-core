@@ -320,7 +320,7 @@ def main():
     if args.execute:
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
 
-        if args.pcp:
+        if args.pcp or args.remote_pcp:
             final_strategy += strategies.run.RunScenariosPCP(
                 conf, package, args.scenarios, args.tag,
                 args.pcp, args.remote_pcp,
