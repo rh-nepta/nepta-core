@@ -354,6 +354,8 @@ def main():
     if Environment.in_rstrnt:
         final_strategy += strategies.report.Report(package, final_strategy)
 
+    final_strategy += strategies.sync.Synchronize(conf, sync, 'finished')
+
     try:
         final_strategy()
     except BaseException as e:
