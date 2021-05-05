@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from nepta.core.model import network
 
@@ -9,17 +10,32 @@ class DockerCredentials:
     registry: str = None
 
 
+class Image(ABC):
+    @abstractmethod
+    def image_name(self):
+        pass
+
+
 @dataclass
-class LocalImage:
+class LocalImage(Image):
     name: str
     context: str
     dockerfile: str
 
+    def image_name(self):
+        return self.name
+
 
 @dataclass
-class RemoteImage:
+class RemoteImage(Image):
     repository: str
     tag: str = None
+
+    def image_name(self):
+        if self.tag:
+            return f'{self.repository}:{self.tag}'
+        else:
+            return self.repository
 
 
 @dataclass

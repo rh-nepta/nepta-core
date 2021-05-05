@@ -98,7 +98,7 @@ class Docker(object):
             for env_var in container.inherit_env:
                 cmd_prototype += ' -e {}'.format(env_var)
 
-        cmd_prototype += ' ' + container.image.name
+        cmd_prototype += ' ' + container.image.image_name()
 
         if inherit_arguments_from_master_proc:
             import sys
