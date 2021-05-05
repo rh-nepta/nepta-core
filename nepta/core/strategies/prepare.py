@@ -85,7 +85,7 @@ class Prepare(Strategy):
     @Strategy.schedule
     def start_docker_container(self):
         logger.info('Starting containers')
-        containers = self.conf.get_subset(m_class=model.docker.Containter)
+        containers = self.conf.get_subset(m_class=model.docker.Container)
         for cont in containers:
             Docker.run(cont)
 

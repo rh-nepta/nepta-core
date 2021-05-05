@@ -71,7 +71,7 @@ class DockerSubnetV6(GenericDockerSubnet, network.NetperfNet6):
     pass
 
 
-class Containter(object):
+class Container:
     DEFAULT_INHERIT_ENV = [
         'RSTRNT_JOBID',
         'TEST',
