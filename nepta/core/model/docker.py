@@ -81,6 +81,28 @@ class Network:
 
 @dataclass
 class Container:
+    image: Image
+    name: str = None
+    hostname: str = None
+    network: Network = None
+    volumes: List[Volume] = None
+    env: List[str] = None
+    privileged: bool = False
+    v4_conf: IPv4Configuration = field(init=False, default=None)
+    v6_conf: IPv6Configuration = field(init=False, default=None)
+
+    def __post_init__(self):
+        if self.network:
+            if self.network.v4:
+                self.v4_conf = self.network.v4.new_config()
+            if self.network.v6:
+                self.v6_conf = self.network.v6.new_config()
+
+
+@dataclass
+class NeptaContainer(Container):
+    extra_args: str = None
+
     DEFAULT_INHERIT_ENV = [
         'RSTRNT_JOBID',
         'TEST',
@@ -94,15 +116,9 @@ class Container:
         'RECIPE_URL',
     ]
 
-    def __init__(self, image, hostname=None, network=None, volumes=None, extra_arguments=None, inherit_env=None):
-        self.image = image
-        self.hostname = hostname
-        self.network = network
-        self.volumes = volumes
-        self.v4_conf = network.v4.new_config() if network is not None else None
-        self.v6_conf = network.v6.new_config() if network is not None else None
-        self.extra_arguments = extra_arguments
-        self.inherit_env = inherit_env if inherit_env is not None else self.DEFAULT_INHERIT_ENV
+    def __post_init__(self):
+        if not self.env:
+            self.env = self.DEFAULT_INHERIT_ENV
 
 
 class DockerDaemonSettings(dict):
