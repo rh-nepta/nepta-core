@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from nepta.core.model import network
+from nepta.core.model.network import IPv4Configuration, IPv6Configuration
+from typing import List, Union
 
 
 @dataclass
@@ -43,17 +45,7 @@ class Volume:
     name: str
 
 
-class Network(object):
-    def __init__(self, name, v4=None, v6=None):
-        self.name = name
-        self.v4 = v4 if v4 is None else DockerSubnetV4(v4)
-        self.v6 = v6 if v6 is None else DockerSubnetV6(v6)
-
-    def __str__(self):
-        return 'Docker network: {}\n' '\tV4: {}\n' '\tV6: {}\n'.format(self.name, self.v4, self.v6)
-
-
-class GenericDockerSubnet(object):
+class GenericDockerSubnet(network.NetFormatter):
     def __init__(self, net):
         super(GenericDockerSubnet, self).__init__(net)
         self.gw = self.new_addr()
@@ -71,6 +63,23 @@ class DockerSubnetV6(GenericDockerSubnet, network.NetperfNet6):
     pass
 
 
+@dataclass
+class Network:
+    name: str
+    v4: Union[DockerSubnetV4, network.NetperfNet4] = None
+    v6: Union[DockerSubnetV6, network.NetperfNet4] = None
+
+    def __post_init__(self):
+        if self.v4 and not isinstance(self.v4, DockerSubnetV4):
+            self.v4 = DockerSubnetV4(self.v4)
+        if self.v6 and not isinstance(self.v6, DockerSubnetV6):
+            self.v6 = DockerSubnetV6(self.v6)
+
+    def __str__(self):
+        return f'Docker network: {self.name}\n\tV4: {self.v4}\n\tV6: {self.v6}\n'
+
+
+@dataclass
 class Container:
     DEFAULT_INHERIT_ENV = [
         'RSTRNT_JOBID',
