@@ -97,6 +97,7 @@ class Container:
     network: Network = None
     volumes: List[Volume] = None
     env: List[str] = None
+    args: List[str] = None
     privileged: bool = False
     v4_conf: IPv4Configuration = field(init=False, default=None)
     v6_conf: IPv6Configuration = field(init=False, default=None)
@@ -111,7 +112,6 @@ class Container:
 
 @dataclass
 class NeptaContainer(Container):
-    extra_args: str = None
 
     DEFAULT_INHERIT_ENV = [
         'RSTRNT_JOBID',
@@ -127,6 +127,7 @@ class NeptaContainer(Container):
     ]
 
     def __post_init__(self):
+        super(NeptaContainer, self).__post_init__()
         if not self.env:
             self.env = self.DEFAULT_INHERIT_ENV
 

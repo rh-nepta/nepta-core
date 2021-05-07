@@ -56,3 +56,27 @@ class DockerModelTest(TestCase):
 
         self.assertIsNotNone(cont.v4_conf)
         self.assertIsNone(cont.v6_conf)
+
+        cont = docker.NeptaContainer(
+            docker.RemoteImage('quay.io/centos', 'latest'),
+            'centos', 'centos.lab.com',
+            docker.Network(
+                'net',
+                network.NetperfNet4('172.26.0.0/28'),
+            ),
+            [
+                docker.Volume('data'),
+                docker.Volume('db'),
+                docker.Volume('tmp'),
+            ],
+            [
+                'JOBID',
+                'NEPTA_CONF',
+            ],
+            privileged=True,
+        )
+        print('\n')
+        print(cont)
+
+        self.assertIsNotNone(cont.v4_conf)
+        self.assertIsNone(cont.v6_conf)
