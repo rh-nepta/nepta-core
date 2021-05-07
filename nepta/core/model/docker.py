@@ -43,6 +43,16 @@ class RemoteImage(Image):
 @dataclass
 class Volume:
     name: str
+    path: str = None
+    opts: str = None
+
+    def as_arg(self):
+        cli = self.name + f':{self.path if self.path else self.name}'
+
+        if self.opts:
+            cli += f':{self.opts}'
+
+        return cli
 
 
 class GenericDockerSubnet(network.NetFormatter):
