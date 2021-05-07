@@ -93,7 +93,7 @@ class Docker:
         cmd_prototype += ' ' + container.image.image_name()
 
         if container.args:
-            cmd_prototype += container.args
+            cmd_prototype += ' ' + ' '.join(container.args)
 
         cmd = Command(cmd_prototype)
         logger.info(f'Starting container: {cmd}')
