@@ -17,7 +17,7 @@ class NetperfTcpRr(SingleStreamGeneric):
             dst_ip=path.their_ip,
             length=self.test_length,
             # set local and remote sent size
-            request_size=f"{size}, {size}",
+            request_size=f'{size}, {size}',
             test=self.TEST,
         )
         if cpu_pinning:
@@ -45,7 +45,7 @@ class ParallelNetperfTcpCrr(MultiStreamsGeneric):
                 dst_ip=path.their_ip,
                 length=self.test_length,
                 # set local and remote sent size
-                request_size=f"{size}, {size}",
+                request_size=f'{size}, {size}',
                 test=self.TEST,
                 local_cpu=local,
                 remote_cpu=remote,
