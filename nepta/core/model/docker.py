@@ -2,14 +2,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from nepta.core.model import network
 from nepta.core.model.network import IPv4Configuration, IPv6Configuration
-from typing import List, Union
+from typing import List, Union, Optional
 
 
 @dataclass
 class DockerCredentials:
     username: str
     password: str
-    registry: str = None
+    registry: Optional[str] = None
 
 
 class Image(ABC):
@@ -31,7 +31,7 @@ class LocalImage(Image):
 @dataclass
 class RemoteImage(Image):
     repository: str
-    tag: str = None
+    tag: Optional[str] = None
 
     def image_name(self):
         if self.tag:
@@ -43,8 +43,8 @@ class RemoteImage(Image):
 @dataclass
 class Volume:
     name: str
-    path: str = None
-    opts: str = None
+    path: Optional[str] = None
+    opts: Optional[str] = None
 
     def as_arg(self):
         cli = f' -v {self.name}:{self.path if self.path else self.name}'
@@ -76,8 +76,8 @@ class DockerSubnetV6(GenericDockerSubnet, network.NetperfNet6):
 @dataclass
 class Network:
     name: str
-    v4: Union[DockerSubnetV4, network.NetperfNet4] = None
-    v6: Union[DockerSubnetV6, network.NetperfNet4] = None
+    v4: Optional[DockerSubnetV4] = None
+    v6: Optional[DockerSubnetV6] = None
 
     def __post_init__(self):
         if self.v4 and not isinstance(self.v4, DockerSubnetV4):
@@ -92,16 +92,16 @@ class Network:
 @dataclass
 class Container:
     image: Image
-    name: str = None
-    hostname: str = None
-    network: Network = None
-    volumes: List[Volume] = None
-    env: List[str] = None
-    args: List[str] = None
+    name: Optional[str] = None
+    hostname: Optional[str] = None
+    network: Optional[Network] = None
+    volumes: Optional[List[Volume]] = None
+    env: Optional[List[str]] = None
+    args: Optional[List[str]] = None
     privileged: bool = False
-    user: str = None
-    v4_conf: IPv4Configuration = field(init=False, default=None)
-    v6_conf: IPv6Configuration = field(init=False, default=None)
+    user: Optional[str] = None
+    v4_conf: Optional[IPv4Configuration] = field(init=False, default=None)
+    v6_conf: Optional[IPv6Configuration] = field(init=False, default=None)
 
     def __post_init__(self):
         if self.network:
