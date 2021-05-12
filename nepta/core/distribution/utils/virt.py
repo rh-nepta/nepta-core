@@ -1,5 +1,5 @@
 import logging
-import os
+from time import sleep
 
 from nepta.core.distribution.command import Command
 from nepta.core.model.system import VirtualGuest
@@ -72,6 +72,13 @@ class Docker:
     def run(cls, container: Container):
         # TODO jinja2 ?
         cmd_prototype = f'{cls.CMD} run'
+
+        if container.privileged:
+            cmd_prototype += ' --privileged'
+
+        if container.user:
+            cmd_prototype += f' -u {container.user}'
+
         if container.hostname:
             cmd_prototype += f' -h {container.hostname}'
 
@@ -99,6 +106,7 @@ class Docker:
         logger.info(f'Starting container: {cmd}')
         cmd.run()
 
+        sleep(1)
         if cmd.poll() is not None:
             logger.error(cmd.get_output())
         else:

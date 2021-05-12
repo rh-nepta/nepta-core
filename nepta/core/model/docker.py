@@ -47,7 +47,7 @@ class Volume:
     opts: str = None
 
     def as_arg(self):
-        cli = self.name + f':{self.path if self.path else self.name}'
+        cli = f' -v {self.name}:{self.path if self.path else self.name}'
 
         if self.opts:
             cli += f':{self.opts}'
@@ -99,6 +99,7 @@ class Container:
     env: List[str] = None
     args: List[str] = None
     privileged: bool = False
+    user: str = None
     v4_conf: IPv4Configuration = field(init=False, default=None)
     v6_conf: IPv6Configuration = field(init=False, default=None)
 
@@ -112,7 +113,6 @@ class Container:
 
 @dataclass
 class NeptaContainer(Container):
-
     DEFAULT_INHERIT_ENV = [
         'RSTRNT_JOBID',
         'TEST',
