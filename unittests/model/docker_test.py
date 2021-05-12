@@ -27,10 +27,10 @@ class DockerModelTest(TestCase):
 
     def test_volume(self):
         vol1 = docker.Volume('jj', 'ff', 'ro')
-        self.assertEqual('jj:ff:ro', vol1.as_arg())
+        self.assertEqual(' -v jj:ff:ro', vol1.as_arg())
 
         vol2 = docker.Volume('/test')
-        self.assertEqual('/test:/test', vol2.as_arg())
+        self.assertEqual(' -v /test:/test', vol2.as_arg())
 
     def test_container(self):
         cont = docker.Container(
