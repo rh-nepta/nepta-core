@@ -340,10 +340,6 @@ class Setup(Strategy):
         for net in docker_networks:
             Docker.Network.create(net)
 
-        docker_volumes = self.conf.get_subset(m_type=model.docker.Volume)
-        for vol in docker_volumes:
-            Docker.Volume.create(vol)
-
     @Strategy.schedule
     def generate_pcp_config(self):
         for pcp in self.conf.get_subset(m_type=model.system.PCPConfiguration):
