@@ -45,19 +45,19 @@ class Docker:
 
     @classmethod
     def login(cls, cred: DockerCredentials):
-        cmd = f'{cls.CMD} login --username {cred.username} --password {cred.password}'
+        cmd_proto = f'{cls.CMD} login --username {cred.username} --password {cred.password}'
         if cred.registry:
-            cmd += ' ' + cred.registry
-        cmd = Command(cmd)
+            cmd_proto += ' ' + cred.registry
+        cmd = Command(cmd_proto)
         cmd.run()
         cmd.watch_and_log_error()
 
     @classmethod
     def pull(cls, image: RemoteImage):
-        cmd = f'{cls.CMD} pull {image.repository}'
+        cmd_proto = f'{cls.CMD} pull {image.repository}'
         if image.tag:
-            cmd += ':' + image.tag
-        cmd = Command(cmd)
+            cmd_proto += ':' + image.tag
+        cmd = Command(cmd_proto)
         cmd.run()
         cmd.watch_and_log_error()
 
