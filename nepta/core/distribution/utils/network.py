@@ -109,7 +109,7 @@ class NmCli:
                         if device == interface.name or name == interface.name:
                             return uuid
                     except ValueError as e:
-                        logger.error(f'Unexpected line. Cannot parse.')
+                        logger.error('Unexpected line. Cannot parse.')
                         logger.error(f'Line: {line}')
                         logger.error(e)
             return None  # explicit notation
