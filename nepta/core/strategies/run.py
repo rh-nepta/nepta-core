@@ -94,10 +94,12 @@ class RunScenariosPCP(RunScenarios):
     def start_pmlogger(self, archive_name):
         logger.info(f'Running pmlogger with conf >> {self.pcp_conf}')
         if self.local_pcp:
-            self._pmlogger_cmds.append(Command(
-                f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
-                f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
-            ).run())
+            self._pmlogger_cmds.append(
+                Command(
+                    f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
+                    f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
+                ).run()
+            )
         if self.remote_pcp:
             for host in self.remote_pcp_hosts:
                 self._pmlogger_cmds.append(

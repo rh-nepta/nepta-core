@@ -671,7 +671,6 @@ class TestMergeBundles(TestCase):
 
 
 class TestSyncHost(TestCase):
-
     def test_sync_all(self):
         st = 'sync_host'
         h1 = bundles.HostBundle('h1', 'SDF')

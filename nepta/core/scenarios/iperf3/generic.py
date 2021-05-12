@@ -32,7 +32,6 @@ def catch_and_log_exception(f):
 
 
 class GenericIPerf3Stream(object):
-
     def __init__(self, *args, interval=None, parallel=None, **kwargs):
         super(GenericIPerf3Stream, self).__init__(*args, **kwargs)
         self.interval = interval
@@ -60,10 +59,10 @@ class GenericIPerf3Stream(object):
 
 
 class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
-
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length,
-                                len=size, interval=self.interval)
+        iperf_test = Iperf3Test(
+            client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=self.interval
+        )
         if path.cpu_pinning:
             iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
         elif self.cpu_pinning:
@@ -86,14 +85,18 @@ class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
 
 
 class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
-
     def init_all_tests(self, path, size):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
             new_test = Iperf3Test(
-                client=path.their_ip, bind=path.mine_ip, time=self.test_length,
-                len=size, port=port, interval=self.interval, parallel=self.parallel,
+                client=path.their_ip,
+                bind=path.mine_ip,
+                time=self.test_length,
+                len=size,
+                port=port,
+                interval=self.interval,
+                parallel=self.parallel,
             )
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
@@ -113,8 +116,10 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
         if len(tests) > 2:
-            logger.error('Too much tests defined in DuplexStream configuration. This test should run 2 streams.'
-                         f'Running {len(tests)} streams.')
+            logger.error(
+                'Too much tests defined in DuplexStream configuration. This test should run 2 streams.'
+                f'Running {len(tests)} streams.'
+            )
         for i in range(1, len(tests), 2):
             tests[i].reverse = True
         return tests

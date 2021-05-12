@@ -322,8 +322,12 @@ def main():
 
         if args.pcp or args.remote_pcp:
             final_strategy += strategies.run.RunScenariosPCP(
-                conf, package, args.scenarios, args.tag,
-                args.pcp, args.remote_pcp,
+                conf,
+                package,
+                args.scenarios,
+                args.tag,
+                args.pcp,
+                args.remote_pcp,
             )
         else:
             final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios, args.tag)

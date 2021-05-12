@@ -6,7 +6,6 @@ logger = logging.getLogger(__name__)
 
 
 class NetperfStreamResult(dict):
-
     def __init__(self, *args, **kwargs):
         super(NetperfStreamResult, self).__init__(*args, **kwargs)
         self._format_func = lambda x: f'{x:.2f}'
@@ -97,7 +96,7 @@ class NetperStreamfTest(GenericNetperfTest):
 
         warning_string = 'catcher: timer popped with times_up != 0'
         if self._output.find(warning_string) >= 0:
-            output_parts = self._output[len(warning_string):].split()
+            output_parts = self._output[len(warning_string) :].split()
             ret['warning'] = warning_string
         else:
             output_parts = self._output.split()

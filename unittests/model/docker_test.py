@@ -4,7 +4,6 @@ import ipaddress as ia
 
 
 class DockerModelTest(TestCase):
-
     def test_images(self):
         local_image = docker.LocalImage('nepta', '.', '~/Dockerfile')
         self.assertEqual(local_image.image_name(), 'nepta')
@@ -13,11 +12,7 @@ class DockerModelTest(TestCase):
         self.assertEqual(remote_image.image_name(), 'quay.io/turbo_image:first')
 
     def test_net(self):
-        net = docker.Network(
-            'net',
-            network.NetperfNet4('192.168.0.0/24'),
-            network.NetperfNet6('ff02:2::/64')
-        )
+        net = docker.Network('net', network.NetperfNet4('192.168.0.0/24'), network.NetperfNet6('ff02:2::/64'))
         self.assertIsNotNone(net.v6)
         net = docker.Network(
             'net',
@@ -35,7 +30,8 @@ class DockerModelTest(TestCase):
     def test_container(self):
         cont = docker.Container(
             docker.RemoteImage('quay.io/centos', 'latest'),
-            'centos', 'centos.lab.com',
+            'centos',
+            'centos.lab.com',
             docker.Network(
                 'net',
                 network.NetperfNet4('172.26.0.0/28'),
@@ -59,7 +55,8 @@ class DockerModelTest(TestCase):
 
         cont = docker.NeptaContainer(
             docker.RemoteImage('quay.io/centos', 'latest'),
-            'centos', 'centos.lab.com',
+            'centos',
+            'centos.lab.com',
             docker.Network(
                 'net',
                 network.NetperfNet4('172.26.0.0/28'),
