@@ -668,3 +668,19 @@ class TestMergeBundles(TestCase):
 
         print()
         print(b2.str_tree())
+
+
+class TestSyncHost(TestCase):
+    def test_sync_all(self):
+        st = 'sync_host'
+        h1 = bundles.HostBundle('h1', 'SDF')
+        h2 = bundles.HostBundle('h2', 'SDF')
+        h3 = bundles.HostBundle('h3', 'SDF')
+
+        bundles.SyncHost.sync_all(h1, h2, h3, subtree=st)
+
+        self.assertEqual(len(getattr(h1, st)), 2)
+        self.assertEqual(len(getattr(h2, st)), 2)
+
+        self.assertIsInstance(getattr(h3, st)[0], bundles.SyncHost)
+        self.assertIsInstance(getattr(h3, st)[1], bundles.SyncHost)

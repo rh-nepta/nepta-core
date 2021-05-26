@@ -6,6 +6,7 @@ from nepta.dataformat import Section, Compression
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core.model.system import PCPConfiguration
+from nepta.core.model.bundles import SyncHost
 from nepta.core.distribution.command import Command
 from nepta.core.model.attachments import Directory
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric, StreamGeneric
@@ -71,10 +72,15 @@ class RunScenarios(Strategy):
 
 
 class RunScenariosPCP(RunScenarios):
-    def __init__(self, conf, package, filter_scenarios=None, path_tags=None):
+    def __init__(self, conf, package, filter_scenarios=None, path_tags=None, local_pcp=None, remote_pcp=None):
         super().__init__(conf, package, filter_scenarios, path_tags)
-        self._pmlogger_cmd: Optional[Command] = None
+        self.local_pcp = local_pcp
+        self.remote_pcp = remote_pcp
+
+        self._pmlogger_cmds: List[Command] = []
         self.pcp_conf = self.init_pcp_conf()
+
+        self.remote_pcp_hosts: List[SyncHost] = self.conf.get_subset(m_type=SyncHost)
 
     def init_pcp_conf(self):
         pcp_confs = self.conf.get_subset(m_type=PCPConfiguration)
@@ -86,14 +92,37 @@ class RunScenariosPCP(RunScenarios):
             raise ValueError('PCP config is missing!')
 
     def start_pmlogger(self, archive_name):
-        self._pmlogger_cmd = Command(
-            f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
-            f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
-        ).run()
+        logger.info(f'Running pmlogger with conf >> {self.pcp_conf}')
+        if self.local_pcp:
+            self._pmlogger_cmds.append(
+                Command(
+                    f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
+                    f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
+                ).run()
+            )
+        if self.remote_pcp:
+            for host in self.remote_pcp_hosts:
+                self._pmlogger_cmds.append(
+                    Command(
+                        f'ssh {host.hostname} '
+                        f'pmlogger -c {self.pcp_conf.config_path} -t {self.pcp_conf.interval} '
+                        f'{os.path.join(self.pcp_conf.log_path, archive_name)}'
+                    ).run()
+                )
+        self.check_pmlogger()
+
+    def check_pmlogger(self):
+        for cmd in self._pmlogger_cmds:
+            if cmd.poll() is not None:
+                logger.error('PCP >> pmlogger failed to run')
+                logger.error(f'PCP >> pmlogger error: {cmd.get_output()}')
 
     def stop_pmlogger(self):
-        if self._pmlogger_cmd:
-            self._pmlogger_cmd.terminate()
+        logger.info(f'Stopping pmlogger with conf >> {self.pcp_conf}')
+        self.check_pmlogger()
+        for cmd in self._pmlogger_cmds:
+            cmd.terminate()
+        self._pmlogger_cmds.clear()
 
     @Strategy.schedule
     def run_scenarios(self):

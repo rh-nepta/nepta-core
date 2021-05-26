@@ -32,6 +32,11 @@ def catch_and_log_exception(f):
 
 
 class GenericIPerf3Stream(object):
+    def __init__(self, *args, interval=None, parallel=None, **kwargs):
+        super(GenericIPerf3Stream, self).__init__(*args, **kwargs)
+        self.interval = interval
+        self.parallel = parallel
+
     @staticmethod
     def log_iperf3_error(out_json):
         try:
@@ -53,9 +58,11 @@ class GenericIPerf3Stream(object):
 #######################################################################################################################
 
 
-class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
+class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=0.1)
+        iperf_test = Iperf3Test(
+            client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=self.interval
+        )
         if path.cpu_pinning:
             iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
         elif self.cpu_pinning:
@@ -77,13 +84,19 @@ class Iperf3Stream(SingleStreamGeneric, GenericIPerf3Stream):
 #######################################################################################################################
 
 
-class Iperf3MultiStream(MultiStreamsGeneric, GenericIPerf3Stream):
+class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
     def init_all_tests(self, path, size):
         tests = []
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
             new_test = Iperf3Test(
-                client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, port=port, interval=0.1
+                client=path.their_ip,
+                bind=path.mine_ip,
+                time=self.test_length,
+                len=size,
+                port=port,
+                interval=self.interval,
+                parallel=self.parallel,
             )
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
@@ -103,16 +116,24 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
         if len(tests) > 2:
-            logger.error('Too much tests defined in DuplexStream configuration. Cutting excesses !!!')
-        tests[1].reverse = True
-        return tests[:2]
+            logger.error(
+                'Too much tests defined in DuplexStream configuration. This test should run 2 streams.'
+                f'Running {len(tests)} streams.'
+            )
+        for i in range(1, len(tests), 2):
+            tests[i].reverse = True
+        return tests
 
     @info_log_func_output
     @catch_and_log_exception
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
-        stream_test_result = tests[0].get_result().set_data_formatter(self.str_round)
-        reversed_test_result = tests[1].get_result().set_data_formatter(self.str_round)
+
+        stream_test_result = sum([test.get_result() for test in tests[::2]])
+        stream_test_result.set_data_formatter(self.str_round)
+        reversed_test_result = sum([test.get_result() for test in tests[1::2]])
+        reversed_test_result.set_data_formatter(self.str_round)
+
         total = stream_test_result + reversed_test_result
         result_dict['up_throughput'] = stream_test_result['throughput']
         result_dict['down_throughput'] = reversed_test_result['throughput']

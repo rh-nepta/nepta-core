@@ -1,21 +1,23 @@
 import logging
-import os
+from time import sleep
 
 from nepta.core.distribution.command import Command
 from nepta.core.model.system import VirtualGuest
+from nepta.core.model.docker import RemoteImage, LocalImage, DockerCredentials
+from nepta.core.model.docker import Container, Network, Volume
 
 logger = logging.getLogger(__name__)
 
 
-class Docker(object):
+class Docker:
     CMD = 'docker'
 
-    class Network(object):
-        CMD = 'network'
+    class Network:
+        CMD = 'docker network'
 
-        @staticmethod
-        def create(network):
-            cmd_prototype = '{} {} create'.format(Docker.CMD, Docker.Network.CMD)
+        @classmethod
+        def create(cls, network: Network):
+            cmd_prototype = f'{cls.CMD} create'
             if network.v4:
                 cmd_prototype += ' --subnet {} --gateway {}'.format(network.v4, network.v4.gw_ip)
             if network.v6:
@@ -24,75 +26,91 @@ class Docker(object):
 
             cmd = Command(cmd_prototype)
             cmd.run()
-            out, retcode = cmd.watch_output()
-            if retcode:
-                logger.error(out)
+            cmd.watch_and_log_error()
 
-    class Volume(object):
-        CMD = 'volume'
+    class Volume:
+        CMD = 'docker volume'
 
-        @staticmethod
-        def create(volume):
-            cmd_protype = '{} {} create {}'.format(Docker.CMD, Docker.Volume.CMD, volume.name)
-            cmd = Command(cmd_protype)
+        @classmethod
+        def create(cls, volume: Volume):
+            cmd_prototype = f'{cls.CMD} create {volume.name}'
+            cmd = Command(cmd_prototype)
             cmd.run()
-            out, retcode = cmd.watch_output()
-            if retcode:
-                logger.error(out)
+            cmd.watch_and_log_error()
 
     def __init__(self):
         super(Docker, self).__init__()
         self.network = Docker.Network()
         self.volume = Docker.Volume()
 
-    @staticmethod
-    def build(image):
-        # TODO f string
-        cmd_prototype = '{} build {} -f {} -t {}'.format(Docker.CMD, image.context, image.dockerfile, image.name)
+    @classmethod
+    def login(cls, cred: DockerCredentials):
+        cmd_proto = f'{cls.CMD} login --username {cred.username} --password {cred.password}'
+        if cred.registry:
+            cmd_proto += ' ' + cred.registry
+        cmd = Command(cmd_proto)
+        cmd.run()
+        cmd.watch_and_log_error()
+
+    @classmethod
+    def pull(cls, image: RemoteImage):
+        cmd_proto = f'{cls.CMD} pull {image.repository}'
+        if image.tag:
+            cmd_proto += ':' + image.tag
+        cmd = Command(cmd_proto)
+        cmd.run()
+        cmd.watch_and_log_error()
+
+    @classmethod
+    def build(cls, image: LocalImage):
+        cmd_prototype = f'{cls.CMD} build {image.context} -f {image.dockerfile} -t {image.name}'
         cmd = Command(cmd_prototype)
         cmd.run()
-        out, retcode = cmd.watch_output()
-        if retcode:
-            logger.error(out)
+        cmd.watch_and_log_error()
 
-    @staticmethod
-    def run(container, inherit_arguments_from_master_proc=True):
+    @classmethod
+    def run(cls, container: Container):
         # TODO jinja2 ?
-        cmd_prototype = '{} run'.format(Docker.CMD)
+        cmd_prototype = f'{cls.CMD} run'
+
+        if container.privileged:
+            cmd_prototype += ' --privileged'
+
+        if container.user:
+            cmd_prototype += f' -u {container.user}'
+
         if container.hostname:
-            cmd_prototype += ' -h {}'.format(container.hostname)
-        if container.network:
-            cmd_prototype += ' --network {}'.format(container.network.name)
+            cmd_prototype += f' -h {container.hostname}'
+
         if container.volumes:
             for vol in container.volumes:
-                cmd_prototype += ' --volume {}:/{}'.format(vol.name, vol.name)
-        if container.v4_conf:
-            cmd_prototype += ' --ip {}'.format(container.v4_conf.addresses[0].ip)
-        if container.v6_conf:
-            cmd_prototype += ' --ip6 {}'.format(container.v6_conf.addresses[0].ip)
+                cmd_prototype += vol.as_arg()
 
-        if container.inherit_env:
-            for env_var in container.inherit_env:
-                cmd_prototype += ' -e {}'.format(env_var)
+        if container.network:
+            cmd_prototype += ' --network {}'.format(container.network.name)
+            if container.v4_conf:
+                cmd_prototype += ' --ip {}'.format(container.v4_conf.addresses[0].ip)
+            if container.v6_conf:
+                cmd_prototype += ' --ip6 {}'.format(container.v6_conf.addresses[0].ip)
 
-        cmd_prototype += ' ' + container.image.name
+        if container.env:
+            for env_var in container.env:
+                cmd_prototype += f' -e {env_var}'
 
-        if inherit_arguments_from_master_proc:
-            import sys
+        cmd_prototype += ' ' + container.image.image_name()
 
-            if len(sys.argv) > 1:
-                cmd_prototype += ' ' + ' '.join(sys.argv[1:])
-            else:
-                cmd_prototype += ' ' + os.environ['NETWORK_PERFTEST_ARGS']
-
-        if container.extra_arguments:
-            cmd_prototype += container.extra_arguments
+        if container.args:
+            cmd_prototype += ' ' + ' '.join(container.args)
 
         cmd = Command(cmd_prototype)
+        logger.info(f'Starting container: {cmd}')
         cmd.run()
-        out, ret_code = cmd.watch_output()
-        if ret_code:
-            logger.error(out)
+
+        sleep(1)
+        if cmd.poll() is not None:
+            logger.error(cmd.get_output())
+        else:
+            logger.info('Container is running on background.')
 
 
 class Virsh:

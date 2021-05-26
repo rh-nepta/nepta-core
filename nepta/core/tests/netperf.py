@@ -1,11 +1,32 @@
 import logging
+from collections import Counter
 from nepta.core.tests.cmd_tool import CommandArgument, CommandTool
 
 logger = logging.getLogger(__name__)
 
 
-class GenericNetperfTest(CommandTool):
+class NetperfStreamResult(dict):
+    def __init__(self, *args, **kwargs):
+        super(NetperfStreamResult, self).__init__(*args, **kwargs)
+        self._format_func = lambda x: f'{x:.2f}'
 
+    def __add__(self, other):
+        result = self.__class__()
+        for k, v in self.items():
+            if isinstance(other, int):
+                result[k] = v + other
+            else:
+                result[k] = v + other[k]
+        return result
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __iter__(self):
+        return iter({k: self._format_func(v) for k, v in self.items()}.items())
+
+
+class GenericNetperfTest(CommandTool):
     PROGRAM_NAME = 'netperf'
 
     MAPPING = [
@@ -28,6 +49,7 @@ class GenericNetperfTest(CommandTool):
         CommandArgument('remote_send', '-m ,'),
         CommandArgument('local_recv', '-M'),
         CommandArgument('remote_recv', '-M ,'),
+        CommandArgument('request_size', '-r'),
     ]
 
     def _init_class_attr(self):
@@ -42,16 +64,22 @@ class GenericNetperfTest(CommandTool):
 
 
 class NetperStreamfTest(GenericNetperfTest):
-    LABELS = [
+    ALL_LABELS = [
         'rcv_socket_size',
         'snd_socket_size',
         'msg_size',
         'time',
         'throughput',
-        'loc_util',
-        'rem_util',
+        'loc_cpu',
+        'rem_cpu',
         'service_local',
         'service_remote',
+    ]
+
+    RESULT_LABELS = [
+        'throughput',
+        'loc_cpu',
+        'rem_cpu',
     ]
 
     def get_results(self):
@@ -73,10 +101,28 @@ class NetperStreamfTest(GenericNetperfTest):
         else:
             output_parts = self._output.split()
 
-        log_line = ''
-        for label in self.LABELS:
-            ret[label] = output_parts[self.LABELS.index(label)]
-            log_line += '%s=%s ' % (label, ret[label])
+        ret.update({k: float(v) for k, v in zip(self.ALL_LABELS, output_parts)})
 
-        logger.info('test results: %s', log_line)
-        return ret
+        logger.info('test results: %s', ret)
+        return NetperfStreamResult({k: v for k, v in ret.items() if k in self.RESULT_LABELS})
+
+
+class NetperfRrTest(NetperStreamfTest):
+    ALL_LABELS = [
+        'rcv_socket_size',
+        'snd_socket_size',
+        'req_size',
+        'rep_size',
+        'time',
+        'transactions',
+        'loc_cpu',
+        'rem_cpu',
+        'service_local',
+        'service_remote',
+    ]
+
+    RESULT_LABELS = [
+        'transactions',
+        'loc_cpu',
+        'rem_cpu',
+    ]

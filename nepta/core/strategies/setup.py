@@ -324,17 +324,21 @@ class Setup(Strategy):
         # after changing docker settings, daemon needs to be restarted
         SystemD.restart_service(model.system.SystemService('docker'))
 
-        images = self.conf.get_subset(m_type=model.docker.Image)
+        creds = self.conf.get_subset(m_type=model.docker.DockerCredentials)
+        for cred in creds:
+            Docker.login(cred)
+
+        images = self.conf.get_subset(m_type=model.docker.RemoteImage)
+        for image in images:
+            Docker.pull(image)
+
+        images = self.conf.get_subset(m_type=model.docker.LocalImage)
         for img in images:
             Docker.build(img)
 
         docker_networks = self.conf.get_subset(m_type=model.docker.Network)
         for net in docker_networks:
             Docker.Network.create(net)
-
-        docker_volumes = self.conf.get_subset(m_type=model.docker.Volume)
-        for vol in docker_volumes:
-            Docker.Volume.create(vol)
 
     @Strategy.schedule
     def generate_pcp_config(self):
@@ -383,8 +387,8 @@ class Rhel7(Setup):
 
     def start_net(self):
         SystemD.start_service(model.system.SystemService('NetworkManager'))
-
         NmCli.Con.reload()
+
         ifaces = self.conf.get_subset(m_class=model.network.Interface)
         for iface in ifaces:
             NmCli.Con.down(iface)

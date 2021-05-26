@@ -12,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class Submit(Strategy):
+    # Sticky bit has to be deleted. Otherwise, it cause errors in results manipulation (delete by group user).
     _RSYNC_TEMPLATE = jinja2.Template(
-        """rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X {{ path }} \
+        """rsync -avz --no-owner --no-group --recursive --chmod=a+r,a+w,a+X,o-t {{ path }} \
 {{ rsync.server }}::{{ rsync.destination }}"""
     )
 

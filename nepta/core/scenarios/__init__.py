@@ -1,5 +1,6 @@
 import inspect
 import sys
+from . import netperf
 
 from .generic.scenario import ScenarioGeneric
 from .generic.interrupts import IRQBalanceCheck

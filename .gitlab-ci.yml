@@ -1,4 +1,4 @@
-image: adiosnb/nepta-env:latest
+image: quay.io/perfqe/nepta-env:latest
 
 stages:
   - pytest

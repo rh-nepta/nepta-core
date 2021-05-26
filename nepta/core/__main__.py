@@ -245,6 +245,12 @@ def main():
         help='Enable PCP logging during testing.',
         default=False,
     )
+    parser.add_argument(
+        '--remote-pcp',
+        action='store_true',
+        help='Enable PCP logging during testing on remote machines.',
+        default=False,
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -287,7 +293,7 @@ def main():
     if args.delete_tree:
         delete_subtree(conf, args.delete_tree)
 
-    if not args.pcp:
+    if not (args.pcp or args.remote_pcp):
         conf.filter_components(lambda x: type(x) != model.system.PCPConfiguration)
 
     if args.print:
@@ -314,8 +320,15 @@ def main():
     if args.execute:
         final_strategy += strategies.sync.Synchronize(conf, sync, 'ready')
 
-        if args.pcp:
-            final_strategy += strategies.run.RunScenariosPCP(conf, package, args.scenarios, args.tag)
+        if args.pcp or args.remote_pcp:
+            final_strategy += strategies.run.RunScenariosPCP(
+                conf,
+                package,
+                args.scenarios,
+                args.tag,
+                args.pcp,
+                args.remote_pcp,
+            )
         else:
             final_strategy += strategies.run.RunScenarios(conf, package, args.scenarios, args.tag)
 
@@ -344,6 +357,8 @@ def main():
     # in the end of test tell beaker the test has PASSED
     if Environment.in_rstrnt:
         final_strategy += strategies.report.Report(package, final_strategy)
+
+    final_strategy += strategies.sync.Synchronize(conf, sync, 'finished')
 
     try:
         final_strategy()

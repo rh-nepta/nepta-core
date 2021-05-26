@@ -7,6 +7,7 @@ from nepta.core.distribution.utils.system import SystemD
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
+from nepta.core.scenarios.generic.scenario import ScenarioGeneric
 from nepta.core.distribution.command import Command
 
 logger = logging.getLogger(__name__)
@@ -38,14 +39,15 @@ class Prepare(Strategy):
             logger.info('There is no host for synchronization')
             return
 
-        oposite_host_hostname = sync_objs[0].hostname
-        oposite_host_configuration = model.bundles.HostBundle.find(oposite_host_hostname, self.conf.conf_name)
-        oposite_scenarios = oposite_host_configuration.get_subset(m_class=GenericIPerf3Stream)
+        remote_scenarios = model.bundles.Bundle()
+        for host in sync_objs:
+            host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
+            remote_scenarios += host_conf.get_subset(m_class=GenericIPerf3Stream)
 
         max_iperf3_instances = 0
         base_port = 0
 
-        for scenario in oposite_scenarios:
+        for scenario in remote_scenarios:
             base_port = scenario.base_port
             instances = [max_iperf3_instances, len(scenario.cpu_pinning)]
             for path in scenario.paths:
@@ -59,9 +61,31 @@ class Prepare(Strategy):
             srv.run()
 
     @Strategy.schedule
+    def start_netperf_service(self):
+        logger.info('Start netserver for netperf test')
+        sync_objs = self.conf.get_subset(m_class=model.bundles.SyncHost)
+
+        # if there is no host for Sync, we are not able to find out how many iPerf3 services we should start
+        if not len(sync_objs):
+            logger.info('There is no host for synchronization')
+            return
+
+        remote_scenarios = model.bundles.Bundle()
+        for host in sync_objs:
+            host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
+            remote_scenarios += host_conf.get_subset(m_class=ScenarioGeneric)
+
+        if any(map(lambda x: x.__class__.__name__.find('Netperf') > -1, remote_scenarios)):
+            logger.info('Starting netserver')
+            cmd = Command('netserver')
+            cmd.run()
+            if cmd.get_output()[1] != 0:
+                logger.error('Cannot start netperf server !!!')
+
+    @Strategy.schedule
     def start_docker_container(self):
         logger.info('Starting containers')
-        containers = self.conf.get_subset(m_class=model.docker.Containter)
+        containers = self.conf.get_subset(m_class=model.docker.Container)
         for cont in containers:
             Docker.run(cont)
 

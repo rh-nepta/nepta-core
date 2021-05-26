@@ -1,29 +1,61 @@
-from . import network
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from nepta.core.model import network
+from nepta.core.model.network import IPv4Configuration, IPv6Configuration
+from typing import List, Union, Optional
 
 
-class Image(object):
-    def __init__(self, name, context, dockerfile):
-        self.name = name
-        self.context = context
-        self.dockerfile = dockerfile
+@dataclass
+class DockerCredentials:
+    username: str
+    password: str
+    registry: Optional[str] = None
 
 
-class Volume(object):
-    def __init__(self, name):
-        self.name = name
+class Image(ABC):
+    @abstractmethod
+    def image_name(self):
+        pass
 
 
-class Network(object):
-    def __init__(self, name, v4=None, v6=None):
-        self.name = name
-        self.v4 = v4 if v4 is None else DockerSubnetV4(v4)
-        self.v6 = v6 if v6 is None else DockerSubnetV6(v6)
+@dataclass
+class LocalImage(Image):
+    name: str
+    context: str
+    dockerfile: str
 
-    def __str__(self):
-        return 'Docker network: {}\n' '\tV4: {}\n' '\tV6: {}\n'.format(self.name, self.v4, self.v6)
+    def image_name(self):
+        return self.name
 
 
-class GenericDockerSubnet(object):
+@dataclass
+class RemoteImage(Image):
+    repository: str
+    tag: Optional[str] = None
+
+    def image_name(self):
+        if self.tag:
+            return f'{self.repository}:{self.tag}'
+        else:
+            return self.repository
+
+
+@dataclass
+class Volume:
+    name: str
+    path: Optional[str] = None
+    opts: Optional[str] = None
+
+    def as_arg(self):
+        cli = f' -v {self.name}:{self.path if self.path else self.name}'
+
+        if self.opts:
+            cli += f':{self.opts}'
+
+        return cli
+
+
+class GenericDockerSubnet(network.NetFormatter):
     def __init__(self, net):
         super(GenericDockerSubnet, self).__init__(net)
         self.gw = self.new_addr()
@@ -41,40 +73,65 @@ class DockerSubnetV6(GenericDockerSubnet, network.NetperfNet6):
     pass
 
 
-class Containter(object):
+@dataclass
+class Network:
+    name: str
+    v4: Optional[DockerSubnetV4] = None
+    v6: Optional[DockerSubnetV6] = None
 
+    def __post_init__(self):
+        if self.v4 and not isinstance(self.v4, DockerSubnetV4):
+            self.v4 = DockerSubnetV4(self.v4)
+        if self.v6 and not isinstance(self.v6, DockerSubnetV6):
+            self.v6 = DockerSubnetV6(self.v6)
+
+    def __str__(self):
+        return f'Docker network: {self.name}\n\tV4: {self.v4}\n\tV6: {self.v6}\n'
+
+
+@dataclass
+class Container:
+    image: Image
+    name: Optional[str] = None
+    hostname: Optional[str] = None
+    network: Optional[Network] = None
+    volumes: Optional[List[Volume]] = None
+    env: Optional[List[str]] = None
+    args: Optional[List[str]] = None
+    privileged: bool = False
+    user: Optional[str] = None
+    v4_conf: Optional[IPv4Configuration] = field(init=False, default=None)
+    v6_conf: Optional[IPv6Configuration] = field(init=False, default=None)
+
+    def __post_init__(self):
+        if self.network:
+            if self.network.v4:
+                self.v4_conf = self.network.v4.new_config()
+            if self.network.v6:
+                self.v6_conf = self.network.v6.new_config()
+
+
+@dataclass
+class NeptaContainer(Container):
     DEFAULT_INHERIT_ENV = [
-        'JOBID',
+        'RSTRNT_JOBID',
         'TEST',
-        'ARCH',
-        'DISTRO',
+        'RSTRNT_OSDISTRO',
+        'RSTRNT_OSARCH',
         'BEAKER_JOB_WHITEBOARD',
         'LAB_CONTROLLER',
-        'RECIPEID',
+        'BEAKER_RECIPE_ID',
+        'BEAKER_HUB_URL',
+        'TASKID',
+        'RECIPE_URL',
     ]
 
-    def __init__(self, image, hostname=None, network=None, volumes=None, extra_arguments=None, inherit_env=None):
-        self.image = image
-        self.hostname = hostname
-        self.network = network
-        self.volumes = volumes
-        self.v4_conf = network.v4.new_config() if network is not None else None
-        self.v6_conf = network.v6.new_config() if network is not None else None
-        self.extra_arguments = extra_arguments
-        self.inherit_env = inherit_env if inherit_env is not None else self.DEFAULT_INHERIT_ENV
+    def __post_init__(self):
+        super(NeptaContainer, self).__post_init__()
+        if not self.env:
+            self.env = self.DEFAULT_INHERIT_ENV
 
 
 class DockerDaemonSettings(dict):
     def __hash__(self):
         return hash(frozenset(self))
-
-
-if __name__ == '__main__':
-    net = Network('dickernetq', network.NetperfNet4('192.168.22.0/24'), network.NetperfNet6('fd01::/64'))
-    print(net)
-    print(DockerSubnetV4.__mro__)
-    print(net.v4)
-    print(net.v4.gw)
-    print(net.v6.gw)
-    print(net.v4.new_config())
-    print(net.v6.new_config())

@@ -14,7 +14,7 @@ def info_log_func_output(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         output = f(*args, **kwargs)
-        logger.info(f'function output >>> {output}')
+        logger.info(f'{f.__name__} function output >>> {output}')
         return output
 
     return wrapper
