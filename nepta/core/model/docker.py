@@ -100,6 +100,7 @@ class Container:
     args: Optional[List[str]] = None
     privileged: bool = False
     user: Optional[str] = None
+    ports: Optional[List[int]] = None
     v4_conf: Optional[IPv4Configuration] = field(init=False, default=None)
     v6_conf: Optional[IPv6Configuration] = field(init=False, default=None)
 
