@@ -1,9 +1,11 @@
 import json
 import socket
-from unittest import TestCase, expectedFailure
+import shutil
+from unittest import TestCase, skipIf
 from nepta.core.tests.mpstat import MPStat
 
 
+@skipIf(shutil.which('mpstat') is None, 'Skipping because mpstat is not installed')
 class MPStatTests(TestCase):
 
     def test_basic_functionality(self):
@@ -55,4 +57,3 @@ class MPStatTests(TestCase):
         self.assertIsNotNone(load)
         self.assertIsNotNone(last_load)
         print(last_load)
-
