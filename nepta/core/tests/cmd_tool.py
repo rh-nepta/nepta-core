@@ -109,6 +109,20 @@ class CommandTool(object):
         """
         self._cmd = Command(self._make_cmd())
         self._cmd.run()
+        return self
+
+    def remote_run(self, host):
+        """
+        Execute current command on the provided host via SSH. Local system needs to
+        have SSH access to this host.
+        :param host: Machine where the command is executed
+        :return: self
+        """
+        self._cmd = Command(
+            f'ssh -o LogLevel=ERROR {host} {self._make_cmd()}'
+        )
+        self._cmd.run()
+        return self
 
     def watch_output(self):
         """
