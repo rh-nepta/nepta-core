@@ -1,4 +1,5 @@
 import json
+import logging
 import abc
 import numpy as np
 from statistics import stdev
@@ -8,6 +9,9 @@ from typing import Dict
 
 from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
+from nepta.core.tests.mpstat import MPStat
+
+logger = logging.getLogger(__name__)
 
 
 class Iperf3TestResult(object):
@@ -39,6 +43,10 @@ class Iperf3TestResult(object):
     def __init__(self, array, formatter=None):
         self._array = array
         self._format_func = formatter if formatter is not None else lambda x: x
+
+    def __str__(self):
+        return 'iPerf3 parsed test results >> ' + \
+               ' | '.join([f'{k}->{v}' for k, v in self])
 
     # decorator needed to enable polymorphism
     @singledispatchmethod
@@ -194,3 +202,52 @@ class Iperf3Test(Iperf3Server):
             test._array[test._DIMENSIONS['throughput']] = test['throughput'] / throughput_format.value
         test._array[test._DIMENSIONS['stddev']] = test['stddev'] / throughput_format.value
         return test
+
+
+class Iperf3MPstatResult(Iperf3TestResult):
+    _DIMENSIONS = {**Iperf3TCPTestResult._DIMENSIONS, **{
+        'mpstat_local_cpu': 4,
+        'mpstat_remote_cpu': 5,
+        'local_sys': 6,
+        'remote_sys': 7,
+        'local_usr': 8,
+        'remote_usr': 9,
+        'local_irq': 10,
+        'remote_irq': 11,
+        'local_soft': 12,
+        'remote_soft': 13,
+    }}
+
+
+class Iperf3MPStat(Iperf3Test):
+
+    def __init__(self, *args, **kwargs):
+        super(Iperf3MPStat, self).__init__(*args, **kwargs)
+        self._loc_mpstat: MPStat = None
+        self._rem_mpstat: MPStat = None
+
+    def run(self):
+        self._loc_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[0], count=1, output='JSON')
+        self._rem_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[1], count=1, output='JSON')
+        self._loc_mpstat.run()
+        self._rem_mpstat.remote_run(self.client)
+        super(Iperf3MPStat, self).run()
+
+    def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS):
+        result = super(Iperf3MPStat, self).get_result()
+        logger.info(f'loc mpstat {self._loc_mpstat.last_cpu_load()}')
+        logger.info(f'rem mpstat {self._rem_mpstat.last_cpu_load()}')
+
+        logger.info('local utilization difference >>> ' +
+                    str(abs(100 - self._loc_mpstat.last_cpu_load()['idle']) - result['local_cpu']))
+        logger.info('remote utilization difference >>> ' +
+                    str(abs(100 - self._rem_mpstat.last_cpu_load()['idle']) - result['remote_cpu']))
+
+        return Iperf3MPstatResult(np.array(result._array.tolist() + [
+            100 - self._loc_mpstat.last_cpu_load()['idle'],
+            100 - self._rem_mpstat.last_cpu_load()['idle'],
+        ] + [
+            x[y]
+            for y in ['sys', 'usr', 'irq', 'soft']
+            for x in [self._loc_mpstat.last_cpu_load(), self._rem_mpstat.last_cpu_load()]
+        ]))
