@@ -71,6 +71,9 @@ class Setup(Strategy):
         confs = self.conf.get_subset(m_class=model.system.SSHConfigItem)
         conf_files.SSHConfig(confs).apply()
 
+        confs = self.conf.get_subset(m_class=model.system.SSHDConfigItem)
+        conf_files.SSHDConfig(confs).apply()
+
     # Use /kernel/networking/kdump task instead of configuring KDump in our
     # test framework.
     @Strategy.schedule

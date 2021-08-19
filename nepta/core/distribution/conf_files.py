@@ -269,6 +269,21 @@ class SSHConfig(ConfigFile):
         return '\n'.join(['%s %s' % (item.key, item.value) for item in self._configs])
 
 
+class SSHDConfig(ConfigFile):
+    CONFIG_FILENAME = '/etc/ssh/sshd_config'
+    STRATEGY = ConfigFile.APPEND_STRATEGY
+
+    def __init__(self, configs: List[model.system.SSHDConfigItem]):
+        super().__init__()
+        self._configs = configs
+
+    def _make_path(self):
+        return self.CONFIG_FILENAME
+
+    def _make_content(self):
+        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._configs])
+
+
 class RcLocalScriptFile(ConfigFile):
     RC_LOCAL_SCRIPT_FILE = '/etc/rc.local'
 
