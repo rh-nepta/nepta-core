@@ -93,6 +93,10 @@ class Docker:
             if container.v6_conf:
                 cmd_prototype += ' --ip6 {}'.format(container.v6_conf.addresses[0].ip)
 
+        if container.ports:
+            for port in container.ports:
+                cmd_prototype += f' -p {port}:{port}'
+
         if container.env:
             for env_var in container.env:
                 cmd_prototype += f' -e {env_var}'
@@ -206,8 +210,8 @@ class Virsh:
 
         _, ret_conf = c_conf.get_output()
         _, ret_live = c_live.get_output()
-        assert not ret_conf
-        return ret_conf and ret_live
+        # assert not ret_conf
+        return ret_conf or ret_live
 
     @staticmethod
     def set_cpu_pinning(guest: VirtualGuest):
