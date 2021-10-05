@@ -12,9 +12,9 @@ class UdevTest(TestCase):
         ufile = UdevRulesFile([e1, e2])
 
         expected_output = (
-            'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="%s", ATTR{dev_id}=="0x0, ATTR{type}=="1", '
+            'SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="%s", ATTR{dev_id}=="0x0", ATTR{type}=="1", '
             'KERNEL=="eth*", NAME="%s"\nSUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="%s", '
-            'ATTR{dev_id}=="0x0, ATTR{type}=="1", KERNEL=="eth*", NAME="%s"\n' % (e1.mac, e1.name, e2.mac, e2.name)
+            'ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="eth*", NAME="%s"\n' % (e1.mac, e1.name, e2.mac, e2.name)
         )
 
         print(ufile._make_content())
