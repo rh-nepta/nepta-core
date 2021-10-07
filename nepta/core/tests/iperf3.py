@@ -205,17 +205,13 @@ class Iperf3Test(Iperf3Server):
 
 
 class Iperf3MPstatResult(Iperf3TestResult):
+    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowat', 'steal', 'guest', 'gnice', 'idle']
     _DIMENSIONS = {**Iperf3TCPTestResult._DIMENSIONS, **{
-        'mpstat_local_cpu': 4,
-        'mpstat_remote_cpu': 5,
-        'local_sys': 6,
-        'remote_sys': 7,
-        'local_usr': 8,
-        'remote_usr': 9,
-        'local_irq': 10,
-        'remote_irq': 11,
-        'local_soft': 12,
-        'remote_soft': 13,
+        'mpstat_total_local_cpu': 4,
+        'mpstat_total_remote_cpu': 5,
+    }, **{
+        f"mpstat_{k}": v for v, k in enumerate(
+            [j+i for i in _METRICS for j in ['local_', 'remote_']], 6)
     }}
 
 
@@ -248,6 +244,6 @@ class Iperf3MPStat(Iperf3Test):
             100 - self._rem_mpstat.last_cpu_load()['idle'],
         ] + [
             x[y]
-            for y in ['sys', 'usr', 'irq', 'soft']
+            for y in self._METRICS
             for x in [self._loc_mpstat.last_cpu_load(), self._rem_mpstat.last_cpu_load()]
         ]))
