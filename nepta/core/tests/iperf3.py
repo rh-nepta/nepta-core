@@ -205,7 +205,7 @@ class Iperf3Test(Iperf3Server):
 
 
 class Iperf3MPstatResult(Iperf3TestResult):
-    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowat', 'steal', 'guest', 'gnice', 'idle']
+    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
     _DIMENSIONS = {**Iperf3TCPTestResult._DIMENSIONS, **{
         'mpstat_total_local_cpu': 4,
         'mpstat_total_remote_cpu': 5,
