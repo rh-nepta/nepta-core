@@ -395,7 +395,7 @@ class Rhel7(Setup):
             NmCli.Con.up(iface)
 
     def setup_udev_rules(self):
-        ifaces = self.conf.get_subset(m_class=model.network.Interface)
+        ifaces = self.conf.get_subset(m_type=model.network.EthernetInterface)
         conf_files.UdevRulesFile(ifaces).apply()
 
     @Strategy.schedule
