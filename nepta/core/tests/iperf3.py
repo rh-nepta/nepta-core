@@ -207,9 +207,18 @@ class Iperf3Test(Iperf3Server):
         return test
 
 
-class Iperf3MPstatResult(Iperf3TestResult):
+class Iperf3MPstatResult(Iperf3TCPTestResult):
     _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
     _DIMENSIONS = {**Iperf3TCPTestResult._DIMENSIONS, **{
+    }, **{
+        f"mpstat_{k}": v for v, k in enumerate(
+            [j + i for i in _METRICS for j in ['local_', 'remote_']], 4)
+    }}
+
+
+class Iperf3UdpMPstatResult(Iperf3UDPTestResult):
+    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
+    _DIMENSIONS = {**Iperf3UDPTestResult._DIMENSIONS, **{
     }, **{
         f"mpstat_{k}": v for v, k in enumerate(
             [j + i for i in _METRICS for j in ['local_', 'remote_']], 4)
@@ -235,7 +244,9 @@ class Iperf3MPStat(Iperf3Test):
         result['local_cpu'] = 100 - self._loc_mpstat.last_cpu_load()['idle']
         result['remote_cpu'] = 100 - self._rem_mpstat.last_cpu_load()['idle']
 
-        return Iperf3MPstatResult(np.array(result._array.tolist() + [
+        result_cls = Iperf3TCPTestResult if not self.udp else Iperf3UDPTestResult
+
+        return result_cls(np.array(result._array.tolist() + [
             x[y]
             for y in Iperf3MPstatResult._METRICS
             for x in [self._loc_mpstat.last_cpu_load(), self._rem_mpstat.last_cpu_load()]
