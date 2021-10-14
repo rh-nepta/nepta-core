@@ -83,6 +83,9 @@ class Iperf3TestResult(object):
     def __getitem__(self, item):
         return self._format_func(self._array[self._DIMENSIONS[item]])
 
+    def __setitem__(self, key, value):
+        self._array[self._DIMENSIONS[key]] = value
+
 
 class Iperf3TCPTestResult(Iperf3TestResult):
     _DIMENSIONS = {name: order for order, name in enumerate(['throughput', 'local_cpu', 'remote_cpu', 'stddev'])}
@@ -207,18 +210,16 @@ class Iperf3Test(Iperf3Server):
 class Iperf3MPstatResult(Iperf3TestResult):
     _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
     _DIMENSIONS = {**Iperf3TCPTestResult._DIMENSIONS, **{
-        'mpstat_total_local_cpu': 4,
-        'mpstat_total_remote_cpu': 5,
     }, **{
         f"mpstat_{k}": v for v, k in enumerate(
-            [j+i for i in _METRICS for j in ['local_', 'remote_']], 6)
+            [j + i for i in _METRICS for j in ['local_', 'remote_']], 4)
     }}
 
 
 class Iperf3MPStat(Iperf3Test):
 
-    def __init__(self, *args, **kwargs):
-        super(Iperf3MPStat, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(Iperf3MPStat, self).__init__(**kwargs)
         self._loc_mpstat: MPStat = None
         self._rem_mpstat: MPStat = None
 
@@ -231,19 +232,11 @@ class Iperf3MPStat(Iperf3Test):
 
     def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS):
         result = super(Iperf3MPStat, self).get_result()
-        logger.info(f'loc mpstat {self._loc_mpstat.last_cpu_load()}')
-        logger.info(f'rem mpstat {self._rem_mpstat.last_cpu_load()}')
-
-        logger.info('local utilization difference >>> ' +
-                    str(abs(100 - self._loc_mpstat.last_cpu_load()['idle']) - result['local_cpu']))
-        logger.info('remote utilization difference >>> ' +
-                    str(abs(100 - self._rem_mpstat.last_cpu_load()['idle']) - result['remote_cpu']))
+        result['local_cpu'] = 100 - self._loc_mpstat.last_cpu_load()['idle']
+        result['remote_cpu'] = 100 - self._rem_mpstat.last_cpu_load()['idle']
 
         return Iperf3MPstatResult(np.array(result._array.tolist() + [
-            100 - self._loc_mpstat.last_cpu_load()['idle'],
-            100 - self._rem_mpstat.last_cpu_load()['idle'],
-        ] + [
             x[y]
-            for y in self._METRICS
+            for y in Iperf3MPstatResult._METRICS
             for x in [self._loc_mpstat.last_cpu_load(), self._rem_mpstat.last_cpu_load()]
         ]))
