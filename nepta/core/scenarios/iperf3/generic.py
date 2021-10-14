@@ -7,7 +7,7 @@ from collections import OrderedDict
 from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
 
-from nepta.core.tests import Iperf3Test
+from nepta.core.tests import Iperf3Test, Iperf3MPStat
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class GenericIPerf3Stream(object):
 
 class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(
+        iperf_test = Iperf3MPStat(
             client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=self.interval
         )
         if path.cpu_pinning:
