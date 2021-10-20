@@ -219,12 +219,13 @@ class Iperf3Test(Iperf3Server):
     def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS):
         if self.udp:
             test = Iperf3UDPTestResult.from_json(self.get_json_out())
-            test._array[test._DIMENSIONS['sender_throughput']] = test['sender_throughput'] / throughput_format.value
-            test._array[test._DIMENSIONS['receiver_throughput']] = test['receiver_throughput'] / throughput_format.value
+            test['sender_throughput'] /= throughput_format.value
+            test['receiver_throughput'] /= throughput_format.value
         else:
             test = Iperf3TCPTestResult.from_json(self.get_json_out())
-            test._array[test._DIMENSIONS['throughput']] = test['throughput'] / throughput_format.value
-        test._array[test._DIMENSIONS['stddev']] = test['stddev'] / throughput_format.value
+            test['throughput'] /= throughput_format.value
+
+        test['stddev'] /= throughput_format.value
         return test
 
 
