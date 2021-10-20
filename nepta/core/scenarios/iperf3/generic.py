@@ -7,7 +7,7 @@ from collections import OrderedDict
 from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
 
-from nepta.core.tests import Iperf3Test, Iperf3MPStat
+from nepta.core.tests import Iperf3Test, Iperf3MPStat, MPStat, RemoteMPStat
 
 logger = logging.getLogger(__name__)
 
@@ -100,15 +100,28 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
             )
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
+
+        tests.append(MPStat(
+            interval=self.test_length, count=1, output='JSON',
+        ))
+        tests.append(RemoteMPStat(
+            host=path.their_ip,
+            interval=self.test_length, count=1, output='JSON',
+        ))
+
         return tests
 
     @info_log_func_output
     @catch_and_log_exception
     def parse_all_results(self, tests):
-        result_dict = OrderedDict()
+        mpstats = tests[-2:]
+        tests = tests[:-2]
         total = sum([test.get_result() for test in tests])
+
+        total.add_mpstat(*mpstats)
         total.set_data_formatter(self.str_round)
-        result_dict.update({'total_' + key: value for key, value in total})
+
+        result_dict = OrderedDict({'total_' + key: value for key, value in total})
         return result_dict
 
 
