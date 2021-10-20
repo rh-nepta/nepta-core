@@ -36,3 +36,12 @@ class MPStat(CommandTool):
     def last_cpu_load(self):
         return self.cpu_loads()[-1]
 
+
+class RemoteMPStat(MPStat):
+
+    def __init__(self, host, **kwargs):
+        self._host = host
+        super().__init__(**kwargs)
+
+    def run(self):
+        return self.remote_run(self._host)
