@@ -40,8 +40,9 @@ class Iperf3TestResult(object):
         """
         pass
 
-    def __init__(self, array, formatter=None):
-        self._array = array
+    def __init__(self, array, formatter=None, dims=None):
+        self._array: np.array = array
+        self._dims: dict = dims if dims else self._DIMENSIONS
         self._format_func = formatter if formatter is not None else lambda x: x
 
     def __str__(self):
@@ -78,17 +79,21 @@ class Iperf3TestResult(object):
         return self
 
     def __iter__(self):
-        return iter({k: self._format_func(v) for k, v in zip(self._DIMENSIONS, self._array)}.items())
+        return iter({k: self._format_func(v) for k, v in zip(self._dims, self._array)}.items())
 
     def __getitem__(self, item):
-        return self._format_func(self._array[self._DIMENSIONS[item]])
+        return self._format_func(self._array[self._dims[item]])
 
     def __setitem__(self, key, value):
-        self._array[self._DIMENSIONS[key]] = value
+        self._array[self._dims[key]] = value
 
 
 class Iperf3TCPTestResult(Iperf3TestResult):
     _DIMENSIONS = {name: order for order, name in enumerate(['throughput', 'local_cpu', 'remote_cpu', 'stddev'])}
+    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
+    _MPSTAT_DIMENSIONS = [
+        f"mpstat_{j}_{i}" for i in _METRICS for j in ['local', 'remote']
+    ]
 
     @classmethod
     def from_json(cls, json_data):
@@ -105,6 +110,22 @@ class Iperf3TCPTestResult(Iperf3TestResult):
                 ]
             )
         )
+
+    def add_mpstat(self, local: MPStat, remote: MPStat):
+        self['local_cpu'] = 100 - local.last_cpu_load()['idle']
+        self['remote_cpu'] = 100 - remote.last_cpu_load()['idle']
+
+        self._array = np.array(self._array.tolist() + [
+            x[y]
+            for y in self._METRICS
+            for x in [local.last_cpu_load(), remote.last_cpu_load()]
+        ])
+
+        self._dims.update({
+            k: v for v, k in enumerate(self._MPSTAT_DIMENSIONS, max(self._dims.values()) + 1)
+        })
+
+        return self
 
 
 class Iperf3UDPTestResult(Iperf3TestResult):
@@ -207,24 +228,6 @@ class Iperf3Test(Iperf3Server):
         return test
 
 
-class Iperf3MPstatResult(Iperf3TCPTestResult):
-    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
-    _DIMENSIONS = {**Iperf3TCPTestResult._DIMENSIONS, **{
-    }, **{
-        f"mpstat_{k}": v for v, k in enumerate(
-            [j + i for i in _METRICS for j in ['local_', 'remote_']], 4)
-    }}
-
-
-class Iperf3UdpMPstatResult(Iperf3UDPTestResult):
-    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
-    _DIMENSIONS = {**Iperf3UDPTestResult._DIMENSIONS, **{
-    }, **{
-        f"mpstat_{k}": v for v, k in enumerate(
-            [j + i for i in _METRICS for j in ['local_', 'remote_']], 4)
-    }}
-
-
 class Iperf3MPStat(Iperf3Test):
 
     def __init__(self, **kwargs):
@@ -241,13 +244,5 @@ class Iperf3MPStat(Iperf3Test):
 
     def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS):
         result = super(Iperf3MPStat, self).get_result()
-        result['local_cpu'] = 100 - self._loc_mpstat.last_cpu_load()['idle']
-        result['remote_cpu'] = 100 - self._rem_mpstat.last_cpu_load()['idle']
-
-        result_cls = Iperf3TCPTestResult if not self.udp else Iperf3UDPTestResult
-
-        return result_cls(np.array(result._array.tolist() + [
-            x[y]
-            for y in Iperf3MPstatResult._METRICS
-            for x in [self._loc_mpstat.last_cpu_load(), self._rem_mpstat.last_cpu_load()]
-        ]))
+        result.add_mpstat(self._loc_mpstat, self._rem_mpstat)
+        return result
