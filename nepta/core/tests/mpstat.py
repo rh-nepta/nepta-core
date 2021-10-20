@@ -33,13 +33,13 @@ class MPStat(CommandTool):
         cpu_loads = data['sysstat']['hosts'][0]['statistics']
         return [x['cpu-load'][0] for x in cpu_loads]
 
-    def last_cpu_load(self):
+    def last_cpu_load(self) -> dict:
         return self.cpu_loads()[-1]
 
 
 class RemoteMPStat(MPStat):
 
-    def __init__(self, host, **kwargs):
+    def __init__(self, host: str, **kwargs):
         self._host = host
         super().__init__(**kwargs)
 
