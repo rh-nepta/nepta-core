@@ -1,6 +1,5 @@
 import logging
 import json
-from collections import Counter
 from nepta.core.tests.cmd_tool import CommandArgument, CommandTool
 
 logger = logging.getLogger(__name__)
@@ -18,8 +17,8 @@ class MPStat(CommandTool):
         CommandArgument('count', '', argument_type=int),
     ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         if self.count is not None and self.interval is None:
             raise ValueError('Count parameter can be specifies only with interval argument')
