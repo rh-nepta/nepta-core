@@ -6,6 +6,7 @@ from statistics import stdev
 from enum import Enum
 from singledispatchmethod import singledispatchmethod
 from typing import Dict
+from functools import reduce
 
 from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
@@ -115,17 +116,34 @@ class Iperf3TCPTestResult(Iperf3TestResult):
         self['local_cpu'] = 100 - local.last_cpu_load()['idle']
         self['remote_cpu'] = 100 - remote.last_cpu_load()['idle']
 
+        self._mpstat_from_dict(local.last_cpu_load(), remote.last_cpu_load())
+
+        return self
+
+    def add_mpstat_sum(self, local: MPStat, remote: MPStat):
+        def add_dict(a: dict, b: dict):
+            assert set(a.keys()) == set(b.keys())
+            return {k: a[k] + b[k] for k in a.keys()}
+
+        local_data = reduce(add_dict, local.cpu_loads())
+        remote_data = reduce(add_dict, remote.cpu_loads())
+
+        self['local_cpu'] = 100 - local_data['idle']
+        self['remote_cpu'] = 100 - remote_data['idle']
+
+        self._mpstat_from_dict(local_data, remote_data)
+
+        return self
+
+    def _mpstat_from_dict(self, local: dict, remote: dict):
         self._array = np.array(self._array.tolist() + [
             x[y]
             for y in self._METRICS
-            for x in [local.last_cpu_load(), remote.last_cpu_load()]
+            for x in [local, remote]
         ])
-
         self._dims.update({
             k: v for v, k in enumerate(self._MPSTAT_DIMENSIONS, max(self._dims.values()) + 1)
         })
-
-        return self
 
 
 class Iperf3UDPTestResult(Iperf3TestResult):
