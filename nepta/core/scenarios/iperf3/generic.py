@@ -136,7 +136,7 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
 class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
-        for i in range(1, len(tests), 2):
+        for i in range(1, len(tests) - 2, 2):
             tests[i].reverse = True
         return tests
 
@@ -144,6 +144,8 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     @catch_and_log_exception
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
+        mpstats = tests[-2:]
+        tests = tests[:-2]
 
         stream_test_result = sum([test.get_result() for test in tests[::2]])
         stream_test_result.set_data_formatter(self.str_round)
@@ -151,6 +153,7 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
         reversed_test_result.set_data_formatter(self.str_round)
 
         total = stream_test_result + reversed_test_result
+        total.add_mpstat_sum(*mpstats)
         result_dict['up_throughput'] = stream_test_result['throughput']
         result_dict['down_throughput'] = reversed_test_result['throughput']
         result_dict.update({'total_' + key: value for key, value in total})
