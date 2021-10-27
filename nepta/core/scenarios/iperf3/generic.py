@@ -102,11 +102,19 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
             tests.append(new_test)
 
         tests.append(MPStat(
-            interval=self.test_length, count=1, output='JSON',
+            interval=self.test_length,
+            count=1,
+            cpu_list=','.join(
+                [str(x[0]) for x in cpu_pinning_list]
+            )
         ))
         tests.append(RemoteMPStat(
             host=path.their_ip,
-            interval=self.test_length, count=1, output='JSON',
+            interval=self.test_length,
+            count=1,
+            cpu_list=','.join(
+                [str(x[1]) for x in cpu_pinning_list]
+            )
         ))
 
         return tests
@@ -118,7 +126,7 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
         tests = tests[:-2]
         total = sum([test.get_result() for test in tests])
 
-        total.add_mpstat(*mpstats)
+        total.add_mpstat_sum(*mpstats)
         total.set_data_formatter(self.str_round)
 
         result_dict = OrderedDict({'total_' + key: value for key, value in total})
