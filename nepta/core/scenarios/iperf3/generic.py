@@ -136,11 +136,6 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
 class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
-        if len(tests) > 2:
-            logger.error(
-                'Too much tests defined in DuplexStream configuration. This test should run 2 streams.'
-                f'Running {len(tests)} streams.'
-            )
         for i in range(1, len(tests), 2):
             tests[i].reverse = True
         return tests
