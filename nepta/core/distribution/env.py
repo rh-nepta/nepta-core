@@ -2,6 +2,7 @@ import re
 import os
 
 from nepta.core.distribution.utils.system import Uname, RPMTool
+from nepta.core.distribution.command import Command
 
 
 class _MetaPrintedType(type):
@@ -47,3 +48,11 @@ class Environment(metaclass=_MetaPrintedType):
     lab_controler = _env.get('LAB_CONTROLLER')
     test_name = _env.get('TEST')
     in_rstrnt = test_name is not None
+
+
+class Hardware(metaclass=_MetaPrintedType):
+    with Command('nproc') as _cmd:
+        nproc = int(_cmd.watch_output()[0].strip())
+
+    with Command('grep MemTotal /proc/meminfo') as _cmd:
+        total_memory = int(_cmd.watch_output()[0].split()[1]) * 1024  # convert to bytes
