@@ -10,7 +10,7 @@ class MPStat(CommandTool):
 
     MAPPING = [
         CommandArgument('node_list', '-N', ),
-        CommandArgument('output', '-o', ),
+        CommandArgument('output', '-o', default_value='JSON'),
         CommandArgument('cpu_list', '-P', ),
 
         CommandArgument('interval', '', argument_type=int),
