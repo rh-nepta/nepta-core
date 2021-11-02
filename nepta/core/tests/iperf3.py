@@ -255,10 +255,12 @@ class Iperf3MPStat(Iperf3Test):
 
     def __init__(self, **kwargs):
         super(Iperf3MPStat, self).__init__(**kwargs)
-        self._loc_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[0], count=1, output='JSON')
-        self._rem_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[1], count=1, output='JSON')
+        self._loc_mpstat: MPStat = None
+        self._rem_mpstat: MPStat = None
 
     def run(self):
+        self._loc_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[0], count=1, output='JSON')
+        self._rem_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[1], count=1, output='JSON')
         self._loc_mpstat.run()
         self._rem_mpstat.remote_run(self.client)
         super(Iperf3MPStat, self).run()
