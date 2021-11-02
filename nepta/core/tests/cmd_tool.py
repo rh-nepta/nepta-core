@@ -1,5 +1,5 @@
 from nepta.core.distribution.command import Command
-from typing import List
+from typing import List, Any, Optional
 
 
 class CommandToolException(Exception):
@@ -36,7 +36,6 @@ class CommandArgument(object):
 
 
 class CommandTool(object):
-
     PROGRAM_NAME = ''
     MAPPING: List[CommandArgument] = []
 
@@ -46,9 +45,9 @@ class CommandTool(object):
         self._init_class_attr()  # set object attributes from MAPPING
         self.__dict__.update(kwargs)  # update object attributes with constructor arguments
 
-        self._cmd = None
-        self._exit_code = None
-        self._output = None
+        self._cmd: Optional[Command] = None
+        self._exit_code: Optional[int] = None
+        self._output: Optional[str] = None
 
     def __str__(self):
         def str_mapping():
@@ -65,6 +64,10 @@ class CommandTool(object):
 
     def __call__(self):
         self.run()
+
+    def __getattr__(self, item: str) -> Any:
+
+        return super(CommandTool, self).__getattribute__(item)
 
     def _init_class_attr(self):
         """
