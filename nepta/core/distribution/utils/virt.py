@@ -210,8 +210,8 @@ class Virsh:
 
         _, ret_conf = c_conf.get_output()
         _, ret_live = c_live.get_output()
-        assert not ret_conf
-        return ret_conf and ret_live
+        # assert not ret_conf
+        return ret_conf or ret_live
 
     @staticmethod
     def set_cpu_pinning(guest: VirtualGuest):
