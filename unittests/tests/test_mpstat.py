@@ -26,7 +26,7 @@ class MPStatTests(TestCase):
     def test_exceptions(self):
         self.assertRaises(ValueError, MPStat, count=3)
 
-        mpstat = MPStat(cpu_list='ALL')
+        mpstat = MPStat(cpu_list='ALL', output=None)
         mpstat.run()
         self.assertRaises(ValueError, mpstat.parse_json)
 
