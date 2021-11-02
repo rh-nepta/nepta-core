@@ -12,9 +12,9 @@ logger = getLogger(__name__)
 class _MetaPrintedType(type):
     def __str__(self):
         return (
-                self.__name__
-                + '\n\t'
-                + '\n\t'.join([f'{k} => {v}' for k, v in self.__dict__.items() if not k.startswith('_')])
+            self.__name__
+            + '\n\t'
+            + '\n\t'.join([f'{k} => {v}' for k, v in self.__dict__.items() if not k.startswith('_')])
         )
 
 
