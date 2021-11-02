@@ -1,5 +1,6 @@
 import re
 import os
+import json
 
 from nepta.core.distribution.utils.system import Uname, RPMTool
 from nepta.core.distribution.command import Command
@@ -8,9 +9,9 @@ from nepta.core.distribution.command import Command
 class _MetaPrintedType(type):
     def __str__(self):
         return (
-            self.__name__
-            + '\n\t'
-            + '\n\t'.join([f'{k} => {v}' for k, v in self.__dict__.items() if not k.startswith('_')])
+                self.__name__
+                + '\n\t'
+                + '\n\t'.join([f'{k} => {v}' for k, v in self.__dict__.items() if not k.startswith('_')])
         )
 
 
@@ -56,3 +57,6 @@ class Hardware(metaclass=_MetaPrintedType):
 
     with Command('grep MemTotal /proc/meminfo') as _cmd:
         total_memory = int(_cmd.watch_output()[0].split()[1]) * 1024  # convert to bytes
+
+    with Command('ip -j link') as _cmd:
+        interfaces = {x['ifname']: x for x in json.loads(_cmd.watch_output()[0])}
