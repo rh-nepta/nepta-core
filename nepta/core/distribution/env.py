@@ -1,9 +1,12 @@
 import re
 import os
 import json
+from logging import getLogger
 
 from nepta.core.distribution.utils.system import Uname, RPMTool
 from nepta.core.distribution.command import Command
+
+logger = getLogger(__name__)
 
 
 class _MetaPrintedType(type):
@@ -52,11 +55,14 @@ class Environment(metaclass=_MetaPrintedType):
 
 
 class Hardware(metaclass=_MetaPrintedType):
-    with Command('nproc') as _cmd:
-        nproc = int(_cmd.watch_output()[0].strip())
+    try:
+        with Command('nproc') as _cmd:
+            nproc = int(_cmd.watch_output()[0].strip())
 
-    with Command('grep MemTotal /proc/meminfo') as _cmd:
-        total_memory = int(_cmd.watch_output()[0].split()[1]) * 1024  # convert to bytes
+        with Command('grep MemTotal /proc/meminfo') as _cmd:
+            total_memory = int(_cmd.watch_output()[0].split()[1]) * 1024  # convert to bytes
 
-    with Command('ip -j link') as _cmd:
-        interfaces = {x['ifname']: x for x in json.loads(_cmd.watch_output()[0])}
+        with Command('ipp -j link') as _cmd:
+            interfaces = {x['ifname']: x for x in json.loads(_cmd.watch_output()[0])}
+    except FileNotFoundError as e:
+        logger.error(e)
