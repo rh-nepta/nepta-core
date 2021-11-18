@@ -1,7 +1,6 @@
 import json
 import abc
 import numpy as np
-from statistics import stdev
 from enum import Enum
 from singledispatchmethod import singledispatchmethod
 from typing import Dict
@@ -77,12 +76,11 @@ class Iperf3TestResult(object):
 
 
 class Iperf3TCPTestResult(Iperf3TestResult):
-    _DIMENSIONS = {name: order for order, name in enumerate(['throughput', 'local_cpu', 'remote_cpu', 'stddev'])}
+    _DIMENSIONS = {name: order for order, name in enumerate(['throughput', 'local_cpu', 'remote_cpu'])}
 
     @classmethod
     def from_json(cls, json_data):
         end = json_data['end']
-        std_dev = stdev([x['sum']['bits_per_second'] for x in json_data['intervals']])
 
         return cls(
             np.array(
@@ -90,7 +88,6 @@ class Iperf3TCPTestResult(Iperf3TestResult):
                     end['sum_received']['bits_per_second'],
                     end['cpu_utilization_percent']['host_total'],
                     end['cpu_utilization_percent']['remote_total'],
-                    std_dev,
                 ]
             )
         )
@@ -99,13 +96,12 @@ class Iperf3TCPTestResult(Iperf3TestResult):
 class Iperf3UDPTestResult(Iperf3TestResult):
     _DIMENSIONS = {
         name: order
-        for order, name in enumerate(['sender_throughput', 'receiver_throughput', 'local_cpu', 'remote_cpu', 'stddev'])
+        for order, name in enumerate(['sender_throughput', 'receiver_throughput', 'local_cpu', 'remote_cpu'])
     }
 
     @classmethod
     def from_json(cls, json_data):
         end = json_data['end']
-        std_dev = stdev([x['sum']['bits_per_second'] for x in json_data['intervals']])
 
         return cls(
             np.array(
@@ -114,7 +110,6 @@ class Iperf3UDPTestResult(Iperf3TestResult):
                     end['sum']['bits_per_second'] * (1 - end['sum']['lost_percent'] / 100),
                     end['cpu_utilization_percent']['host_total'],
                     end['cpu_utilization_percent']['remote_total'],
-                    std_dev,
                 ]
             )
         )
@@ -192,5 +187,4 @@ class Iperf3Test(Iperf3Server):
         else:
             test = Iperf3TCPTestResult.from_json(self.get_json_out())
             test._array[test._DIMENSIONS['throughput']] = test['throughput'] / throughput_format.value
-        test._array[test._DIMENSIONS['stddev']] = test['stddev'] / throughput_format.value
         return test
