@@ -33,7 +33,7 @@ class Iperf3TestResult:
     # additional dimensions for mpstat results
     _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
     _MPSTAT_DIMENSIONS = [
-        f"mpstat_{j}_{i}" for i in _METRICS for j in ['local', 'remote']
+        f'mpstat_{j}_{i}' for i in _METRICS for j in ['local', 'remote']
     ]
 
     @classmethod
