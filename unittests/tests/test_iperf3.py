@@ -24,7 +24,6 @@ class Iperf3TestResultTest(TestCase):
 
         self.assertIsInstance(result3, Iperf3TCPTestResult)
         self.assertEqual(result3['throughput'], result1['throughput'] + result2['throughput'])
-        self.assertEqual(result3['stddev'], result1['stddev'] + result2['stddev'])
 
     def test_sum(self):
         result1 = Iperf3TCPTestResult.from_json(self.json_data)
@@ -36,7 +35,6 @@ class Iperf3TestResultTest(TestCase):
 
         self.assertIsInstance(result5, Iperf3TCPTestResult)
         self.assertAlmostEqual(result5['throughput'], result1['throughput'] * 5, places=5)
-        self.assertAlmostEqual(result5['stddev'], result1['stddev'] * 5, places=5)
 
     def test_format(self):
         def str_round(num, decimal=3):
@@ -57,7 +55,7 @@ class Iperf3TestResultTest(TestCase):
 
         test.update(result)
 
-        for key in ['throughput', 'local_cpu', 'remote_cpu', 'stddev']:
+        for key in ['throughput', 'local_cpu', 'remote_cpu']:
             self.assertEqual(test[key], result[key])
 
     def test_get_result_from_test(self):
