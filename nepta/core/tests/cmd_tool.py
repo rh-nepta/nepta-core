@@ -121,9 +121,7 @@ class CommandTool(object):
         :param host: Machine where the command is executed
         :return: self
         """
-        self._cmd = Command(
-            f'ssh -o LogLevel=ERROR {host} {self._make_cmd()}'
-        )
+        self._cmd = Command(f'ssh -o LogLevel=ERROR {host} {self._make_cmd()}')
         self._cmd.run()
         return self
 

@@ -9,10 +9,15 @@ class MPStat(CommandTool):
     PROGRAM_NAME = 'mpstat'
 
     MAPPING = [
-        CommandArgument('node_list', '-N', ),
+        CommandArgument(
+            'node_list',
+            '-N',
+        ),
         CommandArgument('output', '-o', default_value='JSON'),
-        CommandArgument('cpu_list', '-P', ),
-
+        CommandArgument(
+            'cpu_list',
+            '-P',
+        ),
         CommandArgument('interval', '', argument_type=int),
         CommandArgument('count', '', argument_type=int),
     ]
@@ -38,7 +43,6 @@ class MPStat(CommandTool):
 
 
 class RemoteMPStat(MPStat):
-
     def __init__(self, host: str, **kwargs):
         self._host = host
         super().__init__(**kwargs)

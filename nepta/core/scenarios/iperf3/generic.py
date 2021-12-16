@@ -101,21 +101,17 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
 
-        tests.append(MPStat(
-            interval=self.test_length,
-            count=1,
-            cpu_list=','.join(
-                [str(x[0]) for x in cpu_pinning_list]
+        tests.append(
+            MPStat(interval=self.test_length, count=1, cpu_list=','.join([str(x[0]) for x in cpu_pinning_list]))
+        )
+        tests.append(
+            RemoteMPStat(
+                host=path.their_ip,
+                interval=self.test_length,
+                count=1,
+                cpu_list=','.join([str(x[1]) for x in cpu_pinning_list]),
             )
-        ))
-        tests.append(RemoteMPStat(
-            host=path.their_ip,
-            interval=self.test_length,
-            count=1,
-            cpu_list=','.join(
-                [str(x[1]) for x in cpu_pinning_list]
-            )
-        ))
+        )
 
         return tests
 

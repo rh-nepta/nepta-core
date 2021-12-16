@@ -32,9 +32,7 @@ class Iperf3TestResult:
 
     # additional dimensions for mpstat results
     _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
-    _MPSTAT_DIMENSIONS = [
-        f'mpstat_{j}_{i}' for i in _METRICS for j in ['local', 'remote']
-    ]
+    _MPSTAT_DIMENSIONS = [f'mpstat_{j}_{i}' for i in _METRICS for j in ['local', 'remote']]
 
     @classmethod
     @abc.abstractmethod
@@ -52,8 +50,7 @@ class Iperf3TestResult:
         self._format_func: Callable[[str], str] = formatter if formatter is not None else lambda x: x
 
     def __str__(self):
-        return 'iPerf3 parsed test results >> ' + \
-               ' | '.join([f'{k}->{v}' for k, v in self])
+        return 'iPerf3 parsed test results >> ' + ' | '.join([f'{k}->{v}' for k, v in self])
 
     # decorator needed to enable polymorphism
     @singledispatchmethod
@@ -115,14 +112,8 @@ class Iperf3TestResult:
         return self
 
     def _mpstat_from_dict(self, local: dict, remote: dict) -> 'Iperf3TestResult':
-        self._array = np.array(self._array.tolist() + [
-            x[y]
-            for y in self._METRICS
-            for x in [local, remote]
-        ])
-        self._dims.update({
-            k: v for v, k in enumerate(self._MPSTAT_DIMENSIONS, max(self._dims.values()) + 1)
-        })
+        self._array = np.array(self._array.tolist() + [x[y] for y in self._METRICS for x in [local, remote]])
+        self._dims.update({k: v for v, k in enumerate(self._MPSTAT_DIMENSIONS, max(self._dims.values()) + 1)})
         return self
 
 
@@ -245,7 +236,6 @@ class Iperf3Test(Iperf3Server):
 
 
 class Iperf3MPStat(Iperf3Test):
-
     def __init__(self, **kwargs):
         super(Iperf3MPStat, self).__init__(**kwargs)
         self._loc_mpstat: MPStat = None

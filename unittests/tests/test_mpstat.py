@@ -7,7 +7,6 @@ from nepta.core.tests.mpstat import MPStat
 
 @skipIf(shutil.which('mpstat') is None, 'Skipping because mpstat is not installed')
 class MPStatTests(TestCase):
-
     def test_basic_functionality(self):
         mpstat = MPStat()
         mpstat.run()
