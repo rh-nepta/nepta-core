@@ -26,6 +26,10 @@ class SSHConfigItem(KeyValue):
     pass
 
 
+class SSHDConfigItem(KeyValue):
+    pass
+
+
 class KDumpOption(KeyValue):
     pass
 
