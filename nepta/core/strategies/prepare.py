@@ -44,7 +44,8 @@ class Prepare(Strategy):
             host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
             remote_scenarios += host_conf.get_subset(m_class=GenericIPerf3Stream)
 
-        max_iperf3_instances = 0
+        # spawn at least 100 iPerf3 instances due to laziness
+        max_iperf3_instances = 100
         base_port = 0
 
         for scenario in remote_scenarios:
