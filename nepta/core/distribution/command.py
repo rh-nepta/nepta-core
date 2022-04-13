@@ -23,6 +23,15 @@ class Command(object):
     def __str__(self):
         return '{cls}: {cmd}'.format(cls=self.__class__.__name__, cmd=self._cmd_str())
 
+    def __enter__(self):
+        self.run()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.poll() is None:
+            logger.warning(f'Killing process {self}!')
+            self.terminate()
+
     def log_debug(self, *args, **kwargs):
         if self.enable_debug:
             logger.debug(*args, **kwargs)

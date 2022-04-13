@@ -7,7 +7,7 @@ from collections import OrderedDict
 from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
 
-from nepta.core.tests import Iperf3Test
+from nepta.core.tests import Iperf3Test, Iperf3MPStat, MPStat, RemoteMPStat
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class GenericIPerf3Stream(object):
 
 class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
     def init_test(self, path, size):
-        iperf_test = Iperf3Test(
+        iperf_test = Iperf3MPStat(
             client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=self.interval
         )
         if path.cpu_pinning:
@@ -100,27 +100,39 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
             )
             new_test.affinity = ','.join([str(x) for x in cpu_pinning])
             tests.append(new_test)
+
+        tests.append(
+            MPStat(interval=self.test_length, count=1, cpu_list=','.join([str(x[0]) for x in cpu_pinning_list]))
+        )
+        tests.append(
+            RemoteMPStat(
+                host=path.their_ip,
+                interval=self.test_length,
+                count=1,
+                cpu_list=','.join([str(x[1]) for x in cpu_pinning_list]),
+            )
+        )
+
         return tests
 
     @info_log_func_output
     @catch_and_log_exception
     def parse_all_results(self, tests):
-        result_dict = OrderedDict()
+        mpstats = tests[-2:]
+        tests = tests[:-2]
         total = sum([test.get_result() for test in tests])
+
+        total.add_mpstat_sum(*mpstats)
         total.set_data_formatter(self.str_round)
-        result_dict.update({'total_' + key: value for key, value in total})
+
+        result_dict = OrderedDict({'total_' + key: value for key, value in total})
         return result_dict
 
 
 class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
-        if len(tests) > 2:
-            logger.error(
-                'Too much tests defined in DuplexStream configuration. This test should run 2 streams.'
-                f'Running {len(tests)} streams.'
-            )
-        for i in range(1, len(tests), 2):
+        for i in range(1, len(tests) - 2, 2):
             tests[i].reverse = True
         return tests
 
@@ -128,6 +140,8 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
     @catch_and_log_exception
     def parse_all_results(self, tests):
         result_dict = OrderedDict()
+        mpstats = tests[-2:]
+        tests = tests[:-2]
 
         stream_test_result = sum([test.get_result() for test in tests[::2]])
         stream_test_result.set_data_formatter(self.str_round)
@@ -135,6 +149,7 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
         reversed_test_result.set_data_formatter(self.str_round)
 
         total = stream_test_result + reversed_test_result
+        total.add_mpstat_sum(*mpstats)
         result_dict['up_throughput'] = stream_test_result['throughput']
         result_dict['down_throughput'] = reversed_test_result['throughput']
         result_dict.update({'total_' + key: value for key, value in total})
