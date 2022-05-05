@@ -46,7 +46,7 @@ class GenericIPerf3Stream(object):
 
     @classmethod
     def mbps(cls, num):
-        return cls.str_round(num / 10.0 ** 6)
+        return cls.str_round(num / 10.0**6)
 
     @staticmethod
     def str_round(num, decimal=2):
