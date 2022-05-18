@@ -73,7 +73,8 @@ class PathList(list):
     def set_dynamic_duplex_stream_pinning(self, clone=True):
         new = self.clone() if clone else self
         for path in new:
-            path.cpu_pinning = (path.cpu_pinning[0], [path.cpu_pinning[0][0] + 1, path.cpu_pinning[0][1] + 1])
+            if path.cpu_pinning:
+                path.cpu_pinning = (path.cpu_pinning[0], [path.cpu_pinning[0][0] + 1, path.cpu_pinning[0][1] + 1])
         return new
 
     def __add__(self, other):
