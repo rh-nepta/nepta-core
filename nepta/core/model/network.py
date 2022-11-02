@@ -126,17 +126,8 @@ class GenericGuestTap:
     switch: Any
     mac: str
 
-    USED_MACS = set()
-
     def __repr__(self):
         return f'{self.__class__.__name__}_{self.guest.name}_{self.switch.name}_{self.mac}'
-
-    def __post_init__(self):
-        if self.mac in self.USED_MACS:
-            raise ValueError(f'This MAC address is already used. Please use another one!!!'
-                             f'{self.mac} already in {self.USED_MACS}!')
-        else:
-            self.USED_MACS.add(self.mac)
 
 
 @dataclass(repr=False)
