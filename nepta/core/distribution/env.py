@@ -62,7 +62,7 @@ class Hardware(metaclass=_MetaPrintedType):
         with Command('grep MemTotal /proc/meminfo') as _cmd:
             total_memory = int(_cmd.watch_output()[0].split()[1]) * 1024  # convert to bytes
 
-        with Command('ipp -j link') as _cmd:
+        with Command('ip -j link') as _cmd:
             interfaces = {x['ifname']: x for x in json.loads(_cmd.watch_output()[0])}
     except FileNotFoundError as e:
         logger.error(e)
