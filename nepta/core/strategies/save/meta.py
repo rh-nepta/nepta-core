@@ -1,10 +1,11 @@
-import os
-import sys
+import logging
 
 from nepta.core.strategies.generic import Strategy
 from nepta.core.model import bundles
 from nepta.core.distribution.env import Environment
 from nepta.core.distribution.utils.system import SELinux, RPMTool, Tuned, Lscpu
+
+logger = logging.getLogger(__name__)
 
 
 class SaveMeta(Strategy):
@@ -37,8 +38,12 @@ class SaveMeta(Strategy):
             root['BeakerHUB'] = Environment.hub
 
         # In some special cases, tuned profile is not set (e.g.: Docker) or tuned-adm is not installed
-        tuned_profile = Tuned.get_profile()
-        if tuned_profile:
-            root['TunedProfile'] = tuned_profile
+        try:
+            tuned_profile = Tuned.get_profile()
+            if tuned_profile:
+                root['TunedProfile'] = tuned_profile
+        except Exception as e:
+            logger.error('Tuned profile is unknown due to following error.')
+            logger.error(str(e))
 
         root['Architecture'] = Lscpu.architecture()
