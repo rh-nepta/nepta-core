@@ -42,7 +42,10 @@ class Prepare(Strategy):
         remote_scenarios = model.bundles.Bundle()
         for host in sync_objs:
             host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
-            remote_scenarios += host_conf.get_subset(m_class=GenericIPerf3Stream)
+            if host_conf:
+                remote_scenarios += host_conf.get_subset(m_class=GenericIPerf3Stream)
+            else:
+                logger.error(f'Synchronized host {host} does not have configuration for current testcase.')
 
         # spawn at least 100 iPerf3 instances due to laziness
         max_iperf3_instances = 100
@@ -74,7 +77,10 @@ class Prepare(Strategy):
         remote_scenarios = model.bundles.Bundle()
         for host in sync_objs:
             host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
-            remote_scenarios += host_conf.get_subset(m_class=ScenarioGeneric)
+            if host_conf:
+                remote_scenarios += host_conf.get_subset(m_class=ScenarioGeneric)
+            else:
+                logger.error(f'Synchronized host {host} does not have configuration for current testcase.')
 
         if any(map(lambda x: x.__class__.__name__.find('Netperf') > -1, remote_scenarios)):
             logger.info('Starting netserver')
