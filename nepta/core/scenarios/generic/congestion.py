@@ -1,6 +1,7 @@
 import logging
 from time import sleep
 from multiprocessing import Process
+from retry import retry
 
 from nepta.core.scenarios.generic.scenario import StreamGeneric, SingleStreamGeneric
 from nepta.core.distribution.utils.attero import Attero
@@ -19,6 +20,7 @@ class StaticCongestion(SingleStreamGeneric):
         return sec
 
     @staticmethod
+    @retry(tries=3, delay=10, logger=logger)
     def setup_attero(path):
         Attero.clear_existing_impairments()
         Attero.set_delay_and_bottleneck_bandwidth('AB', path.delay, path.limit_bandwidth)
