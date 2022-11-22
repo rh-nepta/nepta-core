@@ -17,7 +17,7 @@ setup(
     author_email='atomasov@redhat.com',
     url='https://github.com/rh-nepta/nepta-core',
     packages=find_namespace_packages(include=['nepta.*']),
-    install_requires=['jinja2', 'xml-diff', 'numpy', 'singledispatchmethod'],
+    install_requires=['jinja2', 'xml-diff', 'numpy', 'singledispatchmethod', 'retry'],
     namespace_packages=['nepta'],
     include_package_data=True,
     entry_points={'console_scripts': ['nepta = nepta.core.__main__:main']},
