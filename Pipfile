@@ -19,6 +19,7 @@ nepta-dataformat = {editable = true,git = "https://gitlab.cee.redhat.com/kernel-
 numpy = "*"
 singledispatchmethod = "*"
 dataclasses = "*"
+retry = "*"
 
 [requires]
 python_version = "3.6"
