@@ -24,3 +24,9 @@ class Report(Strategy):
         Rstrnt.submit_log(self.package.metas._xml_file.path)
         Rstrnt.submit_log(self.package.store.path)
         Rstrnt.report_result(success=self.result)
+
+
+class Abort(Strategy):
+    @Strategy.schedule
+    def abort(self):
+        Rstrnt.abort()

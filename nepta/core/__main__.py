@@ -126,6 +126,7 @@ def create_desynchronize_strategy(strategy: CompoundStrategy, package: DataPacka
 
     if Environment.in_rstrnt:
         desync_strategy += strategies.report.Report(package, result=False)
+        desync_strategy += strategies.report.Abort()  # abort running job
 
     return desync_strategy
 
@@ -365,7 +366,7 @@ def main():
     except BaseException as e:
         logger.error('Error occurred during strategy execution.')
         logger.error(e)
-        logger.warning('Setting pass to all barriers')
+        logger.warning('Setting pass to all barriers and aborting execution.')
         desync = create_desynchronize_strategy(final_strategy, package)
         desync()
         raise e
