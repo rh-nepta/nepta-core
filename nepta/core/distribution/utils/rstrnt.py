@@ -77,6 +77,6 @@ class Rstrnt:
     @classmethod
     @rstrnt_only
     def abort(cls):
-        logger.info(f'aborting using rstrnt')
-        c = Command(f'rstrnt-abort').run()
+        logger.info('aborting using rstrnt')
+        c = Command('rstrnt-abort').run()
         print(c.get_output())
