@@ -50,14 +50,12 @@ black:
     - docker
   stage: advanced
   script: tox -e black
-  allow_failure: true
 
 flake8:
   tags:
     - docker
   stage: advanced
   script: tox -e flake8
-  allow_failure: true
 
 pytest-mypy:
   tags:
