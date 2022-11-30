@@ -18,19 +18,19 @@ py36:
   tags:
     - docker
   stage: pytest
-  script: pipenv run tox -e py36
+  script: tox -e py36
 
 py37:
   tags:
     - docker
   stage: pytest
-  script: pipenv run tox -e py37
+  script: tox -e py37
 
 py36:
   tags:
     - docker
   stage: pytest
-  script: pipenv run tox -e py39
+  script: tox -e py39
 
 nepta-print-conf:
   tags:
@@ -42,7 +42,7 @@ quotes:
   tags:
     - docker
   stage: pytest
-  script: pipenv run tox -e unify
+  script: tox -e unify
   allow_failure: true
 
 black:
@@ -51,7 +51,7 @@ black:
   stage: advanced
   needs:
     - quotes
-  script: pipenv run tox -e black
+  script: tox -e black
   allow_failure: true
 
 flake8:
@@ -60,7 +60,7 @@ flake8:
   stage: advanced
   needs:
     - quotes
-  script: pipenv run tox -e flake8
+  script: tox -e flake8
   allow_failure: true
 
 pytest-mypy:
