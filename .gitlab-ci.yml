@@ -49,8 +49,6 @@ black:
   tags:
     - docker
   stage: advanced
-  needs:
-    - quotes
   script: tox -e black
   allow_failure: true
 
@@ -58,8 +56,6 @@ flake8:
   tags:
     - docker
   stage: advanced
-  needs:
-    - quotes
   script: tox -e flake8
   allow_failure: true
 
@@ -67,10 +63,6 @@ pytest-mypy:
   tags:
     - docker
   stage: ultra
-  needs:
-    - py36
-    - py37
-    - py39
   script: tox -e pytest-mypy
   allow_failure: true
 
@@ -78,7 +70,5 @@ mypy:
   tags:
     - docker
   stage: ultra
-  needs:
-    - nepta-print-conf
   script: tox -e mypy
   allow_failure: true
