@@ -20,6 +20,18 @@ py36:
   stage: pytest
   script: pipenv run tox -e py36
 
+py37:
+  tags:
+    - docker
+  stage: pytest
+  script: pipenv run tox -e py37
+
+py36:
+  tags:
+    - docker
+  stage: pytest
+  script: pipenv run tox -e py39
+
 nepta-print-conf:
   tags:
     - docker
@@ -57,6 +69,8 @@ pytest-mypy:
   stage: ultra
   needs:
     - py36
+    - py37
+    - py39
   script: pipenv run tox -e pytest-mypy
   allow_failure: true
 
