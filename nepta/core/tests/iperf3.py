@@ -44,11 +44,9 @@ class Iperf3TestResult:
         """
         pass
 
-    def __init__(self,
-                 array: np.ndarray,
-                 formatter: Optional[Callable[[str], str]] = None,
-                 dims: Optional[dict] = None
-                 ):
+    def __init__(
+        self, array: np.ndarray, formatter: Optional[Callable[[str], str]] = None, dims: Optional[dict] = None
+    ):
         self._array: np.ndarray = array
         self._dims = dims or self._DIMENSIONS
         self._format_func = formatter if formatter is not None else lambda x: x

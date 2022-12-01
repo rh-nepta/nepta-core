@@ -109,10 +109,10 @@ class EthernetInterface(Interface):
 class VlanInterface(Interface):
     def __init__(
         self,
-            parrent: Interface,
-            vlan_id: int,
-            v4_conf: Optional[IPv4Configuration] = None,
-            v6_conf: Optional[IPv6Configuration] = None,
+        parrent: Interface,
+        vlan_id: int,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
     ):
         name = f'{parrent.name}.{vlan_id}'
         super().__init__(name, v4_conf, v6_conf)
@@ -167,10 +167,10 @@ class TeamMasterInterface(Interface):
 
     def __init__(
         self,
-            name: str,
-            v4_conf: Optional[IPv4Configuration] = None,
-            v6_conf: Optional[IPv6Configuration] = None,
-            runner: Runner = Runner.LACP
+        name: str,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
+        runner: Runner = Runner.LACP,
     ):
         super().__init__(name, v4_conf, v6_conf)
         self.runner = runner
