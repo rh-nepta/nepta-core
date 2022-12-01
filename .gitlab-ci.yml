@@ -2,16 +2,9 @@ image: quay.io/perfqe/nepta-env:latest
 
 stages:
   - pytest
-  - soft
-  - advanced
-  - ultra
-
-before_script:
-  - export NETWORK_PERFTEST_ARGS="--help"
-  - pipenv install --dev
-  - pipenv run env
-  - pipenv run pip install .
-  - pipenv run pip list
+  - print 
+  - code-style
+  - mypy
 
 
 py36:
@@ -35,8 +28,14 @@ py39:
 nepta-print-conf:
   tags:
     - docker
-  stage: soft
-  script: pipenv run nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org
+  stage: print
+  script: 
+    - export NETWORK_PERFTEST_ARGS="--help"
+    - pipenv install --dev
+    - pipenv run env
+    - pipenv run pip install .
+    - pipenv run pip list
+    - pipenv run nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org
 
 quotes:
   tags:
@@ -48,25 +47,25 @@ quotes:
 black:
   tags:
     - docker
-  stage: advanced
+  stage: code-style 
   script: tox -e black
 
 flake8:
   tags:
     - docker
-  stage: advanced
+  stage: code-style 
   script: tox -e flake8
 
 pytest-mypy:
   tags:
     - docker
-  stage: ultra
+  stage: mypy 
   script: tox -e pytest-mypy
   allow_failure: true
 
 mypy:
   tags:
     - docker
-  stage: ultra
+  stage: mypy 
   script: tox -e mypy
   allow_failure: true
