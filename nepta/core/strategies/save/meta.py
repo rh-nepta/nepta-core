@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from nepta.dataformat import DataPackage
 from nepta.core.strategies.generic import Strategy
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class SaveMeta(Strategy):
-    def __init__(self, conf: HostBundle, package: DataPackage, meta: dict = None):
+    def __init__(self, conf: HostBundle, package: DataPackage, meta: Optional[dict] = None):
         super().__init__()
         self.conf = conf
         self.package = package

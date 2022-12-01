@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from nepta.core.strategies.generic import Strategy, CompoundStrategy
 from nepta.core.strategies.run import RunScenarios
@@ -8,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Report(Strategy):
-    def __init__(self, package, all_strategies: CompoundStrategy = None, result: bool = True):
+    def __init__(self, package, all_strategies: Optional[CompoundStrategy] = None, result: bool = True):
         super().__init__()
         self.package = package
         self.all_strategies = all_strategies
