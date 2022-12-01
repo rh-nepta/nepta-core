@@ -4,6 +4,11 @@ test:
 pip:
 	python3 setup.py sdist
 
+code-style:
+	unify -r ./
+	black -l 120 -S ./
+	flake8 nepta unittests
+
 clean:
 	# remove all python cache files
 	rm -rvf dist nepta_core.egg-info .tox .mypy_cache/ build/
