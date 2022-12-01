@@ -11,6 +11,7 @@ flake8 = "*"
 pytest-mypy = "*"
 black = "*"
 types-dataclasses = "*"
+unify = "*"
 
 [packages]
 jinja2 = "*"
@@ -22,7 +23,4 @@ dataclasses = "*"
 retry = "*"
 
 [requires]
-python_version = "3.6"
-
-[pipenv]
-allow_prereleases = true
+python_version = "3.7"

@@ -68,9 +68,9 @@ class Interface:
     def __init__(
         self,
         name: str,
-        v4_conf: IPv4Configuration = None,
-        v6_conf: IPv6Configuration = None,
-        master_bridge: 'LinuxBridge' = None,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
+        master_bridge: Optional['LinuxBridge'] = None,
         mtu: int = 1500,
     ):
         self.name = name
@@ -94,11 +94,11 @@ class EthernetInterface(Interface):
         self,
         name: str,
         mac: str,
-        v4_conf: IPv4Configuration = None,
-        v6_conf: IPv6Configuration = None,
-        bind_cores: List[int] = None,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
+        bind_cores: Optional[List[int]] = None,
         mtu: int = 1500,
-        offloads: Dict[str, str] = None,
+        offloads: Optional[Dict[str, str]] = None,
     ):
         super().__init__(name, v4_conf, v6_conf, mtu=mtu)
         self.mac = mac.lower()
@@ -108,7 +108,11 @@ class EthernetInterface(Interface):
 
 class VlanInterface(Interface):
     def __init__(
-        self, parrent: Interface, vlan_id: int, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
+        self,
+        parrent: Interface,
+        vlan_id: int,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
     ):
         name = f'{parrent.name}.{vlan_id}'
         super().__init__(name, v4_conf, v6_conf)
@@ -162,9 +166,13 @@ class TeamMasterInterface(Interface):
         ACT_BCKP = '{"runner": {"name": "activebackup", "link_watch": "ethtool"}}'
 
     def __init__(
-        self, name: str, v4: IPv4Configuration = None, v6: IPv6Configuration = None, runner: Runner = Runner.LACP
+        self,
+        name: str,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
+        runner: Runner = Runner.LACP,
     ):
-        super().__init__(name, v4, v6)
+        super().__init__(name, v4_conf, v6_conf)
         self.runner = runner
 
     def add_interface(self, port: 'TeamChildInterface'):
@@ -188,8 +196,8 @@ class BondMasterInterface(Interface):
     def __init__(
         self,
         name: str,
-        v4_conf: IPv4Configuration = None,
-        v6_conf: IPv6Configuration = None,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
         bond_opts: BondOpts = BondOpts.LACP,
     ):
         super().__init__(name, v4_conf, v6_conf)
@@ -414,7 +422,11 @@ class OVSTunnel:
 
 class OVSIntPort(Interface):
     def __init__(
-        self, name: str, ovs_switch: OVSwitch, v4_conf: IPv4Configuration = None, v6_conf: IPv6Configuration = None
+        self,
+        name: str,
+        ovs_switch: OVSwitch,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
     ):
         self.ovs_switch = ovs_switch
         super(OVSIntPort, self).__init__(name, v4_conf, v6_conf)

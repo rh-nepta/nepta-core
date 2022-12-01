@@ -14,12 +14,14 @@ def rstrnt_only(f):
     :param f:
     :return:
     """
+
     @wraps
     def inner(*args, **kwargs):
         if not Environment.in_rstrnt:
             logger.warning('Skipping method, NOT in rstrnt environment!!!')
             return
         return f(*args, **kwargs)
+
     return inner
 
 
@@ -75,6 +77,6 @@ class Rstrnt:
     @classmethod
     @rstrnt_only
     def abort(cls):
-        logger.info(f'aborting using rstrnt')
-        c = Command(f'rstrnt-abort').run()
+        logger.info('aborting using rstrnt')
+        c = Command('rstrnt-abort').run()
         print(c.get_output())
