@@ -8,11 +8,10 @@ import logging
 import shlex
 import time
 import uuid
-from datetime import datetime as dtdt
+from datetime import datetime as dt
 
 from nepta.core import strategies, synchronization, model
 from nepta.core.strategies.generic import CompoundStrategy
-from nepta.core.distribution.utils.rstrnt import Rstrnt
 from nepta.core.distribution.env import Environment
 
 from nepta.dataformat import Section, DataPackage
@@ -144,9 +143,9 @@ class CheckEnvVariable(argparse._AppendAction):
 def main():
     parser = argparse.ArgumentParser(
         description='Script for running whole network performance test suite. This test is'
-        ' divided into separate phases, which take care of : setup servers,'
-        'execute tests, save results. Each of these phases can be run'
-        'ane by one or together according to your preferences.'
+                    ' divided into separate phases, which take care of : setup servers,'
+                    'execute tests, save results. Each of these phases can be run'
+                    'ane by one or together according to your preferences.'
     )
 
     parser.add_argument(
@@ -302,7 +301,7 @@ def main():
         return
 
     extra_meta = {
-        'DateTime': dtdt.utcfromtimestamp(int(timestamp)),
+        'DateTime': dt.utcfromtimestamp(int(timestamp)),
         'UUID': uuid.uuid4(),
     }
     extra_meta.update(args.meta)
