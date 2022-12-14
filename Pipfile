@@ -12,6 +12,7 @@ pytest-mypy = "*"
 black = "*"
 types-dataclasses = "*"
 unify = "*"
+coloredlogs = "*"
 
 [packages]
 jinja2 = "*"
