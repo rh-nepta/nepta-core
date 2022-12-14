@@ -143,9 +143,9 @@ class CheckEnvVariable(argparse._AppendAction):
 def main():
     parser = argparse.ArgumentParser(
         description='Script for running whole network performance test suite. This test is'
-                    ' divided into separate phases, which take care of : setup servers,'
-                    'execute tests, save results. Each of these phases can be run'
-                    'ane by one or together according to your preferences.'
+        ' divided into separate phases, which take care of : setup servers,'
+        'execute tests, save results. Each of these phases can be run'
+        'ane by one or together according to your preferences.'
     )
 
     parser.add_argument(
