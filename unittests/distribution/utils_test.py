@@ -13,7 +13,6 @@ class TimeDateCtlTest(TestCase):
         self.assertTrue('NTP' in out)
 
     @skip('skip for CI')
-    def test_status(self):
     def test_set_timezone(self):
         zone = TimeZone('Europe/Prague')
         out = TimeDateCtl.set_timezone(zone)
