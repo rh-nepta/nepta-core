@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Tuple, Optional
 
 from nepta.core.distribution.command import Command
-from nepta.core.model.system import SystemService, KernelModule
+from nepta.core.model.system import SystemService, KernelModule, TimeZone
 
 logger = logging.getLogger(__name__)
 
@@ -221,3 +221,21 @@ class KernelModuleUtils:
         out, ret = cmd.get_output()
         if ret:
             logger.error(f'Error during modprobe module {module.name} with options {module.options}')
+
+
+class TimeDateCtl:
+    CMD = 'timedatectl'
+
+    @classmethod
+    def _run(cls, sub_cmd, *args):
+        cmd = " ". join([cls.CMD, sub_cmd, *args])
+        cmd = Command(cmd)
+        cmd.run()
+        return cmd.watch_and_log_error()[0]
+    @classmethod
+    def status(cls):
+        return cls._run('status')
+
+    @classmethod
+    def set_timezone(cls, timezone: TimeZone):
+        return cls._run('set-timezone', timezone.value)

@@ -57,6 +57,9 @@ class SSHAuthorizedKey(Value):
 class Package(Value):
     pass
 
+class TimeZone(Value):
+    pass
+
 
 @dataclass(frozen=True)
 class SpecialPackage:

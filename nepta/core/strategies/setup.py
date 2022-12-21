@@ -8,7 +8,7 @@ from nepta.core.strategies.generic import Strategy
 from nepta.core import model
 from nepta.core.distribution import conf_files, env
 from nepta.core.distribution.command import Command
-from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemD, KernelModuleUtils
+from nepta.core.distribution.utils.system import Tuned, SysVInit, SystemD, KernelModuleUtils, TimeDateCtl
 from nepta.core.distribution.utils.fs import Fs
 from nepta.core.distribution.utils.network import IpCommand, LldpTool, OvsVsctl, NmCli
 from nepta.core.distribution.utils.virt import Docker, Virsh
@@ -29,6 +29,15 @@ class Setup(Strategy):
     def __init__(self, conf):
         super().__init__()
         self.conf = conf
+
+
+    @Strategy.schedule
+    def set_timezone(self):
+        zones = self.conf.get_subset(m_class=model.system.TimeZone)
+        if len(zones):
+            if len(zones) > 1:
+                logger.warning(f'Multiple time zones specified! Using {zones[0]}.')
+            TimeDateCtl.set_timezone(zones[0])
 
     @Strategy.schedule
     def add_repositories(self):
