@@ -228,7 +228,7 @@ class TimeDateCtl:
 
     @classmethod
     def _run(cls, sub_cmd, *args):
-        cmd = " ". join([cls.CMD, sub_cmd, *args])
+        cmd = ' '. join([cls.CMD, sub_cmd, *args])
         cmd = Command(cmd)
         cmd.run()
         return cmd.watch_and_log_error()[0]
