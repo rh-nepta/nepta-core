@@ -30,7 +30,6 @@ class Setup(Strategy):
         super().__init__()
         self.conf = conf
 
-
     @Strategy.schedule
     def set_timezone(self):
         zones = self.conf.get_subset(m_class=model.system.TimeZone)

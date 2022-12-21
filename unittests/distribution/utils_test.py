@@ -5,7 +5,6 @@ from nepta.core.model.system import TimeZone
 
 
 class TimeDateCtlTest(TestCase):
-
     @skip('skip for CI')
     def test_status(self):
         out = TimeDateCtl.status()

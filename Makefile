@@ -1,5 +1,6 @@
 test:
-	pytest-3 
+	pip install .
+	pytest
 
 pip:
 	python3 setup.py sdist
