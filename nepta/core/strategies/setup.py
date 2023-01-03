@@ -440,17 +440,7 @@ class Rhel8(Rhel7):
 
 
 class Rhel9(Rhel8):
-
-    # TODO : delete this after resolving package issues
-    @Strategy.schedule
-    def install_packages(self):
-        pkgs = self.conf.get_subset(m_type=model.system.Package)
-        for pkg in pkgs:
-            install_cmd = self._INSTALLER + pkg.value
-            c = Command(install_cmd)
-            c.run()
-            out, _ = c.watch_output()
-            logger.info(out)
+    pass
 
 
 def get_strategy(conf):
@@ -462,5 +452,5 @@ def get_strategy(conf):
         return Rhel8(conf)
     elif env.RedhatRelease.version.startswith('9'):
         return Rhel9(conf)
-    else:  # rhel8 is uses as default
-        return Rhel8(conf)
+    else:  # latest is used as default
+        return Rhel9(conf)
