@@ -7,7 +7,6 @@ from nepta.core.distribution.command import Command
 from nepta.core.strategies.setup.generic import _GenericSetup as Setup
 from nepta.core.distribution.utils.system import Tuned, KernelModuleUtils, TimeDateCtl, SystemD
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -19,6 +18,16 @@ class SystemSetup(Setup):
             if len(zones) > 1:
                 logger.warning(f'Multiple time zones specified! Using {zones[0]}.')
             TimeDateCtl.set_timezone(zones[0])
+
+    @Setup.schedule
+    def setup_hostname(self):
+        hostname = self.conf.get_hostname()
+        logger.info(f'Setting up hostname >> f{hostname}')
+        cf = conf_files.HostnameConfFile(hostname)
+        cf.apply()
+        c = Command(f'hostname -F {cf.get_path()}')
+        c.run()
+        c.watch_and_log_error()
 
     @Setup.schedule
     def configure_ssh(self):
