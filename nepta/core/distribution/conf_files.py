@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 
 from nepta.core import model
 from nepta.core.model import network as net_model
+from nepta.core.distribution import env
 from nepta.core.distribution.utils.fs import Fs
 
 logger = logging.getLogger(__name__)
@@ -101,7 +102,10 @@ class GenericIPsecFile(JinjaConfFile, ABC):
 
 
 class IPsecConnFile(GenericIPsecFile):
-    TEMPLATE = 'ipsec_conn.jinja2'
+    TEMPLATE = 'ipsec_rhel8_conn.jinja2'
+    # Use different ipsec template for RHEL7
+    if env.RedhatRelease.version.startswith('7'):
+        TEMPLATE = 'ipsec_conn.jinja2'
     SUFFIX = 'conf'
 
     def _make_jinja_context(self):
@@ -110,15 +114,6 @@ class IPsecConnFile(GenericIPsecFile):
             'family': self.connection.family,
             **self.connection.__dict__,
         }
-
-
-class IPsecRHEL8ConnFile(IPsecConnFile):
-    """
-    IPsec in RHEL8 has different libreswan version and some of old parameters are obsolete.
-    (e.g.: connaddrfamily)
-    """
-
-    TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 
 class IPsecSecretsFile(GenericIPsecFile):
