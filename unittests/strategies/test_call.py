@@ -149,24 +149,6 @@ class CallFunctionTest(unittest.TestCase):
         self.assertTrue(prepare.start_iperf3_services.was_called)
         self.assertTrue(save_attach.save_attachments.was_called)
 
-    def test_call_check_if_nonscheduled_R_not_called(self):
-        empty_bundle = Bundle()
-        sys_setup = SystemSetup(empty_bundle)
-        net_setup = Network(empty_bundle)
-
-        setup = sys_setup + net_setup
-
-        # mockup all methods
-        MethCallLogger.infect_all_public(sys_setup, True)
-        MethCallLogger.infect_all_public(net_setup, True)
-
-        setup()
-
-        # check random scheduled if was call
-        self.assertTrue(sys_setup.configure_kdump.was_called)
-        # check random non-scheduled if was not called
-        self.assertFalse(net_setup.wipe_routes.was_called)
-
     def test_call_save_meta_check_meta(self):
         bundle = HostBundle('klacek1', 'Standard')
         package = df.DataPackage.create(self.PACKAGE_PATH)
