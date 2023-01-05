@@ -8,5 +8,12 @@ type=ethernet
 [ethernet]
 mac-address={{ intf.mac }}
 mtu={{ intf.mtu }}
+    {% if intf.offloads %}
+
+[ethtool]
+        {% for k,v in intf.offloads.items() -%}
+            feature-{{ k }}={{ v|lower }}
+        {% endfor %}
+    {% endif %}
 {% endblock %}
 

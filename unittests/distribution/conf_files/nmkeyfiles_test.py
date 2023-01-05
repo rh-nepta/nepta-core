@@ -231,36 +231,48 @@ mtu=1450
         )
         keyfile = NmcliKeyFile(vlan)
         expected = '''\
-DEVICE=ixgbe_0.963
-ONBOOT=yes
-BOOTPROTO=none
-MTU=1500
-VLAN=yes
-IPV4_FAILURE_FATAL=yes
-IPADDR0=192.168.0.1
-NETMASK0=255.255.255.0
-IPADDR1=192.168.1.1
-NETMASK1=255.255.255.0
-GATEWAY=192.168.0.255
-GATEWAY0=192.168.0.255
-IPV6INIT=yes
-IPV6_FAILURE_FATAL=yes
-IPV6_AUTOCONF=no
-IPV6ADDR=fd00::1/64
+[connection]
+id=ixgbe_0.963
+interface-name=ixgbe_0.963
+type=vlan
 
+[ipv4]
+address1=192.168.0.1/24
+address2=192.168.1.1/24
+gateway=192.168.0.255
+may-fail=false
+method=manual
+
+[ipv6]
+address1=fd00::1/64
+dns=2001:4860:4860::8844;2001:4860:4860::8888;
+may-fail=false
+method=manual
+
+[vlan]
+interface-name=ixgbe_0.963
+parent=
+id=963
 '''
         self.assertEqual(expected, keyfile.get_content())
 
     def test_offloads(self):
-        intf = nm.EthernetInterface('int1', 'aa:bb:cc:dd:ee:ff', offloads={'gro': 'off', 'gso': 'on'})
+        intf = nm.EthernetInterface('int1', 'aa:bb:cc:dd:ee:ff', offloads={'gro': False, 'gso': True})
         keyfile = NmcliKeyFile(intf)
 
         expected_result = '''\
-DEVICE=int1
-ONBOOT=yes
-BOOTPROTO=none
-MTU=1500
-HWADDR=aa:bb:cc:dd:ee:ff
-ETHTOOL_OPTS="-K int1 gro off gso on"
+[connection]
+id=int1
+interface-name=int1
+type=ethernet
+
+[ethernet]
+mac-address=aa:bb:cc:dd:ee:ff
+mtu=1500
+
+[ethtool]
+feature-gro=false
+feature-gso=true
 '''
+        print(keyfile.get_content())
         self.assertEqual(expected_result, keyfile.get_content())
