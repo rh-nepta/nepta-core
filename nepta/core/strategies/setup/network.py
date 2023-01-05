@@ -168,3 +168,8 @@ class Crypto(Setup):
             conf_files.WireGuardConnectionFile(tun).apply()
             SystemD.start_service(svc)
             SystemD.enable_service(svc)
+
+
+class NewNetwork(Network):
+    # TODO: nmcli conn reload
+    pass

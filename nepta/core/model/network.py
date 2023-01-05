@@ -109,15 +109,15 @@ class EthernetInterface(Interface):
 class VlanInterface(Interface):
     def __init__(
         self,
-        parrent: Interface,
+        parent: Interface,
         vlan_id: int,
         v4_conf: Optional[IPv4Configuration] = None,
         v6_conf: Optional[IPv6Configuration] = None,
     ):
-        name = f'{parrent.name}.{vlan_id}'
+        name = f'{parent.name}.{vlan_id}'
         super().__init__(name, v4_conf, v6_conf)
         self.vlan_id = vlan_id
-        self.parrent = parrent.name
+        self.parent = parent.name
 
 
 @dataclass
