@@ -1,0 +1,12 @@
+{% extends "generic.jinja2" %}
+{% block connection %}
+{{ super() -}}
+type=ethernet
+{% endblock %}
+{% block additional_values %}
+
+[ethernet]
+mac-address={{ intf.mac }}
+mtu={{ intf.mtu }}
+{% endblock %}
+

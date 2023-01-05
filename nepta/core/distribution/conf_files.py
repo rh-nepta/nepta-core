@@ -159,9 +159,9 @@ class UdevRulesFile(JinjaConfFile):
         return {'interfaces': self._interfaces}
 
 
-class IfcfgFile(JinjaConfFile):
-    IFCFG_DIRECTORY = '/etc/sysconfig/network-scripts/'
-    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'ifcfg')
+class _NetConfFile(JinjaConfFile, ABC):
+    CFG_DIRECTORY = None
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR)
     TEMPLATE_MAPPING = {
         net_model.Interface: 'generic.jinja2',
         net_model.EthernetInterface: 'ethernet.jinja2',
@@ -174,18 +174,33 @@ class IfcfgFile(JinjaConfFile):
         net_model.LinuxBridge: 'bridge.jinja2',
     }
 
-    def __init__(self, interface_model: net_model.Interface):
-        super(IfcfgFile, self).__init__()
-        self._interface_model = interface_model
-        self.template = self.TEMPLATE_MAPPING[interface_model.__class__]
-
-    def _make_path(self):
-        file_name = 'ifcfg-%s' % self._interface_model.name
-        file_path = os.path.join(self.IFCFG_DIRECTORY, file_name)
-        return file_path
+    def __init__(self, interface: net_model.Interface):
+        super().__init__()
+        self._interface = interface
+        self.template = self.TEMPLATE_MAPPING[interface.__class__]
 
     def _make_jinja_context(self):
-        return {'intf': self._interface_model}
+        return {'intf': self._interface}
+
+
+class IfcfgFile(_NetConfFile):
+    CFG_DIRECTORY = '/etc/sysconfig/network-scripts/'
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'ifcfg')
+
+    def _make_path(self):
+        file_name = 'ifcfg-%s' % self._interface.name
+        file_path = os.path.join(self.CFG_DIRECTORY, file_name)
+        return file_path
+
+
+class NmcliKeyFile(_NetConfFile):
+    CFG_DIRECTORY = '/etc/NetworkManager/system-connections/'
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'nm-keyfiles')
+
+    def _make_path(self):
+        file_name = self._interface.name + '.nmconnection'
+        file_path = os.path.join(self.CFG_DIRECTORY, file_name)
+        return file_path
 
 
 class SysctlFile(ConfigFile):

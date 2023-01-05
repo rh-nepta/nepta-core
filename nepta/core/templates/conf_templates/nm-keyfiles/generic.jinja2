@@ -1,0 +1,42 @@
+{% block connection %}
+[connection]
+id={{ intf.name }}
+{#type={{ nm_type }}#}
+interface-name={{ intf.name }}
+{% endblock %}
+{% block addresses %}
+    {% if intf.v4_conf %}
+
+[ipv4]
+        {% for ip in intf.v4_conf.addresses -%}
+            address{{ loop.index }}={{ ip }}
+        {% endfor %}
+        {% if intf.v4_conf.gw -%}
+            gateway={{ intf.v4_conf.gw }}
+        {% endif %}
+        {% if intf.v4_conf.dns -%}
+            dns={% for dns in intf.v4_conf.dns %}{{ dns }};{% endfor %}
+
+        {% endif %}
+may-fail=false
+method=manual
+    {% endif %}
+    {% if intf.v6_conf %}
+
+[ipv6]
+        {% for ip in intf.v6_conf.addresses -%}
+            address{{ loop.index }}={{ ip }}
+        {% endfor %}
+        {% if intf.v6_conf.gw -%}
+            gateway={{ intf.v6_conf.gw }}
+        {% endif %}
+        {%- if intf.v6_conf.dns -%}
+            dns={% for dns in intf.v6_conf.dns %}{{ dns }};{% endfor %}
+
+        {% endif %}
+may-fail=false
+method=manual
+    {% endif %}
+{% endblock %}
+{% block additional_values %}
+{% endblock %}
