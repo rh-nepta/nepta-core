@@ -21,7 +21,7 @@ class ConfigFile(ABC):
     REWRITE_STRATEGY = 1
     APPEND_STRATEGY = 2
 
-    ACESS_RIGHTS = 0o755
+    ACCESS_RIGHTS = 0o755
     STRATEGY = REWRITE_STRATEGY
 
     def __str__(self):
@@ -51,7 +51,7 @@ class ConfigFile(ABC):
 
     def restore_access_rights(self):
         path_str = self._make_path()
-        Fs.chmod_path(path_str, self.ACESS_RIGHTS)
+        Fs.chmod_path(path_str, self.ACCESS_RIGHTS)
 
     def apply(self):
         logger.info('Creating configuration file.\n%s' % str(self))
@@ -195,10 +195,12 @@ class IfcfgFile(_NetConfFile):
 
 class NmcliKeyFile(_NetConfFile):
     CFG_DIRECTORY = '/etc/NetworkManager/system-connections/'
+    SUFFIX = '.nmconnection'
+    ACCESS_RIGHTS = 0o600
     TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'nm-keyfiles')
 
     def _make_path(self):
-        file_name = self._interface.name + '.nmconnection'
+        file_name = self._interface.name + self.SUFFIX
         file_path = os.path.join(self.CFG_DIRECTORY, file_name)
         return file_path
 
@@ -222,7 +224,7 @@ class SysctlFile(ConfigFile):
 
 class SSHPrivateKey(ConfigFile):
     PRIVATE_KEY_FILENAME = '/root/.ssh/{name}'
-    ACESS_RIGHTS = 0o600
+    ACCESS_RIGHTS = 0o600
 
     def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPrivateKey, self).__init__()
@@ -237,7 +239,7 @@ class SSHPrivateKey(ConfigFile):
 
 class SSHPublicKey(ConfigFile):
     PUBLIC_KEY_FILENAME = '/root/.ssh/{name}.pub'
-    ACESS_RIGHTS = 0o644
+    ACCESS_RIGHTS = 0o644
 
     def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPublicKey, self).__init__()
