@@ -74,6 +74,21 @@ class InterfaceTest(TestCase):
         network.VlanInterface(generic, 10, self.net4.new_config(2))
         network.VlanInterface(eth, 20)
 
+    def test_uuid(self):
+        generic1 = network.Interface(
+            'eth2',
+            IPv4Configuration(self.net4.new_addresses(3), self.gw4),
+            IPv6Configuration(self.net6.new_addresses(2), dns=self.dns6),
+        )
+        generic2 = generic1.clone()
+        generic3 = generic1.clone()
+        br1 = network.LinuxBridge('br1')
+        br1.add_interface(generic3)
+
+        self.assertEqual(generic1.uuid, generic2.uuid)
+        self.assertNotEqual(generic1.uuid, generic3.uuid)
+        self.assertNotEqual(br1.uuid, generic3.uuid)
+
 
 class RouteTest(TestCase):
     def setUp(self) -> None:

@@ -1,6 +1,7 @@
 import itertools
 import ipaddress
 import copy
+from uuid import uuid5, UUID
 from enum import Enum
 from typing import List, Union, Any, Optional, Iterator, Dict
 from dataclasses import dataclass, field
@@ -65,6 +66,9 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
 
 
 class Interface:
+
+    _UUID_NAMESPACE = UUID('139c4235-0719-4df9-9b24-851654118d38')
+
     def __init__(
         self,
         name: str,
@@ -85,8 +89,15 @@ class Interface:
         v6 = attrs.pop('v6_conf')
         return f'{self.__class__.__name__} >> {attrs}\n\tv4_conf: {v4}\n\tv6_conf: {v6}'
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.name})'
+
     def clone(self):
         return copy.deepcopy(self)
+
+    @property
+    def uuid(self) -> UUID:
+        return uuid5(self._UUID_NAMESPACE, str(self))
 
 
 class EthernetInterface(Interface):

@@ -1,6 +1,7 @@
 {% block connection %}
 [connection]
 id={{ intf.name }}
+uuid={{ intf.uuid }}
 interface-name={{ intf.name }}
     {% if intf.master_bridge %}
 master={{ intf.master_bridge.name }}

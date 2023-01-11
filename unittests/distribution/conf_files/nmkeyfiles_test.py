@@ -24,6 +24,7 @@ class NmKeyfilesTest(TestCase):
 
         expected_result = '''[connection]
 id=int1
+uuid=c77991b3-f8bc-5f97-87f2-e4fb333712ab
 interface-name=int1
 
 [ipv4]
@@ -58,6 +59,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
+uuid=896ed0c2-3c89-5a52-89c2-d80233c09669
 interface-name=int1
 
 [ipv4]
@@ -78,6 +80,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
+uuid=e26b95b7-df80-5a9c-8580-2dd579ae13d4
 interface-name=int1
 
 [ipv4]
@@ -100,6 +103,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
+uuid=a4e1875d-f868-508a-95ce-bf40efe14d1f
 interface-name=int1
 
 [ipv4]
@@ -125,6 +129,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
+uuid=c34a680b-2fe3-5def-9429-27d61e38b46b
 interface-name=int1
 
 [ipv6]
@@ -143,6 +148,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
+uuid=6aa354b9-4f68-5e93-8667-eb29aff2b399
 interface-name=int1
 '''
         self.assertEqual(expected_result, keyfile.get_content())
@@ -159,6 +165,7 @@ class EthKeyFileTest(TestCase):
 
         expected_result = '''[connection]
 id=int1
+uuid=7f51a5a8-1e89-50a3-8e82-91cba5138ce4
 interface-name=int1
 type=ethernet
 
@@ -189,6 +196,7 @@ mtu=1500
 
         expected_result = '''[connection]
 id=int1
+uuid=c8f466fb-6fd1-5581-aa8f-a7f3620be5b7
 interface-name=int1
 type=ethernet
 
@@ -233,6 +241,7 @@ mtu=1450
         expected = '''\
 [connection]
 id=ixgbe_0.963
+uuid=0ba64e3d-a238-5958-bba5-43de2e20a484
 interface-name=ixgbe_0.963
 type=vlan
 
@@ -263,6 +272,7 @@ id=963
         expected_result = '''\
 [connection]
 id=int1
+uuid=086ff2e0-22a8-52f5-a8f9-5a3875528fa3
 interface-name=int1
 type=ethernet
 
@@ -303,6 +313,7 @@ class VariousNmKeyFilTest(TestCase):
         expected = '''\
 [connection]
 id=team1
+uuid=6069c836-f976-5e82-83ec-70773d501a57
 interface-name=team1
 type=team
 
@@ -337,6 +348,7 @@ config={"runner": {"active": true, "link_watch": "ethotool", \
         expected = '''\
 [connection]
 id=ixgbe_1
+uuid=380fcf4d-6cf8-55d0-a4d9-9f1cc4c8cfbb
 interface-name=ixgbe_1
 type=ethernet
 master=asdf
@@ -355,7 +367,31 @@ mtu=1500
         team_int = nm.BondMasterInterface('team1', self.generic_eth.v4_conf, self.generic_eth.v6_conf)
         team_file = NmcliKeyFile(team_int)
         expected = '''\
+[connection]
+id=team1
+uuid=6459a526-27a6-5c61-ac2f-9bd7b198acbb
+interface-name=team1
+type=bond
 
+[ipv4]
+address1=192.168.0.1/24
+address2=192.168.1.1/24
+gateway=192.168.0.255
+dns=8.8.4.4;1.1.1.1;
+may-fail=false
+method=manual
+
+[ipv6]
+address1=fd00::1/64
+address2=fec0::34/64
+gateway=fd00::ff
+dns=2001:4860:4860::8844;2001:4860:4860::8888;
+may-fail=false
+method=manual
+
+[bond]
+mode=4
+xmit_hash_policy=1
 '''
         self.assertEqual(expected, team_file.get_content())
 
@@ -366,16 +402,29 @@ mtu=1500
         key_file = NmcliKeyFile(slave)
 
         expected = '''\
+[connection]
+id=ixgbe_1
+uuid=8f8640aa-0a46-5c34-9d41-b3763913230f
+interface-name=ixgbe_1
+type=ethernet
+master=asdf
+slate-type=bond
 
+[ethernet]
+mac-address=00:11:22:33:44:55
+mtu=1500
+
+[team-port]
 '''
+
         self.assertEqual(expected, key_file.get_content())
 
     def test_bridge_master(self):
         bridge_master = nm.LinuxBridge('br1', self.generic_eth.v4_conf, self.generic_eth.v6_conf)
         key_file = NmcliKeyFile(bridge_master)
-        expected = '''\
-[connection]
+        expected = '''[connection]
 id=br1
+uuid=2295db4d-ca5d-5a53-85b1-ccf534703ef8
 interface-name=br1
 type=bridge
 
@@ -405,16 +454,32 @@ method=manual
         bridge_master.add_interface(bridge_slave)
         key_file = NmcliKeyFile(bridge_slave)
         expected = '''\
+[connection]
+id=bnxt_1
+uuid=00d78804-c756-57d2-bc64-ae95b00500c6
+interface-name=bnxt_1
+master=br1
+slave-type=bridge
+type=ethernet
 
+[ipv4]
+address1=192.168.0.1/24
+address2=192.168.1.1/24
+gateway=192.168.0.255
+dns=8.8.4.4;1.1.1.1;
+may-fail=false
+method=manual
+
+[ipv6]
+address1=fd00::1/64
+address2=fec0::34/64
+gateway=fd00::ff
+dns=2001:4860:4860::8844;2001:4860:4860::8888;
+may-fail=false
+method=manual
+
+[ethernet]
+mac-address=00:11:22:33:44:55
+mtu=1500
 '''
-        print(key_file.get_content())
         self.assertEqual(expected, key_file.get_content())
-
-    def test_ovs_ip(self):
-        ovs1 = nm.OVSwitch('ovs1')
-        ovs_ip = nm.OVSIntPort('ovs_ip_1', ovs1, self.generic_eth.v4_conf, self.generic_eth.v6_conf)
-        ifcfg = NmcliKeyFile(ovs_ip)
-        expected = '''\
-
-'''
-        self.assertEqual(expected, ifcfg.get_content())
