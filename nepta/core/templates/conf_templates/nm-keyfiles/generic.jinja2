@@ -1,8 +1,11 @@
 {% block connection %}
 [connection]
 id={{ intf.name }}
-{#type={{ nm_type }}#}
 interface-name={{ intf.name }}
+    {% if intf.master_bridge %}
+master={{ intf.master_bridge.name }}
+slave-type=bridge
+    {%  endif %}
 {% endblock %}
 {% block addresses %}
     {% if intf.v4_conf %}
