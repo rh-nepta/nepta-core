@@ -7,6 +7,6 @@ type=vlan
 
 [vlan]
 interface-name={{ intf.name }}
-parent={{ intf.parent.name }}
+parent={{ intf.parent }}
 id={{ intf.vlan_id }}
 {% endblock %}

@@ -148,7 +148,7 @@ interface-name=int1
         self.assertEqual(expected_result, keyfile.get_content())
 
 
-class EthIfcfgTest(TestCase):
+class EthKeyFileTest(TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.maxDiff = None
@@ -251,7 +251,7 @@ method=manual
 
 [vlan]
 interface-name=ixgbe_0.963
-parent=
+parent=ixgbe_0
 id=963
 '''
         self.assertEqual(expected, keyfile.get_content())
