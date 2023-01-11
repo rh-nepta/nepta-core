@@ -28,7 +28,7 @@ class Network(Setup):
     def wipe_interfaces_config(self):
         logger.info('Wiping old interfaces configuration')
         wipe_list = []
-        ifcfg_dir = conf_files.IfcfgFile.IFCFG_DIRECTORY
+        ifcfg_dir = conf_files.IfcfgFile.CFG_DIRECTORY
         ifcfg_files = Fs.list_path(ifcfg_dir)
         for f in ifcfg_files:
             if f.startswith('ifcfg-') and not f.startswith('ifcfg-lo'):
