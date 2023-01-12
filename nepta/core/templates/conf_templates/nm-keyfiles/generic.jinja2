@@ -24,6 +24,15 @@ slave-type=bridge
         {% endif %}
 may-fail=false
 method=manual
+        {% for r in intf._routes['Route4'] -%}
+            route{{ loop.index }}={{ r.destination }}
+            {%- if r.gw -%}
+                ,{{ r.gw }}
+            {%- else -%}
+                ,0.0.0.0
+            {%- endif -%}
+            ,{{ r.metric }}
+        {% endfor %}
     {% endif %}
     {% if intf.v6_conf %}
 
@@ -40,6 +49,15 @@ method=manual
         {% endif %}
 may-fail=false
 method=manual
+        {% for r in intf._routes['Route6'] -%}
+            route{{ loop.index }}={{ r.destination }}
+            {%- if r.gw -%}
+                ,{{ r.gw }}
+            {%- else -%}
+                ,::
+            {%- endif -%}
+            ,{{ r.metric }}
+        {% endfor %}
     {% endif %}
 {% endblock %}
 {% block additional_values %}

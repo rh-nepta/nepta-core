@@ -24,7 +24,7 @@ class NmKeyfilesTest(TestCase):
 
         expected_result = '''[connection]
 id=int1
-uuid=c77991b3-f8bc-5f97-87f2-e4fb333712ab
+uuid=f2783e9c-9ed1-5f0f-854b-f58e1325b1a7
 interface-name=int1
 
 [ipv4]
@@ -59,7 +59,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
-uuid=896ed0c2-3c89-5a52-89c2-d80233c09669
+uuid=54152369-0951-59a9-ab27-f0864cff25c2
 interface-name=int1
 
 [ipv4]
@@ -80,7 +80,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
-uuid=e26b95b7-df80-5a9c-8580-2dd579ae13d4
+uuid=9eaccad3-a869-57c9-a70e-9e07f0c63174
 interface-name=int1
 
 [ipv4]
@@ -103,7 +103,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
-uuid=a4e1875d-f868-508a-95ce-bf40efe14d1f
+uuid=c9fc21c4-4994-5453-b707-d26cb074f6e4
 interface-name=int1
 
 [ipv4]
@@ -129,7 +129,7 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
-uuid=c34a680b-2fe3-5def-9429-27d61e38b46b
+uuid=60b96431-e7aa-535a-b4f0-02ce4b185506
 interface-name=int1
 
 [ipv6]
@@ -148,9 +148,53 @@ method=manual
 
         expected_result = '''[connection]
 id=int1
-uuid=6aa354b9-4f68-5e93-8667-eb29aff2b399
+uuid=740ddd22-19a5-5d29-b30a-e9c074169100
 interface-name=int1
 '''
+        self.assertEqual(expected_result, keyfile.get_content())
+
+    def test_static_routes(self):
+        intf = nm.Interface(
+            'int1',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+            ),
+            nm.IPv6Configuration(
+                [ia.IPv6Interface('fd02::1/64')],
+                ia.IPv6Address('fd02::ff'),
+            ),
+        )
+        nm.Route4(ia.IPv4Network('10.0.0.0/24'), intf)
+        nm.Route4(ia.IPv4Network('10.2.0.0/24'), intf, ia.IPv4Address('8.8.8.8'))
+        nm.Route6(ia.IPv6Network('fd00::/64'), intf)
+        nm.Route6(ia.IPv6Network('fd00::/64'), intf, ia.IPv6Address('fd01::1'))
+        keyfile = NmcliKeyFile(intf)
+
+        expected_result = '''\
+[connection]
+id=int1
+uuid=d5766853-3226-5d31-b820-c25a8d78ee5f
+interface-name=int1
+
+[ipv4]
+address1=192.168.0.1/24
+address2=192.168.1.1/24
+gateway=192.168.0.255
+may-fail=false
+method=manual
+route1=10.0.0.0/24,0.0.0.0,0
+route2=10.2.0.0/24,8.8.8.8,0
+
+[ipv6]
+address1=fd02::1/64
+gateway=fd02::ff
+may-fail=false
+method=manual
+route1=fd00::/64,::,0
+route2=fd00::/64,fd01::1,0
+'''
+
         self.assertEqual(expected_result, keyfile.get_content())
 
 
@@ -165,7 +209,7 @@ class EthKeyFileTest(TestCase):
 
         expected_result = '''[connection]
 id=int1
-uuid=7f51a5a8-1e89-50a3-8e82-91cba5138ce4
+uuid=a0223610-036c-5333-ae26-f939863a9d2c
 interface-name=int1
 type=ethernet
 
@@ -196,7 +240,7 @@ mtu=1500
 
         expected_result = '''[connection]
 id=int1
-uuid=c8f466fb-6fd1-5581-aa8f-a7f3620be5b7
+uuid=706eee6c-a8e4-52a4-acb8-071e9b7af482
 interface-name=int1
 type=ethernet
 
@@ -220,7 +264,6 @@ method=manual
 mac-address=aa:bb:cc:dd:ee:ff
 mtu=1450
 '''
-        print(keyfile.get_content())
         self.assertEqual(expected_result, keyfile.get_content())
 
     def test_vlan_int(self):
@@ -241,7 +284,7 @@ mtu=1450
         expected = '''\
 [connection]
 id=ixgbe_0.963
-uuid=0ba64e3d-a238-5958-bba5-43de2e20a484
+uuid=cede41a3-2e7d-57bd-bd6a-4a9281094d58
 interface-name=ixgbe_0.963
 type=vlan
 
@@ -272,7 +315,7 @@ id=963
         expected_result = '''\
 [connection]
 id=int1
-uuid=086ff2e0-22a8-52f5-a8f9-5a3875528fa3
+uuid=f7410b77-66b0-5485-b646-a7225df02f5b
 interface-name=int1
 type=ethernet
 
@@ -313,7 +356,7 @@ class VariousNmKeyFilTest(TestCase):
         expected = '''\
 [connection]
 id=team1
-uuid=6069c836-f976-5e82-83ec-70773d501a57
+uuid=d9e6a92c-acdd-5fa3-ab22-a4276ece70c2
 interface-name=team1
 type=team
 
@@ -348,7 +391,7 @@ config={"runner": {"active": true, "link_watch": "ethotool", \
         expected = '''\
 [connection]
 id=ixgbe_1
-uuid=380fcf4d-6cf8-55d0-a4d9-9f1cc4c8cfbb
+uuid=fda113a7-60cb-5172-ae5f-2f4eaa116263
 interface-name=ixgbe_1
 type=ethernet
 master=asdf
@@ -369,7 +412,7 @@ mtu=1500
         expected = '''\
 [connection]
 id=team1
-uuid=6459a526-27a6-5c61-ac2f-9bd7b198acbb
+uuid=389d554b-f494-5b48-a73d-a624d0ca149e
 interface-name=team1
 type=bond
 
@@ -404,7 +447,7 @@ xmit_hash_policy=1
         expected = '''\
 [connection]
 id=ixgbe_1
-uuid=8f8640aa-0a46-5c34-9d41-b3763913230f
+uuid=31c84d69-89ee-57c3-ad8e-cd655d7aa3e3
 interface-name=ixgbe_1
 type=ethernet
 master=asdf
@@ -424,7 +467,7 @@ mtu=1500
         key_file = NmcliKeyFile(bridge_master)
         expected = '''[connection]
 id=br1
-uuid=2295db4d-ca5d-5a53-85b1-ccf534703ef8
+uuid=fbb02b53-01bd-516d-b87b-9237cecafb72
 interface-name=br1
 type=bridge
 
@@ -456,7 +499,7 @@ method=manual
         expected = '''\
 [connection]
 id=bnxt_1
-uuid=00d78804-c756-57d2-bc64-ae95b00500c6
+uuid=027f13aa-142b-5b5a-9a45-764e59fd4127
 interface-name=bnxt_1
 master=br1
 slave-type=bridge

@@ -1,7 +1,9 @@
+import abc
 import itertools
 import ipaddress
 import copy
 from uuid import uuid5, UUID
+from collections import defaultdict
 from enum import Enum
 from typing import List, Union, Any, Optional, Iterator, Dict
 from dataclasses import dataclass, field
@@ -66,7 +68,6 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
 
 
 class Interface:
-
     _UUID_NAMESPACE = UUID('139c4235-0719-4df9-9b24-851654118d38')
 
     def __init__(
@@ -82,6 +83,7 @@ class Interface:
         self.v6_conf = v6_conf
         self.mtu = mtu
         self.master_bridge = master_bridge
+        self._routes: Dict[str, List[RouteGeneric]] = defaultdict(list)
 
     def __str__(self):
         attrs = dict(self.__dict__)
@@ -98,6 +100,12 @@ class Interface:
     @property
     def uuid(self) -> UUID:
         return uuid5(self._UUID_NAMESPACE, str(self))
+
+    def add_route(self, route: 'RouteGeneric'):
+        self._routes[route.__class__.__name__].append(route)
+
+    def del_route(self, route: 'RouteGeneric'):
+        self._routes[route.__class__.__name__].remove(route)
 
 
 class EthernetInterface(Interface):
@@ -358,11 +366,17 @@ class IPsecTunnel:
 
 
 @dataclass
-class RouteGeneric:
+class RouteGeneric(abc.ABC):
     destination: IpNetwork
     interface: Interface
     gw: Optional[IpAddress] = None
     metric: int = 0
+
+    def __post_init__(self):
+        self.interface.add_route(self)
+
+    def __del__(self):
+        self.interface.del_route(self)
 
     @classmethod
     def from_path(cls, path: Path, interfaces: List[Interface]):
@@ -373,8 +387,9 @@ class RouteGeneric:
                 return cls(path.mine_ip, i)
 
     @classmethod
+    @abc.abstractmethod
     def _get_ip_from_iface(cls, iface: Interface) -> List[IpAddress]:
-        raise NotImplementedError
+        pass
 
     def __str__(self):
         return '{cls} {dest} {gw} dev {dev} metric {metric}'.format(
