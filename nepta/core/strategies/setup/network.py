@@ -171,5 +171,28 @@ class Crypto(Setup):
 
 
 class NewNetwork(Network):
-    # TODO: nmcli conn reload
-    pass
+    @Setup.schedule
+    def wipe_interfaces_config(self):
+        logger.info('Wiping old interfaces configuration')
+        wipe_list = []
+        cfg_dir = conf_files.NmcliKeyFile.CFG_DIRECTORY
+        cfg_files = Fs.list_path(cfg_dir)
+        for f in cfg_files:
+            if f.endswith(conf_files.NmcliKeyFile.SUFFIX):
+                wipe_list.append(os.path.join(cfg_dir, f))
+        if Fs.path_exists(conf_files.UdevRulesFile.RULES_FILE):
+            wipe_list.append(conf_files.UdevRulesFile.RULES_FILE)
+        logger.info('Files to be wiped: %s', wipe_list)
+        for w in wipe_list:
+            Fs.rm_path(w)
+
+    @Setup.schedule
+    def store_persistent_cfg(self):
+        ifaces = self.conf.get_subset(m_class=model.network.Interface)
+        for iface in ifaces:
+            cf = conf_files.NmcliKeyFile(iface)
+            cf.apply()
+
+
+if env.RedhatRelease.brand == 'Fedora':
+    Network = NewNetwork
