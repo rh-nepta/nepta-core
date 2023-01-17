@@ -194,5 +194,5 @@ class NewNetwork(Network):
             cf.apply()
 
 
-if env.RedhatRelease.brand == 'Fedora':
+if env.RedhatRelease.brand == 'Fedora' or env.RedhatRelease.version.startswith('9'):
     Network = NewNetwork
