@@ -9,8 +9,8 @@ from nepta.core.strategies.setup.virt import Virtualization
 
 def get_strategy(conf: HostBundle) -> CompoundStrategy:
     strategies = [
-        SystemSetup(conf),
         Packages(conf),
+        SystemSetup(conf),
         Network(conf),
         Crypto(conf),
         Virtualization(conf),
