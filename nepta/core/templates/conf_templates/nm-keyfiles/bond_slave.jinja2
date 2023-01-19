@@ -2,7 +2,7 @@
 {% block connection %}
 {{ super() -}}
 master={{ intf.master_bond }}
-slate-type=bond
+slave-type=bond
 {% endblock %}
 {% block additional_values %}
 {{ super() }}

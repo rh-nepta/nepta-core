@@ -395,7 +395,7 @@ uuid=fda113a7-60cb-5172-ae5f-2f4eaa116263
 interface-name=ixgbe_1
 type=ethernet
 master=asdf
-slate-type=team
+slave-type=team
 
 [ethernet]
 mac-address=00:11:22:33:44:55
@@ -451,7 +451,7 @@ uuid=31c84d69-89ee-57c3-ad8e-cd655d7aa3e3
 interface-name=ixgbe_1
 type=ethernet
 master=asdf
-slate-type=bond
+slave-type=bond
 
 [ethernet]
 mac-address=00:11:22:33:44:55
