@@ -54,7 +54,7 @@ class Network(Setup):
 
     @Setup.schedule
     def setup_udev_rules(self):
-        ifaces = self.conf.get_subset(m_type=model.network.EthernetInterface)
+        ifaces = self.conf.get_subset(m_class=model.network.EthernetInterface)
         conf_files.UdevRulesFile(ifaces).apply()
 
     @Setup.schedule
