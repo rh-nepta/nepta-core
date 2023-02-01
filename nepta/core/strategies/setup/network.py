@@ -193,6 +193,12 @@ class NewNetwork(Network):
             cf = conf_files.NmcliKeyFile(iface)
             cf.apply()
 
+    def setup_routes(self):
+        pass
+
+    def wipe_routes(self):
+        pass
+
 
 if env.RedhatRelease.brand == 'Fedora' or env.RedhatRelease.version.startswith('9'):
     Network = NewNetwork
