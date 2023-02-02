@@ -160,7 +160,7 @@ class UdevRulesFile(JinjaConfFile):
 
 
 class _NetConfFile(JinjaConfFile, ABC):
-    CFG_DIRECTORY = None
+    CFG_DIRECTORY: str = '/etc/'
     TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR)
     TEMPLATE_MAPPING = {
         net_model.Interface: 'generic.jinja2',

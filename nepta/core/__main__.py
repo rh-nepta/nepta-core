@@ -9,6 +9,7 @@ import shlex
 import time
 import uuid
 from datetime import datetime as dt
+from typing import Type
 
 from nepta.core import strategies, synchronization, model
 from nepta.core.strategies.generic import CompoundStrategy
@@ -23,7 +24,7 @@ LOG_FMT = '%(asctime)s %(name)s %(levelname)s 🔥 %(message)s'
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.DEBUG)
 
-LogFormatter = logging.Formatter
+LogFormatter: Type[logging.Formatter] = logging.Formatter
 try:
     import coloredlogs
 

@@ -1,6 +1,7 @@
 import os
 import logging
 from collections import defaultdict
+from typing import Type
 
 from nepta.core import model
 from nepta.core.model.system import SystemService
@@ -13,7 +14,7 @@ from nepta.core.strategies.setup.generic import _GenericSetup as Setup
 logger = logging.getLogger(__name__)
 
 
-class Network(Setup):
+class OldNetwork(Setup):
     def __init__(self, conf):
         super().__init__(conf)
         self.network_service = SystemService('NetworkManager')
@@ -170,7 +171,7 @@ class Crypto(Setup):
             SystemD.enable_service(svc)
 
 
-class NewNetwork(Network):
+class NewNetwork(OldNetwork):
     @Setup.schedule
     def wipe_interfaces_config(self):
         logger.info('Wiping old interfaces configuration')
@@ -201,4 +202,6 @@ class NewNetwork(Network):
 
 
 if env.RedhatRelease.brand == 'Fedora' or env.RedhatRelease.version.startswith('9'):
-    Network = NewNetwork
+    Network: Type[Setup] = NewNetwork
+else:
+    Network = OldNetwork

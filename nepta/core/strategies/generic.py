@@ -1,6 +1,6 @@
 import itertools
 from logging import getLogger
-from typing import Dict, List
+from typing import Dict, List, Sequence
 
 logger = getLogger(__name__)
 
@@ -98,7 +98,7 @@ class CompoundStrategy:
             strategy()
 
     @classmethod
-    def sum(cls, strategies: List[Strategy]) -> 'CompoundStrategy':
+    def sum(cls, strategies: Sequence[Strategy]) -> 'CompoundStrategy':
         compound = cls()
         for s in strategies:
             compound += s
