@@ -66,7 +66,6 @@ class CommandTool(object):
         self.run()
 
     def __getattr__(self, item: str) -> Any:
-
         return super(CommandTool, self).__getattribute__(item)
 
     def _init_class_attr(self):

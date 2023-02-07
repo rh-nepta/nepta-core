@@ -635,7 +635,6 @@ class TestMergeBundles(TestCase):
 
     # @skip
     def test_print(self):
-
         b2 = bundles.Bundle()
         b2.repo.ovs = system.Repository('ovs', 'https://ovs.repo')
         b2.attch.url.google = attachments.Url('www.google.com')
