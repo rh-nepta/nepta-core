@@ -1,0 +1,12 @@
+{% extends "generic.jinja2" %}
+{% block connection %}
+{{ super() -}}
+type=vlan
+{% endblock %}
+{% block additional_values %}
+
+[vlan]
+interface-name={{ intf.name }}
+parent={{ intf.parent }}
+id={{ intf.vlan_id }}
+{% endblock %}

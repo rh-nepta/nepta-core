@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 
 from nepta.core import model
 from nepta.core.model import network as net_model
+from nepta.core.distribution import env
 from nepta.core.distribution.utils.fs import Fs
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class ConfigFile(ABC):
     REWRITE_STRATEGY = 1
     APPEND_STRATEGY = 2
 
-    ACESS_RIGHTS = 0o755
+    ACCESS_RIGHTS = 0o755
     STRATEGY = REWRITE_STRATEGY
 
     def __str__(self):
@@ -50,7 +51,7 @@ class ConfigFile(ABC):
 
     def restore_access_rights(self):
         path_str = self._make_path()
-        Fs.chmod_path(path_str, self.ACESS_RIGHTS)
+        Fs.chmod_path(path_str, self.ACCESS_RIGHTS)
 
     def apply(self):
         logger.info('Creating configuration file.\n%s' % str(self))
@@ -101,7 +102,10 @@ class GenericIPsecFile(JinjaConfFile, ABC):
 
 
 class IPsecConnFile(GenericIPsecFile):
-    TEMPLATE = 'ipsec_conn.jinja2'
+    TEMPLATE = 'ipsec_rhel8_conn.jinja2'
+    # Use different ipsec template for RHEL7
+    if env.RedhatRelease.version.startswith('7'):
+        TEMPLATE = 'ipsec_conn.jinja2'
     SUFFIX = 'conf'
 
     def _make_jinja_context(self):
@@ -110,15 +114,6 @@ class IPsecConnFile(GenericIPsecFile):
             'family': self.connection.family,
             **self.connection.__dict__,
         }
-
-
-class IPsecRHEL8ConnFile(IPsecConnFile):
-    """
-    IPsec in RHEL8 has different libreswan version and some of old parameters are obsolete.
-    (e.g.: connaddrfamily)
-    """
-
-    TEMPLATE = 'ipsec_rhel8_conn.jinja2'
 
 
 class IPsecSecretsFile(GenericIPsecFile):
@@ -164,9 +159,9 @@ class UdevRulesFile(JinjaConfFile):
         return {'interfaces': self._interfaces}
 
 
-class IfcfgFile(JinjaConfFile):
-    IFCFG_DIRECTORY = '/etc/sysconfig/network-scripts/'
-    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'ifcfg')
+class _NetConfFile(JinjaConfFile, ABC):
+    CFG_DIRECTORY: str = '/etc/'
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR)
     TEMPLATE_MAPPING = {
         net_model.Interface: 'generic.jinja2',
         net_model.EthernetInterface: 'ethernet.jinja2',
@@ -179,18 +174,35 @@ class IfcfgFile(JinjaConfFile):
         net_model.LinuxBridge: 'bridge.jinja2',
     }
 
-    def __init__(self, interface_model: net_model.Interface):
-        super(IfcfgFile, self).__init__()
-        self._interface_model = interface_model
-        self.template = self.TEMPLATE_MAPPING[interface_model.__class__]
-
-    def _make_path(self):
-        file_name = 'ifcfg-%s' % self._interface_model.name
-        file_path = os.path.join(self.IFCFG_DIRECTORY, file_name)
-        return file_path
+    def __init__(self, interface: net_model.Interface):
+        super().__init__()
+        self._interface = interface
+        self.template = self.TEMPLATE_MAPPING[interface.__class__]
 
     def _make_jinja_context(self):
-        return {'intf': self._interface_model}
+        return {'intf': self._interface}
+
+
+class IfcfgFile(_NetConfFile):
+    CFG_DIRECTORY = '/etc/sysconfig/network-scripts/'
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'ifcfg')
+
+    def _make_path(self):
+        file_name = 'ifcfg-%s' % self._interface.name
+        file_path = os.path.join(self.CFG_DIRECTORY, file_name)
+        return file_path
+
+
+class NmcliKeyFile(_NetConfFile):
+    CFG_DIRECTORY = '/etc/NetworkManager/system-connections/'
+    SUFFIX = '.nmconnection'
+    ACCESS_RIGHTS = 0o600
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'nm-keyfiles')
+
+    def _make_path(self):
+        file_name = self._interface.name + self.SUFFIX
+        file_path = os.path.join(self.CFG_DIRECTORY, file_name)
+        return file_path
 
 
 class SysctlFile(ConfigFile):
@@ -212,7 +224,7 @@ class SysctlFile(ConfigFile):
 
 class SSHPrivateKey(ConfigFile):
     PRIVATE_KEY_FILENAME = '/root/.ssh/{name}'
-    ACESS_RIGHTS = 0o600
+    ACCESS_RIGHTS = 0o600
 
     def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPrivateKey, self).__init__()
@@ -227,7 +239,7 @@ class SSHPrivateKey(ConfigFile):
 
 class SSHPublicKey(ConfigFile):
     PUBLIC_KEY_FILENAME = '/root/.ssh/{name}.pub'
-    ACESS_RIGHTS = 0o644
+    ACCESS_RIGHTS = 0o644
 
     def __init__(self, identity: model.system.SSHIdentity):
         super(SSHPublicKey, self).__init__()

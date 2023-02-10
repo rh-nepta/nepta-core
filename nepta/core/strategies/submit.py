@@ -64,7 +64,6 @@ class ReliableSubmit(Submit):
 
     @Strategy.schedule
     def submit(self):
-
         logger.info('Starting reliable rsyncing results to servers')
         rsyncs = list(self.configuration.get_subset(m_class=RsyncHost))
 

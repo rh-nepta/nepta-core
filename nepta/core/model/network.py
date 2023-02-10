@@ -1,6 +1,9 @@
+import abc
 import itertools
 import ipaddress
 import copy
+from uuid import uuid5, UUID
+from collections import defaultdict
 from enum import Enum
 from typing import List, Union, Any, Optional, Iterator, Dict
 from dataclasses import dataclass, field
@@ -65,6 +68,8 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
 
 
 class Interface:
+    _UUID_NAMESPACE = UUID('139c4235-0719-4df9-9b24-851654118d38')
+
     def __init__(
         self,
         name: str,
@@ -78,6 +83,7 @@ class Interface:
         self.v6_conf = v6_conf
         self.mtu = mtu
         self.master_bridge = master_bridge
+        self._routes: Dict[str, List[RouteGeneric]] = defaultdict(list)
 
     def __str__(self):
         attrs = dict(self.__dict__)
@@ -85,8 +91,21 @@ class Interface:
         v6 = attrs.pop('v6_conf')
         return f'{self.__class__.__name__} >> {attrs}\n\tv4_conf: {v4}\n\tv6_conf: {v6}'
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.name})'
+
     def clone(self):
         return copy.deepcopy(self)
+
+    @property
+    def uuid(self) -> UUID:
+        return uuid5(self._UUID_NAMESPACE, str(self))
+
+    def add_route(self, route: 'RouteGeneric'):
+        self._routes[route.__class__.__name__].append(route)
+
+    def del_route(self, route: 'RouteGeneric'):
+        self._routes[route.__class__.__name__].remove(route)
 
 
 class EthernetInterface(Interface):
@@ -109,15 +128,15 @@ class EthernetInterface(Interface):
 class VlanInterface(Interface):
     def __init__(
         self,
-        parrent: Interface,
+        parent: Interface,
         vlan_id: int,
         v4_conf: Optional[IPv4Configuration] = None,
         v6_conf: Optional[IPv6Configuration] = None,
     ):
-        name = f'{parrent.name}.{vlan_id}'
+        name = f'{parent.name}.{vlan_id}'
         super().__init__(name, v4_conf, v6_conf)
         self.vlan_id = vlan_id
-        self.parrent = parrent.name
+        self.parent = parent.name
 
 
 @dataclass
@@ -347,11 +366,17 @@ class IPsecTunnel:
 
 
 @dataclass
-class RouteGeneric:
+class RouteGeneric(abc.ABC):
     destination: IpNetwork
     interface: Interface
     gw: Optional[IpAddress] = None
     metric: int = 0
+
+    def __post_init__(self):
+        self.interface.add_route(self)
+
+    def __del__(self):
+        self.interface.del_route(self)
 
     @classmethod
     def from_path(cls, path: Path, interfaces: List[Interface]):
@@ -362,8 +387,9 @@ class RouteGeneric:
                 return cls(path.mine_ip, i)
 
     @classmethod
+    @abc.abstractmethod
     def _get_ip_from_iface(cls, iface: Interface) -> List[IpAddress]:
-        raise NotImplementedError
+        pass
 
     def __str__(self):
         return '{cls} {dest} {gw} dev {dev} metric {metric}'.format(

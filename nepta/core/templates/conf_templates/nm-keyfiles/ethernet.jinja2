@@ -1,0 +1,19 @@
+{% extends "generic.jinja2" %}
+{% block connection %}
+{{ super() -}}
+type=ethernet
+{% endblock %}
+{% block additional_values %}
+
+[ethernet]
+mac-address={{ intf.mac }}
+mtu={{ intf.mtu }}
+    {% if intf.offloads %}
+
+[ethtool]
+        {% for k,v in intf.offloads.items() -%}
+            feature-{{ k }}={{ v|lower }}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+

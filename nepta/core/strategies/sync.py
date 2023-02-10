@@ -23,7 +23,6 @@ class Synchronize(Strategy):
 
 
 class EndSyncBarriers(Strategy):
-
     SYNC_WAIT = 5
 
     def __init__(self, configuration, synchronizer, condition):

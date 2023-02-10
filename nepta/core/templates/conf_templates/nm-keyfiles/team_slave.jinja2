@@ -1,0 +1,10 @@
+{% extends "ethernet.jinja2" %}
+{% block connection %}
+{{ super() -}}
+master={{ intf.team }}
+slave-type=team
+{% endblock %}
+{% block additional_values %}
+{{ super() }}
+[team-port]
+{% endblock %}
