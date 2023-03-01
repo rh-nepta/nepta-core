@@ -117,6 +117,11 @@ class PathList(list, _PathInterface):
     def desc(self) -> str:
         return '[[' + ', '.join([p.desc for p in self]) + ']]'
 
+    @property
+    def cpu_pinning(self):
+        cpu = [p.cpu_pinning for p in self]
+        return cpu if all(cpu) else None
+
 
 class ParallelPathList(list):
     pass
