@@ -234,3 +234,7 @@ class DuplexStreamGeneric(MultiStreamsGeneric):
             test_settings_sec.subsections.append(Section('item', key='bind_stream', value=cpu_pinning[0][0]))
             test_settings_sec.subsections.append(Section('item', key='bind_reversed', value=cpu_pinning[0][1]))
         return section
+
+
+class ParallelPathGeneric(MultiStreamsGeneric):
+    pass
