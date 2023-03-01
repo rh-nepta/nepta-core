@@ -46,7 +46,7 @@ class Path(_PathInterface):
         mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
         their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
         tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
-        cpu_pinning=Sequence[Sequence],
+        cpu_pinning: Sequence[Sequence] = None,
     ):
         self.mine_ip = mine_ip.ip
         self.their_ip = their_ip.ip
