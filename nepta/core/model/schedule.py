@@ -4,28 +4,16 @@ import logging
 import ipaddress as ia
 from collections import OrderedDict
 from typing import Union, List, Sequence
+from abc import ABC, abstractmethod
 
 from nepta.core.model.tag import HardwareInventoryTag, SoftwareInventoryTag
 
 logger = logging.getLogger(__name__)
 
 
-class Path:
-    def __init__(
-        self,
-        mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
-        their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
-        tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
-        cpu_pinning=Sequence[Sequence],
-    ):
-        self.mine_ip = mine_ip.ip
-        self.their_ip = their_ip.ip
-        self.cpu_pinning = cpu_pinning
-        self.hw_inventory = [tag for tag in tags if isinstance(tag, HardwareInventoryTag)]
-        self.sw_inventory = [tag for tag in tags if isinstance(tag, SoftwareInventoryTag)]
-
-    def __repr__(self):
-        return self.desc
+class _PathInterface(ABC):
+    hw_inventory: List[HardwareInventoryTag] = []
+    sw_inventory: List[SoftwareInventoryTag] = []
 
     @property
     def tags(self) -> List[Union[HardwareInventoryTag, SoftwareInventoryTag]]:
@@ -38,6 +26,33 @@ class Path:
         uid = uuid.uuid5(uuid.NAMESPACE_DNS, ','.join(map(str, sorted_tags)))
         logger.debug('Sorted tags : {}, generated uid: {}'.format(sorted_tags, uid))
         return uid
+
+    def __repr__(self):
+        return self.desc
+
+    @property
+    @abstractmethod
+    def desc(self) -> str:
+        pass
+
+    @abstractmethod
+    def dict(self) -> dict:
+        pass
+
+
+class Path(_PathInterface):
+    def __init__(
+            self,
+            mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
+            their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
+            tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
+            cpu_pinning=Sequence[Sequence],
+    ):
+        self.mine_ip = mine_ip.ip
+        self.their_ip = their_ip.ip
+        self.cpu_pinning = cpu_pinning
+        self.hw_inventory = [tag for tag in tags if isinstance(tag, HardwareInventoryTag)]
+        self.sw_inventory = [tag for tag in tags if isinstance(tag, SoftwareInventoryTag)]
 
     @property
     def desc(self) -> str:
@@ -68,7 +83,7 @@ class CongestedPath(Path):
         return d
 
 
-class PathList(list):
+class PathList(list, _PathInterface):
     def clone(self) -> 'PathList':
         return copy.deepcopy(self)
 
@@ -87,6 +102,24 @@ class PathList(list):
 
     def __add__(self, other) -> 'PathList':
         return self.__class__(super().__add__(other))
+
+    @property
+    def hw_inventory(self) -> List[HardwareInventoryTag]:
+        return list(set(sum([path.hw_inventory for path in self], [])))
+
+    @property
+    def sw_inventory(self) -> List[SoftwareInventoryTag]:
+        return list(set(sum([path.sw_inventory for path in self], [])))
+
+    def dict(self) -> dict:
+        return OrderedDict(uuid=self.id, desc=self.desc, len=len(self))
+
+    def desc(self) -> str:
+        return '[[' + ', '.join([p.desc for p in self]) + ']]'
+
+
+class ParallelPathList(list):
+    pass
 
 
 class ScenarioSettings(dict):
