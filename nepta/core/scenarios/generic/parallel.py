@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 
 class ParallelPathGeneric(ScenarioGeneric):
     def __init__(
-            self,
-            paths: ParallelPathList,
-            test_length: int,
-            test_runs: int,
-            msg_sizes: List[int],
-            cpu_pinning,
-            base_port: int,
-            result: bool = True,
+        self,
+        paths: ParallelPathList,
+        test_length: int,
+        test_runs: int,
+        msg_sizes: List[int],
+        cpu_pinning,
+        base_port: int,
+        result: bool = True,
     ):
         self.paths = paths
         self.test_length = test_length

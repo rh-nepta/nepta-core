@@ -42,11 +42,11 @@ class _PathInterface(ABC):
 
 class Path(_PathInterface):
     def __init__(
-            self,
-            mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
-            their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
-            tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
-            cpu_pinning=Sequence[Sequence],
+        self,
+        mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
+        their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
+        tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
+        cpu_pinning=Sequence[Sequence],
     ):
         self.mine_ip = mine_ip.ip
         self.their_ip = their_ip.ip
