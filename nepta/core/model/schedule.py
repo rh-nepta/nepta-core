@@ -1,15 +1,23 @@
 import copy
 import uuid
 import logging
-
+import ipaddress as ia
 from collections import OrderedDict
+from typing import Union, List, Sequence
+
 from nepta.core.model.tag import HardwareInventoryTag, SoftwareInventoryTag
 
 logger = logging.getLogger(__name__)
 
 
-class Path(object):
-    def __init__(self, mine_ip, their_ip, tags, cpu_pinning=None):
+class Path:
+    def __init__(
+        self,
+        mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
+        their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
+        tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
+        cpu_pinning=Sequence[Sequence],
+    ):
         self.mine_ip = mine_ip.ip
         self.their_ip = their_ip.ip
         self.cpu_pinning = cpu_pinning
@@ -20,11 +28,11 @@ class Path(object):
         return self.desc
 
     @property
-    def tags(self):
+    def tags(self) -> List[Union[HardwareInventoryTag, SoftwareInventoryTag]]:
         return self.hw_inventory + self.sw_inventory
 
     @property
-    def id(self):
+    def id(self) -> uuid.UUID:
         sorted_tags = copy.deepcopy(self.tags)
         sorted_tags.sort()
         uid = uuid.uuid5(uuid.NAMESPACE_DNS, ','.join(map(str, sorted_tags)))
@@ -32,12 +40,12 @@ class Path(object):
         return uid
 
     @property
-    def desc(self):
+    def desc(self) -> str:
         return '{} {} <=> {}, tags:{}'.format(
             self.__class__.__name__, self.mine_ip, self.their_ip, (self.hw_inventory + self.sw_inventory)
         )
 
-    def dict(self):
+    def dict(self) -> dict:
         return OrderedDict(uuid=self.id, srcip=self.mine_ip, dstip=self.their_ip, desc=self.desc)
 
 
@@ -61,28 +69,28 @@ class CongestedPath(Path):
 
 
 class PathList(list):
-    def clone(self):
+    def clone(self) -> 'PathList':
         return copy.deepcopy(self)
 
-    def set_all_cpu_pinning(self, cpu_pinning, clone=True):
+    def set_all_cpu_pinning(self, cpu_pinning, clone=True) -> 'PathList':
         new = self.clone() if clone else self
         for path in new:
             path.cpu_pinning = cpu_pinning
         return new
 
-    def set_dynamic_duplex_stream_pinning(self, clone=True):
+    def set_dynamic_duplex_stream_pinning(self, clone=True) -> 'PathList':
         new = self.clone() if clone else self
         for path in new:
             if path.cpu_pinning:
                 path.cpu_pinning = (path.cpu_pinning[0], [path.cpu_pinning[0][0] + 1, path.cpu_pinning[0][1] + 1])
         return new
 
-    def __add__(self, other):
+    def __add__(self, other) -> 'PathList':
         return self.__class__(super().__add__(other))
 
 
 class ScenarioSettings(dict):
-    def clone(self):
+    def clone(self) -> dict:
         return copy.deepcopy(self)
 
 
