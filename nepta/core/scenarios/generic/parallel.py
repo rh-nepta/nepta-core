@@ -1,8 +1,6 @@
 import logging
-import time
 import uuid
-import functools
-from typing import Tuple, List, Union
+from typing import List, Sequence
 from nepta.dataformat import Section
 
 from nepta.core.model.schedule import ParallelPathList, PathList
@@ -18,7 +16,7 @@ class ParallelPathGeneric(ScenarioGeneric):
         test_length: int,
         test_runs: int,
         msg_sizes: List[int],
-        cpu_pinning,
+        cpu_pinning: Sequence[Sequence],
         base_port: int,
         result: bool = True,
     ):
@@ -49,7 +47,7 @@ class ParallelPathGeneric(ScenarioGeneric):
             paths_section.subsections.append(self.run_paths(path_list))
         return root_sec, self.result
 
-    def store_scenario(self, section):
+    def store_scenario(self, section: Section):
         section.params['scenario_name'] = self.__class__.__name__
         section.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
         return section
@@ -66,7 +64,7 @@ class ParallelPathGeneric(ScenarioGeneric):
             test_cases_sec.subsections.append(self.run_msg_size(paths, size))
         return path_sec
 
-    def store_path(self, section, paths: PathList):
+    def store_path(self, section: Section, paths: PathList):
         section.params.update(paths.dict())
         hw_inv_sec = Section('hardware_inventory')
         sw_inv_sec = Section('software_inventory')
@@ -81,7 +79,7 @@ class ParallelPathGeneric(ScenarioGeneric):
         section.subsections.append(sw_inv_sec)
         return section
 
-    def run_msg_size(self, path, size):
+    def run_msg_size(self, path: PathList, size: int):
         test_case_section = Section('test_case')
         runs_section = Section('runs')
 
@@ -91,7 +89,7 @@ class ParallelPathGeneric(ScenarioGeneric):
             runs_section.subsections.append(self.run_instance(path, size))
         return test_case_section
 
-    def store_msg_size(self, section, size):
+    def store_msg_size(self, section: Section, size: int):
         section.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, 'msg_size=%s test_length=%s' % (size, self.test_length))
         test_settings_sec = Section('test_settings')
         test_settings_sec.subsections.append(Section('item', key='msg_size', value=size))
@@ -99,8 +97,8 @@ class ParallelPathGeneric(ScenarioGeneric):
         section.subsections.append(test_settings_sec)
         return section
 
-    def run_instance(self, path, size):
+    def run_instance(self, paths: PathList, size: int):
         raise NotImplementedError
 
-    def store_instance(self, section, test):
+    def store_instance(self, section: Section, test):
         raise NotImplementedError
