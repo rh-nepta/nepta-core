@@ -209,7 +209,7 @@ class EthKeyFileTest(TestCase):
 
         expected_result = '''[connection]
 id=int1
-uuid=a0223610-036c-5333-ae26-f939863a9d2c
+uuid=806b64d9-2550-52b8-9d6c-7684320e15a8
 interface-name=int1
 type=ethernet
 
@@ -240,7 +240,7 @@ mtu=1500
 
         expected_result = '''[connection]
 id=int1
-uuid=706eee6c-a8e4-52a4-acb8-071e9b7af482
+uuid=44ffb090-6c33-5836-a3eb-5cd7f8c6285a
 interface-name=int1
 type=ethernet
 
@@ -315,7 +315,7 @@ id=963
         expected_result = '''\
 [connection]
 id=int1
-uuid=f7410b77-66b0-5485-b646-a7225df02f5b
+uuid=67a78a49-7849-5797-a5cb-00641d6f8b22
 interface-name=int1
 type=ethernet
 
@@ -391,7 +391,7 @@ config={"runner": {"active": true, "link_watch": "ethotool", \
         expected = '''\
 [connection]
 id=ixgbe_1
-uuid=fda113a7-60cb-5172-ae5f-2f4eaa116263
+uuid=95686ad9-0f11-54d9-89e3-a8d741a83cc7
 interface-name=ixgbe_1
 type=ethernet
 master=asdf
@@ -447,7 +447,7 @@ xmit_hash_policy=1
         expected = '''\
 [connection]
 id=ixgbe_1
-uuid=31c84d69-89ee-57c3-ad8e-cd655d7aa3e3
+uuid=c649dc3f-92c0-5b8e-83ac-04960107e701
 interface-name=ixgbe_1
 type=ethernet
 master=asdf
@@ -499,7 +499,7 @@ method=manual
         expected = '''\
 [connection]
 id=bnxt_1
-uuid=027f13aa-142b-5b5a-9a45-764e59fd4127
+uuid=29fff879-9057-5f8c-8d4f-8ac3f47def65
 interface-name=bnxt_1
 master=br1
 slave-type=bridge

@@ -77,6 +77,14 @@ class TunedAdmProfile(Value):
     pass
 
 
+class SetupCommand(Value):
+    pass
+
+
+class PrepareCommand(Value):
+    pass
+
+
 @dataclass(frozen=True)
 class VirtualGuest:
     name: str

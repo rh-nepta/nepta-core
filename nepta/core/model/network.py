@@ -115,14 +115,12 @@ class EthernetInterface(Interface):
         mac: str,
         v4_conf: Optional[IPv4Configuration] = None,
         v6_conf: Optional[IPv6Configuration] = None,
-        bind_cores: Optional[List[int]] = None,
         mtu: int = 1500,
         offloads: Optional[Dict[str, str]] = None,
     ):
         super().__init__(name, v4_conf, v6_conf, mtu=mtu)
         self.mac = mac.lower()
-        self.bind_cores = bind_cores
-        self.offloads = offloads if offloads else dict()
+        self.offloads = offloads or {}
 
 
 class VlanInterface(Interface):
