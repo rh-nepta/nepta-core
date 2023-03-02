@@ -92,3 +92,11 @@ class Prepare(Strategy):
         Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
         """
         SystemD.restart_service(model.system.SystemService('ipsec'))
+
+    @Strategy.schedule
+    def run_shell_commands(self):
+        commands = self.conf.get_subset(m_class=model.system.PrepareCommand)
+        for cmd in commands:
+            logger.info(f'Running >> {cmd}')
+            c = Command(cmd)
+            c.watch_and_log_error()
