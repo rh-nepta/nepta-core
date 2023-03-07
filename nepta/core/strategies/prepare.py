@@ -98,5 +98,5 @@ class Prepare(Strategy):
         commands = self.conf.get_subset(m_class=model.system.PrepareCommand)
         for cmd in commands:
             logger.info(f'Running >> {cmd}')
-            c = Command(cmd)
+            c = Command(cmd.value).run()
             c.watch_and_log_error()
