@@ -64,13 +64,11 @@ class CallFunctionTest(unittest.TestCase):
         empty_bundle = Bundle()
         prepare = Prepare(empty_bundle)
         MethCallLogger.infect(prepare, prepare.start_docker_container)
-        MethCallLogger.infect(prepare, prepare.bind_irq)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
         MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
 
         prepare()
 
-        self.assertTrue(prepare.bind_irq.was_called)
         self.assertTrue(prepare.start_docker_container.was_called)
         self.assertTrue(prepare.start_iperf3_services.was_called)
 
@@ -92,7 +90,6 @@ class CallFunctionTest(unittest.TestCase):
         prepare = Prepare(empty_bundle)
 
         MethCallLogger.infect(prepare, prepare.start_docker_container)
-        MethCallLogger.infect(prepare, prepare.bind_irq)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
         MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
 
@@ -101,7 +98,6 @@ class CallFunctionTest(unittest.TestCase):
         final = prepare + setup
         final()
 
-        self.assertTrue(prepare.bind_irq.was_called)
         self.assertTrue(prepare.start_docker_container.was_called)
         self.assertTrue(prepare.start_iperf3_services.was_called)
 
@@ -135,7 +131,6 @@ class CallFunctionTest(unittest.TestCase):
         save_attach = SaveAttachments(empty_bundle, package)
 
         MethCallLogger.infect(prepare, prepare.start_docker_container)
-        MethCallLogger.infect(prepare, prepare.bind_irq)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
         MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
         MethCallLogger.infect(run, run.run_scenarios, True)
@@ -144,7 +139,6 @@ class CallFunctionTest(unittest.TestCase):
         final = prepare + save_attach
         final()
 
-        self.assertTrue(prepare.bind_irq.was_called)
         self.assertTrue(prepare.start_docker_container.was_called)
         self.assertTrue(prepare.start_iperf3_services.was_called)
         self.assertTrue(save_attach.save_attachments.was_called)

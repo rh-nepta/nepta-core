@@ -1,14 +1,13 @@
 import logging
 
 from nepta.core import model
-from nepta.core.distribution.utils.network import Tuna
 from nepta.core.distribution.utils.virt import Docker
 from nepta.core.distribution.utils.system import SystemD
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
-from nepta.core.distribution.command import Command
+from nepta.core.distribution.command import ShellCommand, Command
 
 logger = logging.getLogger(__name__)
 
@@ -17,17 +16,6 @@ class Prepare(Strategy):
     def __init__(self, configuration):
         super().__init__()
         self.conf = configuration
-
-    @Strategy.schedule
-    def bind_irq(self):
-        interfaces = self.conf.get_subset(m_type=model.network.EthernetInterface)
-
-        for intf in interfaces:
-            cores = intf.bind_cores
-            if cores is not None:
-                cores = ''.join([str(x) for x in cores])
-                logger.info('Setting all irq of %s to %s cores' % (intf.get_name(), cores))
-                Tuna.set_irq_cpu_binding(intf.get_name(), cores)
 
     @Strategy.schedule
     def start_iperf3_services(self):
@@ -104,3 +92,11 @@ class Prepare(Strategy):
         Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
         """
         SystemD.restart_service(model.system.SystemService('ipsec'))
+
+    @Strategy.schedule
+    def run_shell_commands(self):
+        commands = self.conf.get_subset(m_class=model.system.PrepareCommand)
+        for cmd in commands:
+            logger.info(f'Running >> {cmd}')
+            c = ShellCommand(cmd.value).run()
+            c.watch_and_log_error()
