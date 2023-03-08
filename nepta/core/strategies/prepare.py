@@ -7,7 +7,7 @@ from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
-from nepta.core.distribution.command import Command
+from nepta.core.distribution.command import ShellCommand, Command
 
 logger = logging.getLogger(__name__)
 
@@ -98,5 +98,5 @@ class Prepare(Strategy):
         commands = self.conf.get_subset(m_class=model.system.PrepareCommand)
         for cmd in commands:
             logger.info(f'Running >> {cmd}')
-            c = Command(cmd.value).run()
+            c = ShellCommand(cmd.value).run()
             c.watch_and_log_error()

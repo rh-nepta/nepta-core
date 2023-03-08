@@ -3,7 +3,7 @@ import logging
 from nepta.core.strategies.generic import Strategy
 from nepta.core.model.bundles import HostBundle
 from nepta.core.model.system import SetupCommand
-from nepta.core.distribution.command import Command
+from nepta.core.distribution.command import ShellCommand
 
 logger = logging.getLogger(__name__)
 
@@ -18,5 +18,5 @@ class _GenericSetup(Strategy):
         commands = self.conf.get_subset(m_class=SetupCommand)
         for cmd in commands:
             logger.info(f'Running >> {cmd}')
-            c = Command(cmd.value).run()
+            c = ShellCommand(cmd.value).run()
             c.watch_and_log_error()
