@@ -117,16 +117,16 @@ class RouteTest(TestCase):
         self.remote_route2 = network.Route4.from_path(self.path2, [self.remote_int1, self.remote_int2])
 
     def test_from_path_creator(self):
-        self.assertEqual(self.local_route1.destination, self.remote_int1.v4_conf[0].ip)
+        self.assertIn(self.remote_int1.v4_conf[0], self.local_route1.destination)
         self.assertEqual(self.local_route1.interface, self.local_int1)
 
-        self.assertEqual(self.local_route2.destination, self.remote_int2.v4_conf[0].ip)
+        self.assertIn(self.remote_int2.v4_conf[0], self.local_route2.destination)
         self.assertEqual(self.local_route2.interface, self.local_int2)
 
-        self.assertEqual(self.remote_route1.destination, self.local_int1.v4_conf[0].ip)
+        self.assertIn(self.local_int1.v4_conf[0], self.remote_route1.destination)
         self.assertEqual(self.remote_route1.interface, self.remote_int1)
 
-        self.assertEqual(self.remote_route2.destination, self.local_int2.v4_conf[0].ip)
+        self.assertIn(self.local_int2.v4_conf[0], self.remote_route2.destination)
         self.assertEqual(self.remote_route2.interface, self.remote_int2)
 
     def test_association_w_intf(self):

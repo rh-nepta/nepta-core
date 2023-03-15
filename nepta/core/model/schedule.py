@@ -3,7 +3,7 @@ import uuid
 import logging
 import ipaddress as ia
 from collections import OrderedDict
-from typing import Union, List, Sequence
+from typing import Union, List, Sequence, Optional
 from abc import ABC, abstractmethod
 
 from nepta.core.model.tag import HardwareInventoryTag, SoftwareInventoryTag
@@ -12,8 +12,16 @@ logger = logging.getLogger(__name__)
 
 
 class _PathInterface(ABC):
-    hw_inventory: List[HardwareInventoryTag] = []
-    sw_inventory: List[SoftwareInventoryTag] = []
+    _hw_inventory: List[HardwareInventoryTag] = []
+    _sw_inventory: List[SoftwareInventoryTag] = []
+
+    @property
+    def hw_inventory(self) -> List[HardwareInventoryTag]:
+        return self._hw_inventory
+
+    @property
+    def sw_inventory(self) -> List[SoftwareInventoryTag]:
+        return self._sw_inventory
 
     @property
     def tags(self) -> List[Union[HardwareInventoryTag, SoftwareInventoryTag]]:
@@ -46,13 +54,13 @@ class Path(_PathInterface):
         mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
         their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
         tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
-        cpu_pinning: Sequence[Sequence] = None,
+        cpu_pinning: Optional[Sequence[Sequence]] = None,
     ):
-        self.mine_ip = mine_ip.ip
-        self.their_ip = their_ip.ip
+        self.mine_ip = mine_ip
+        self.their_ip = their_ip
         self.cpu_pinning = cpu_pinning
-        self.hw_inventory = [tag for tag in tags if isinstance(tag, HardwareInventoryTag)]
-        self.sw_inventory = [tag for tag in tags if isinstance(tag, SoftwareInventoryTag)]
+        self._hw_inventory = [tag for tag in tags if isinstance(tag, HardwareInventoryTag)]
+        self._sw_inventory = [tag for tag in tags if isinstance(tag, SoftwareInventoryTag)]
 
     @property
     def desc(self) -> str:
@@ -114,6 +122,7 @@ class PathList(list, _PathInterface):
     def dict(self) -> dict:
         return OrderedDict(uuid=self.id, desc=self.desc, len=len(self))
 
+    @property
     def desc(self) -> str:
         return '[[' + ', '.join([p.desc for p in self]) + ']]'
 

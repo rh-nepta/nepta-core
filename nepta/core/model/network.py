@@ -380,13 +380,13 @@ class RouteGeneric(abc.ABC):
     def from_path(cls, path: Path, interfaces: List[Interface]):
         for i in interfaces:
             if path.mine_ip in cls._get_ip_from_iface(i):
-                return cls(path.their_ip, i)
+                return cls(path.their_ip.network, i)
             if path.their_ip in cls._get_ip_from_iface(i):
-                return cls(path.mine_ip, i)
+                return cls(path.mine_ip.network, i)
 
     @classmethod
     @abc.abstractmethod
-    def _get_ip_from_iface(cls, iface: Interface) -> List[IpAddress]:
+    def _get_ip_from_iface(cls, iface: Interface) -> List[IpInterface]:
         pass
 
     def __str__(self):
@@ -403,7 +403,7 @@ class Route4(RouteGeneric):
     @classmethod
     def _get_ip_from_iface(cls, iface):
         if iface.v4_conf:
-            return [interface.ip for interface in iface.v4_conf.addresses]
+            return iface.v4_conf.addresses
         else:
             return []
 
@@ -412,7 +412,7 @@ class Route6(RouteGeneric):
     @classmethod
     def _get_ip_from_iface(cls, iface):
         if iface.v6_conf:
-            return [interface.ip for interface in iface.v6_conf.addresses]
+            return iface.v6_conf.addresses
         else:
             return []
 

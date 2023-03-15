@@ -18,8 +18,8 @@ class Iperf3TCPParallelPath(GenericIPerf3Stream, ParallelPathGeneric):
         cpu_pinning_list = paths.cpu_pinning if paths.cpu_pinning else self.cpu_pinning
         for port, path, cpu in zip(range(self.base_port, self.base_port + len(paths)), paths, cpu_pinning_list):
             new_test = Iperf3Test(
-                client=path.their_ip,
-                bind=path.mine_ip,
+                client=path.their_ip.ip,
+                bind=path.mine_ip.ip,
                 time=self.test_length,
                 len=size,
                 port=port,
@@ -35,7 +35,7 @@ class Iperf3TCPParallelPath(GenericIPerf3Stream, ParallelPathGeneric):
         )
         tests.append(
             RemoteMPStat(
-                host=path.their_ip,
+                host=path.their_ip.ip,
                 interval=self.test_length,
                 count=1,
                 cpu_list=','.join([str(x[1]) for x in cpu_pinning_list]),
