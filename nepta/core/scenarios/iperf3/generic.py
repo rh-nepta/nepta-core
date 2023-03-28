@@ -61,7 +61,7 @@ class GenericIPerf3Stream(object):
 class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
     def init_test(self, path, size):
         iperf_test = Iperf3MPStat(
-            client=path.their_ip, bind=path.mine_ip, time=self.test_length, len=size, interval=self.interval
+            client=path.their_ip.ip, bind=path.mine_ip.ip, time=self.test_length, len=size, interval=self.interval
         )
         if path.cpu_pinning:
             iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
@@ -90,8 +90,8 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for port, cpu_pinning in zip(range(self.base_port, self.base_port + len(cpu_pinning_list)), cpu_pinning_list):
             new_test = Iperf3Test(
-                client=path.their_ip,
-                bind=path.mine_ip,
+                client=path.their_ip.ip,
+                bind=path.mine_ip.ip,
                 time=self.test_length,
                 len=size,
                 port=port,
@@ -106,7 +106,7 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
         )
         tests.append(
             RemoteMPStat(
-                host=path.their_ip,
+                host=path.their_ip.ip,
                 interval=self.test_length,
                 count=1,
                 cpu_list=','.join([str(x[1]) for x in cpu_pinning_list]),
