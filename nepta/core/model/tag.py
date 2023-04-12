@@ -1,10 +1,11 @@
-from collections import OrderedDict
+from dataclasses import dataclass
+from typing import Optional
 
 
-class GenericTag(object):
-    def __init__(self, name, value=None):
-        self.name = name
-        self.value = value
+@dataclass(order=True, frozen=True, repr=False)
+class GenericTag:
+    name: str
+    value: Optional[str] = None
 
     def __repr__(self):
         if self.value:
@@ -17,9 +18,6 @@ class GenericTag(object):
 
     def __add__(self, other):
         return self.__class__('{}-{}'.format(self.__repr__(), other.__repr__()))
-
-    def __lt__(self, other):  # this is needed for sort()
-        return self.__repr__() < other.__repr__()
 
 
 class HardwareInventoryTag(GenericTag):
