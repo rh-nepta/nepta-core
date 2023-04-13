@@ -37,7 +37,7 @@ class RunScenarios(Strategy):
                     for path in list(scenario.paths):
                         current_path_tags = set([tag.name for tag in path.sw_inventory + path.hw_inventory])
                         # if union of these sets is zero, none tag is not matched and the path is removed
-                        if not self.path_tags & current_path_tags:
+                        if not self.path_tags.issubset(current_path_tags):
                             scenario.paths.remove(path)
         return scenarios
 
