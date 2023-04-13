@@ -84,14 +84,14 @@ class Prepare(Strategy):
         for cont in containers:
             Docker.run(cont)
 
-    @Strategy.schedule
-    def restart_ipsec_service(self):
-        """
-        This is hotfix for issue, when ipsec service stars earlier than IP addresses are assigned. This causes ipsec
-        tunnels malfunctions. As a simple solution is just restart IPsec service before test.
-        Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
-        """
-        SystemD.restart_service(model.system.SystemService('ipsec'))
+    # @Strategy.schedule
+    # def restart_ipsec_service(self):
+    #     """
+    #     This is hotfix for issue, when ipsec service stars earlier than IP addresses are assigned. This causes ipsec
+    #     tunnels malfunctions. As a simple solution is just restart IPsec service before test.
+    #     Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
+    #     """
+    #     SystemD.restart_service(model.system.SystemService('ipsec'))
 
     @Strategy.schedule
     def run_shell_commands(self):

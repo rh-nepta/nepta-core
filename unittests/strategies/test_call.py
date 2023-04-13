@@ -65,7 +65,7 @@ class CallFunctionTest(unittest.TestCase):
         prepare = Prepare(empty_bundle)
         MethCallLogger.infect(prepare, prepare.start_docker_container)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
-        MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
 
         prepare()
 
@@ -91,7 +91,7 @@ class CallFunctionTest(unittest.TestCase):
 
         MethCallLogger.infect(prepare, prepare.start_docker_container)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
-        MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
 
         MethCallLogger.infect_all_public(setup, True, ['run', 'setup_interfaces', '_instance'])
 
@@ -132,7 +132,7 @@ class CallFunctionTest(unittest.TestCase):
 
         MethCallLogger.infect(prepare, prepare.start_docker_container)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
-        MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
         MethCallLogger.infect(run, run.run_scenarios, True)
         MethCallLogger.infect(save_attach, save_attach.save_attachments)
 
