@@ -26,9 +26,7 @@ conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
 \tleft=192.168.1.1
 \tright=192.168.1.2
 \tphase2=esp
-\tphase2alg=aes128-sha1
-\tkeyexchange=ike
-\tpfs=yes
+\tesp=aes128-sha1
 \tauto=start
 \tencapsulation=no
 \tnic-offload=no
@@ -57,9 +55,7 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \tleft=192.168.1.1
 \tright=192.168.1.2
 \tphase2=esp
-\tphase2alg=aes128-sha2
-\tkeyexchange=ike
-\tpfs=yes
+\tesp=aes128-sha2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128
@@ -87,9 +83,7 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \tleft=192.168.1.1
 \tright=192.168.1.2
 \tphase2=esp
-\tphase2alg=aes128-sha2
-\tkeyexchange=ike
-\tpfs=yes
+\tesp=aes128-sha2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128
