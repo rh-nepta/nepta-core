@@ -5,7 +5,7 @@ stages:
   - print 
   - code-style
   - mypy
-
+  - build
 
 py36:
   tags:
@@ -69,3 +69,24 @@ mypy:
   stage: mypy 
   script: tox -e mypy
   allow_failure: true
+
+pulp:
+  tags:
+    - docker
+  stage: build
+  only:
+    - /^v[0-9]*\.[0-9]*\.?[0-9]*$/
+  except:
+    - branches
+  script:
+    - pip install pulp-cli
+    - pulp config create --username $PULP_USER --password $PULP_PASS --base-url $PULP_URL --api-root /pulp/ --no-verify-ssl
+    - python setup.py sdist
+    - export PKG=$(ls dist)
+    - cd dist && pulp python content upload --relative-path $PKG --file $PKG
+    - pulp python repository content add --repository nepta --filename $PKG
+
+  artifacts:
+    paths:
+      - dist
+    expire_in: 7 days
