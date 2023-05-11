@@ -1,1 +1,1 @@
-core/_version.py export-subst
+nepta/core/_version.py export-subst
