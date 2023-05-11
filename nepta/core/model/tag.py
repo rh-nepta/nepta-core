@@ -15,7 +15,9 @@ class GenericTag:
         else:
             return self.name
 
-    def __eq__(self, other: 'GenericTag'):
+    def __eq__(self, other):
+        if not isinstance(other, GenericTag):
+            raise NotImplementedError
         return self.name == other.name and self.value == other.value
 
     def __lt__(self, other: 'GenericTag'):
