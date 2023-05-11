@@ -6,7 +6,7 @@ pip:
 	python3 setup.py sdist
 
 code-style:
-	unify -r ./
+	unify -r -i ./
 	black -l 120 -S ./
 	flake8 nepta unittests
 
