@@ -81,7 +81,7 @@ pulp:
   script:
     - pip install pulp-cli
     - pulp config create --username $PULP_USER --password $PULP_PASS --base-url $PULP_URL --api-root /pulp/ --no-verify-ssl
-    - python setup.py sdist
+    - python3 setup.py sdist
     - export PKG=$(ls dist)
     - cd dist && pulp python content upload --relative-path $PKG --file $PKG
     - pulp python repository content add --repository nepta --filename $PKG
