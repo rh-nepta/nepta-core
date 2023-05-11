@@ -1,10 +1,13 @@
-from collections import OrderedDict
+from dataclasses import dataclass
+from typing import Optional
+from functools import total_ordering
 
 
-class GenericTag(object):
-    def __init__(self, name, value=None):
-        self.name = name
-        self.value = value
+@total_ordering
+@dataclass(repr=False, unsafe_hash=True)
+class GenericTag:
+    name: str
+    value: Optional[str] = None
 
     def __repr__(self):
         if self.value:
@@ -12,14 +15,17 @@ class GenericTag(object):
         else:
             return self.name
 
+    def __eq__(self, other: 'GenericTag'):
+        return self.name == other.name and self.value == other.value
+
+    def __lt__(self, other: 'GenericTag'):
+        return self.__repr__() < other.__repr__()
+
     def __str__(self):
         return self.__repr__()
 
     def __add__(self, other):
         return self.__class__('{}-{}'.format(self.__repr__(), other.__repr__()))
-
-    def __lt__(self, other):  # this is needed for sort()
-        return self.__repr__() < other.__repr__()
 
 
 class HardwareInventoryTag(GenericTag):

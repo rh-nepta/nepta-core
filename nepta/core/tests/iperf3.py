@@ -4,7 +4,7 @@ import abc
 import numpy as np
 from enum import Enum
 from singledispatchmethod import singledispatchmethod
-from typing import Dict, Callable
+from typing import Dict, Callable, Optional
 from functools import reduce
 
 from nepta.core.distribution.command import Command
@@ -44,10 +44,12 @@ class Iperf3TestResult:
         """
         pass
 
-    def __init__(self, array, formatter=None, dims=None):
-        self._array: np.array = array
-        self._dims: dict = dims if dims else self._DIMENSIONS
-        self._format_func: Callable[[str], str] = formatter if formatter is not None else lambda x: x
+    def __init__(
+        self, array: np.ndarray, formatter: Optional[Callable[[str], str]] = None, dims: Optional[dict] = None
+    ):
+        self._array: np.ndarray = array
+        self._dims = dims or self._DIMENSIONS
+        self._format_func = formatter if formatter is not None else lambda x: x
 
     def __str__(self):
         return 'iPerf3 parsed test results >> ' + ' | '.join([f'{k}->{v}' for k, v in self])

@@ -58,6 +58,10 @@ class Package(Value):
     pass
 
 
+class TimeZone(Value):
+    pass
+
+
 @dataclass(frozen=True)
 class SpecialPackage:
     name: str
@@ -70,6 +74,14 @@ class NTPServer(Value):
 
 
 class TunedAdmProfile(Value):
+    pass
+
+
+class SetupCommand(Value):
+    pass
+
+
+class PrepareCommand(Value):
     pass
 
 

@@ -8,25 +8,34 @@ import logging
 import shlex
 import time
 import uuid
-from datetime import datetime as dtdt
+from datetime import datetime as dt
+from typing import Type
 
 from nepta.core import strategies, synchronization, model
 from nepta.core.strategies.generic import CompoundStrategy
-from nepta.core.distribution.utils.rstrnt import Rstrnt
 from nepta.core.distribution.env import Environment
 
 from nepta.dataformat import Section, DataPackage
 
 LOG_FILENAME = '/var/log/performance-network_perftest.log'
+LOG_FMT = '%(asctime)s %(name)s %(levelname)s 🔥 %(message)s'
 
 # Create root logger instance and set default logging level, output format and handler
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.DEBUG)
 
+LogFormatter: Type[logging.Formatter] = logging.Formatter
+try:
+    import coloredlogs
+
+    LogFormatter = coloredlogs.ColoredFormatter
+except ImportError:
+    root_logger.warning('Cannot import "coloredlogs" package.')
+
 # Log into STDERR - with INFO messages (will be easily displayable in Beaker
 # logs due to its smaller size)
 std_handler = logging.StreamHandler()
-std_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+std_formatter = LogFormatter(LOG_FMT)
 std_handler.setFormatter(std_formatter)
 std_handler.setLevel(logging.INFO)
 root_logger.addHandler(std_handler)
@@ -34,7 +43,7 @@ root_logger.addHandler(std_handler)
 try:
     # Log into log file - with DEBUG messages
     file_handler = logging.FileHandler(LOG_FILENAME)
-    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_formatter = LogFormatter(LOG_FMT)
     file_handler.setFormatter(file_formatter)
     file_handler.setLevel(logging.DEBUG)
     root_logger.addHandler(file_handler)
@@ -126,6 +135,7 @@ def create_desynchronize_strategy(strategy: CompoundStrategy, package: DataPacka
 
     if Environment.in_rstrnt:
         desync_strategy += strategies.report.Report(package, result=False)
+        desync_strategy += strategies.report.Abort()  # abort running job
 
     return desync_strategy
 
@@ -301,7 +311,7 @@ def main():
         return
 
     extra_meta = {
-        'DateTime': dtdt.utcfromtimestamp(int(timestamp)),
+        'DateTime': dt.utcfromtimestamp(int(timestamp)),
         'UUID': uuid.uuid4(),
     }
     extra_meta.update(args.meta)
@@ -365,7 +375,7 @@ def main():
     except BaseException as e:
         logger.error('Error occurred during strategy execution.')
         logger.error(e)
-        logger.warning('Setting pass to all barriers')
+        logger.warning('Setting pass to all barriers and aborting execution.')
         desync = create_desynchronize_strategy(final_strategy, package)
         desync()
         raise e

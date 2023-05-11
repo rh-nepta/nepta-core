@@ -14,8 +14,8 @@ def round_f(num, decimal=2):
 class NetperfTCPStream(SingleStreamGeneric):
     def init_test(self, path, size):
         netperf_test = NetperStreamfTest(
-            src_ip=path.mine_ip,
-            dst_ip=path.their_ip,
+            src_ip=path.mine_ip.ip,
+            dst_ip=path.their_ip.ip,
             length=self.test_length,
             local_send=size,
             test='TCP_STREAM',
@@ -60,10 +60,10 @@ class NetperfTCPMaerts(NetperfTCPStream):
 class NetperfTCPDuplexStream(DuplexStreamGeneric):
     def init_all_tests(self, path, size):
         netperf_test = NetperStreamfTest(
-            src_ip=path.mine_ip, dst_ip=path.their_ip, length=self.test_length, local_send=size, test='TCP_STREAM'
+            src_ip=path.mine_ip.ip, dst_ip=path.their_ip.ip, length=self.test_length, local_send=size, test='TCP_STREAM'
         )
         maerts_test = NetperStreamfTest(
-            src_ip=path.mine_ip, dst_ip=path.their_ip, length=self.test_length, local_send=size, test='TCP_MAERTS'
+            src_ip=path.mine_ip.ip, dst_ip=path.their_ip.ip, length=self.test_length, local_send=size, test='TCP_MAERTS'
         )
         if self.cpu_pinning:
             netperf_test.local_cpu, netperf_test.remote_cpu = self.cpu_pinning[0]
@@ -95,7 +95,11 @@ class NetperfTCPMultiStream(MultiStreamsGeneric):
         tests = []
         for pinning in self.cpu_pinning:
             new_test = NetperStreamfTest(
-                src_ip=path.mine_ip, dst_ip=path.their_ip, length=self.test_length, local_send=size, test='TCP_STREAM'
+                src_ip=path.mine_ip.ip,
+                dst_ip=path.their_ip.ip,
+                length=self.test_length,
+                local_send=size,
+                test='TCP_STREAM',
             )
             new_test.local_cpu, new_test.remote_cpu = pinning
             tests.append(new_test)

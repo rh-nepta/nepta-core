@@ -152,7 +152,6 @@ class Bundle(object):
         return copy.copy(self)
 
     def _serialize_by_bfs(self, bundles_only=False):
-
         open_q = {self}  # set
         closed_q = []
         while len(open_q):

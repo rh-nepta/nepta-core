@@ -5,12 +5,10 @@ conn {{name}}
 	left={{ left_ip.ip }}
 	right={{ right_ip.ip }}
 	phase2={{ phase2.value }}
-	phase2alg={{ cipher }}
-	keyexchange=ike
-	pfs=yes
+	esp={{ cipher }}
 	auto=start
 	encapsulation={{ encapsulation.value }}
-	{% if replay_window %}
+	{% if replay_window != None %}
 	replay-window={{ replay_window }}
 	{% endif %}
 	{% if nic_offload %}

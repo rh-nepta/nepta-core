@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from nepta.core.model.network import IPsecTunnel
-from nepta.core.distribution.conf_files import IPsecConnFile, IPsecSecretsFile, IPsecRHEL8ConnFile
+from nepta.core.distribution.conf_files import IPsecConnFile, IPsecSecretsFile
 
 from ipaddress import IPv4Interface
 
@@ -16,6 +16,7 @@ class IpsecCOonnJinjaTest(TestCase):
             IPv4Interface('192.168.1.1/24'), IPv4Interface('192.168.1.2/24'), 'aes128-sha1', 'SUPER_PASS_IPSEC'
         )
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
+        conn_file_obj.template = 'ipsec_conn.jinja2'
 
         excpexted_output = """\
 conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
@@ -25,9 +26,7 @@ conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
 \tleft=192.168.1.1
 \tright=192.168.1.2
 \tphase2=esp
-\tphase2alg=aes128-sha1
-\tkeyexchange=ike
-\tpfs=yes
+\tesp=aes128-sha1
 \tauto=start
 \tencapsulation=no
 \tnic-offload=no
@@ -46,6 +45,7 @@ conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
             nic_offload=IPsecTunnel.Offload.YES,
         )
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
+        conn_file_obj.template = 'ipsec_conn.jinja2'
 
         excpexted_output = """\
 conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
@@ -55,9 +55,7 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \tleft=192.168.1.1
 \tright=192.168.1.2
 \tphase2=esp
-\tphase2alg=aes128-sha2
-\tkeyexchange=ike
-\tpfs=yes
+\tesp=aes128-sha2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128
@@ -76,7 +74,7 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
             encapsulation=IPsecTunnel.Encapsulation.YES,
             nic_offload=IPsecTunnel.Offload.YES,
         )
-        conn_file_obj = IPsecRHEL8ConnFile(ipsec_tunnel)
+        conn_file_obj = IPsecConnFile(ipsec_tunnel)
 
         excpexted_output = """\
 conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
@@ -85,9 +83,7 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \tleft=192.168.1.1
 \tright=192.168.1.2
 \tphase2=esp
-\tphase2alg=aes128-sha2
-\tkeyexchange=ike
-\tpfs=yes
+\tesp=aes128-sha2
 \tauto=start
 \tencapsulation=yes
 \treplay-window=128

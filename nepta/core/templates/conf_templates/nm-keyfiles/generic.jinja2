@@ -1,0 +1,64 @@
+{% block connection %}
+[connection]
+id={{ intf.name }}
+uuid={{ intf.uuid }}
+interface-name={{ intf.name }}
+    {% if intf.master_bridge %}
+master={{ intf.master_bridge.name }}
+slave-type=bridge
+    {%  endif %}
+{% endblock %}
+{% block addresses %}
+    {% if intf.v4_conf %}
+
+[ipv4]
+        {% for ip in intf.v4_conf.addresses -%}
+            address{{ loop.index }}={{ ip }}
+        {% endfor %}
+        {% if intf.v4_conf.gw -%}
+            gateway={{ intf.v4_conf.gw }}
+        {% endif %}
+        {% if intf.v4_conf.dns -%}
+            dns={% for dns in intf.v4_conf.dns %}{{ dns }};{% endfor %}
+
+        {% endif %}
+may-fail=false
+method=manual
+        {% for r in intf._routes['Route4'] -%}
+            route{{ loop.index }}={{ r.destination }}
+            {%- if r.gw -%}
+                ,{{ r.gw }}
+            {%- else -%}
+                ,0.0.0.0
+            {%- endif -%}
+            ,{{ r.metric }}
+        {% endfor %}
+    {% endif %}
+    {% if intf.v6_conf %}
+
+[ipv6]
+        {% for ip in intf.v6_conf.addresses -%}
+            address{{ loop.index }}={{ ip }}
+        {% endfor %}
+        {% if intf.v6_conf.gw -%}
+            gateway={{ intf.v6_conf.gw }}
+        {% endif %}
+        {%- if intf.v6_conf.dns -%}
+            dns={% for dns in intf.v6_conf.dns %}{{ dns }};{% endfor %}
+
+        {% endif %}
+may-fail=false
+method=manual
+        {% for r in intf._routes['Route6'] -%}
+            route{{ loop.index }}={{ r.destination }}
+            {%- if r.gw -%}
+                ,{{ r.gw }}
+            {%- else -%}
+                ,::
+            {%- endif -%}
+            ,{{ r.metric }}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+{% block additional_values %}
+{% endblock %}

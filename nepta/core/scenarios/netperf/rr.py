@@ -13,8 +13,8 @@ class NetperfTcpRr(SingleStreamGeneric):
     def init_test(self, path, size):
         cpu_pinning = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         netperf_test = NetperfRrTest(
-            src_ip=path.mine_ip,
-            dst_ip=path.their_ip,
+            src_ip=path.mine_ip.ip,
+            dst_ip=path.their_ip.ip,
             length=self.test_length,
             # set local and remote sent size
             request_size=f'{size}, {size}',
@@ -41,8 +41,8 @@ class ParallelNetperfTcpCrr(MultiStreamsGeneric):
         cpu_pinning_list = path.cpu_pinning if path.cpu_pinning else self.cpu_pinning
         for local, remote in cpu_pinning_list:
             new_test = NetperfRrTest(
-                src_ip=path.mine_ip,
-                dst_ip=path.their_ip,
+                src_ip=path.mine_ip.ip,
+                dst_ip=path.their_ip.ip,
                 length=self.test_length,
                 # set local and remote sent size
                 request_size=f'{size}, {size}',

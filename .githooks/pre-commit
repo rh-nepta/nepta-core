@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# exit on the first error
+set -e
+
+pipenv run make code-style
+pipenv run make test

@@ -1,0 +1,10 @@
+{% extends "generic.jinja2" %}
+{% block connection %}
+{{ super() -}}
+type=bond
+{% endblock %}
+{% block additional_values %}
+
+[bond]
+{{ intf.bond_opts.value.split()|join('\n') }}
+{% endblock %}

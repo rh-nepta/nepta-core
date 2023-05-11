@@ -5,7 +5,7 @@ import shutil
 from nepta import dataformat as df
 
 from nepta.core.strategies.prepare import Prepare
-from nepta.core.strategies.setup import Rhel7
+from nepta.core.strategies.setup import get_strategy, SystemSetup, Network
 from nepta.core.strategies.run import RunScenarios
 from nepta.core.strategies.save.meta import SaveMeta
 from nepta.core.strategies.save.attachments import SaveAttachments
@@ -64,59 +64,45 @@ class CallFunctionTest(unittest.TestCase):
         empty_bundle = Bundle()
         prepare = Prepare(empty_bundle)
         MethCallLogger.infect(prepare, prepare.start_docker_container)
-        MethCallLogger.infect(prepare, prepare.bind_irq)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
-        MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
 
         prepare()
 
-        self.assertTrue(prepare.bind_irq.was_called)
         self.assertTrue(prepare.start_docker_container.was_called)
         self.assertTrue(prepare.start_iperf3_services.was_called)
 
     def test_call_with_empty_conf_on_setup_strategy(self):
         empty_bundle = Bundle()
-        setup = Rhel7(empty_bundle)
+        setup = SystemSetup(empty_bundle)
 
         MethCallLogger.infect_all_public(setup, True, ['run', 'setup_interfaces', '_instance'])
-        MethCallLogger.infect(setup, setup.setup_interfaces)
 
         setup()
 
         self.assertTrue(setup.configure_kdump.was_called)
-        self.assertTrue(setup.start_net.was_called)
         self.assertTrue(setup.setup_ntp.was_called)
         self.assertTrue(setup.configure_tuned_profile.was_called)
-        self.assertTrue(setup.setup_lldpad.was_called)
-        self.assertTrue(setup.setup_virtual_guest.was_called)
-        self.assertTrue(setup.setup_interfaces.was_called)
 
     def test_call_empty_bundle_compound_strategy(self):
         empty_bundle = Bundle()
-        setup = Rhel7(empty_bundle)
+        setup = SystemSetup(empty_bundle)
         prepare = Prepare(empty_bundle)
 
         MethCallLogger.infect(prepare, prepare.start_docker_container)
-        MethCallLogger.infect(prepare, prepare.bind_irq)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
-        MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
 
         MethCallLogger.infect_all_public(setup, True, ['run', 'setup_interfaces', '_instance'])
-        MethCallLogger.infect(setup, setup.setup_interfaces)
 
         final = prepare + setup
         final()
 
-        self.assertTrue(prepare.bind_irq.was_called)
         self.assertTrue(prepare.start_docker_container.was_called)
         self.assertTrue(prepare.start_iperf3_services.was_called)
 
         self.assertTrue(setup.configure_kdump.was_called)
-        self.assertTrue(setup.start_net.was_called)
         self.assertTrue(setup.configure_tuned_profile.was_called)
-        self.assertTrue(setup.setup_lldpad.was_called)
-        self.assertTrue(setup.setup_virtual_guest.was_called)
-        self.assertTrue(setup.setup_interfaces.was_called)
 
     def test_call_empty_bundle_n_package(self):
         empty_bundle = Bundle()
@@ -145,33 +131,17 @@ class CallFunctionTest(unittest.TestCase):
         save_attach = SaveAttachments(empty_bundle, package)
 
         MethCallLogger.infect(prepare, prepare.start_docker_container)
-        MethCallLogger.infect(prepare, prepare.bind_irq)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
-        MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
         MethCallLogger.infect(run, run.run_scenarios, True)
         MethCallLogger.infect(save_attach, save_attach.save_attachments)
 
         final = prepare + save_attach
         final()
 
-        self.assertTrue(prepare.bind_irq.was_called)
         self.assertTrue(prepare.start_docker_container.was_called)
         self.assertTrue(prepare.start_iperf3_services.was_called)
         self.assertTrue(save_attach.save_attachments.was_called)
-
-    def test_call_check_if_nonscheduled_R_not_called(self):
-        empty_bundle = Bundle()
-        setup = Rhel7(empty_bundle)
-
-        # mockup all methods
-        MethCallLogger.infect_all_public(setup, True)
-
-        setup()
-
-        # check random scheduled if was call
-        self.assertTrue(setup.configure_kdump.was_called)
-        # check random non scheduled if was not called
-        self.assertFalse(setup.wipe_routes.was_called)
 
     def test_call_save_meta_check_meta(self):
         bundle = HostBundle('klacek1', 'Standard')

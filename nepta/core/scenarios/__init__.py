@@ -34,6 +34,9 @@ from .iperf3.zero_copy import (
 # UDP
 from .iperf3.udp import Iperf3UDPStream, Iperf3UDPReversed, Iperf3UDPMultiStream, Iperf3UDPDuplexStream, Iperf3UDPSanity
 
+# parallel path
+from .iperf3.parallel import Iperf3TCPParallelPath
+
 
 def get_scenario_by_name(scenario_name):
     scenario_class = None

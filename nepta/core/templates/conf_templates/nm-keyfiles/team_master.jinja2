@@ -1,0 +1,10 @@
+{% extends "generic.jinja2" %}
+{% block connection %}
+{{ super() -}}
+type=team
+{% endblock %}
+{% block additional_values %}
+
+[team]
+config={{ intf.runner.value }}
+{% endblock %}
