@@ -457,7 +457,6 @@ slave-type=bond
 mac-address=00:11:22:33:44:55
 mtu=1500
 
-[team-port]
 '''
 
         self.assertEqual(expected, key_file.get_content())
