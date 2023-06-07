@@ -525,3 +525,32 @@ mac-address=00:11:22:33:44:55
 mtu=1500
 '''
         self.assertEqual(expected, key_file.get_content())
+
+    def test_macsec_slave(self):
+        intf = nm.EthernetInterface(
+            'bnxt_1',
+            '00:11:22:33:44:55',
+        )
+        macsec_intf = nm.MACSecInterface('macsec0', intf, self.generic_eth.v4_conf)
+        key_file = NmcliKeyFile(macsec_intf)
+        expected = '''\
+[connection]
+id=macsec0
+uuid=ab82111a-8456-5d13-b029-5947574bd596
+interface-name=macsec0
+type=macsec
+
+[ipv4]
+address1=192.168.0.1/24
+address2=192.168.1.1/24
+gateway=192.168.0.255
+dns=8.8.4.4;1.1.1.1;
+may-fail=false
+method=manual
+
+[macsec]
+mka-cak=50b71a8ef0bd5751ea76de6d6c98c03a
+mka-ckn=bbae4e26f7c88b8da2048f32f53422f9ce861a3b8413b5cfcdd6b66f05bcd529
+parent=bnxt_1
+'''
+        self.assertEqual(expected, key_file.get_content())
