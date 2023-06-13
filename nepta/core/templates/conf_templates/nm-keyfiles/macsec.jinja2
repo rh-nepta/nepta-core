@@ -1,0 +1,13 @@
+{% extends "generic.jinja2" %}
+{% block connection %}
+{{ super() -}}
+type=macsec
+{% endblock %}
+{% block additional_values %}
+
+[macsec]
+mka-cak={{ intf.cak }}
+mka-ckn={{ intf.ckn }}
+parent={{ intf.parent.name }}
+{% endblock %}
+
