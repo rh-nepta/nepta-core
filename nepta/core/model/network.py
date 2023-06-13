@@ -235,17 +235,17 @@ class MACSecInterface(Interface):
         self,
         name: str,
         parent: Interface,
+        cak: str,
+        ckn: str,
         v4_conf: Optional[IPv4Configuration] = None,
         v6_conf: Optional[IPv6Configuration] = None,
         master_bridge: Optional['LinuxBridge'] = None,
         mtu: int = 1500,
-        cak: Optional[str] = None,
-        ckn: Optional[str] = None,
     ):
         super().__init__(name, v4_conf, v6_conf, master_bridge, mtu)
         self.parent = parent
-        self.cak = cak or '50b71a8ef0bd5751ea76de6d6c98c03a'
-        self.ckn = ckn or 'bbae4e26f7c88b8da2048f32f53422f9ce861a3b8413b5cfcdd6b66f05bcd529'
+        self.cak = cak
+        self.ckn = ckn
 
 
 @dataclass

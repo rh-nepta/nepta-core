@@ -527,11 +527,13 @@ mtu=1500
         self.assertEqual(expected, key_file.get_content())
 
     def test_macsec_slave(self):
+        CAK = '50b71a8ef0bd5751ea76de6d6c98c03a'
+        CKN = 'bbae4e26f7c88b8da2048f32f53422f9ce861a3b8413b5cfcdd6b66f05bcd529'
         intf = nm.EthernetInterface(
             'bnxt_1',
             '00:11:22:33:44:55',
         )
-        macsec_intf = nm.MACSecInterface('macsec0', intf, self.generic_eth.v4_conf)
+        macsec_intf = nm.MACSecInterface('macsec0', intf, CAK, CKN, self.generic_eth.v4_conf)
         key_file = NmcliKeyFile(macsec_intf)
         expected = '''\
 [connection]
