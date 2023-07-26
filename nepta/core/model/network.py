@@ -317,6 +317,11 @@ class IPsecTunnel:
         NO = 'no'
         AUTO = 'auto'
 
+    class Esn(Enum):
+        YES = 'yes'
+        EITHER = 'either'
+        NO = 'no'
+
     # IPsec tunnel attribute definition with type hints
     left_ip: IpInterface
     right_ip: IpInterface
@@ -330,6 +335,7 @@ class IPsecTunnel:
     replay_window: Optional[int] = None
     encapsulation: Encapsulation = Encapsulation.NO
     nic_offload: Offload = Offload.NO
+    esn: Optional[Esn] = None
 
     @classmethod
     def generate_tunnels(cls, addrs1: IPBaseConfiguration, addrs2: IPBaseConfiguration, properties: List[dict]):
