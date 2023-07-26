@@ -43,6 +43,7 @@ conn IPv4_transport_aes128-sha1_encap-no_192.168.1.1_192.168.1.2
             replay_window=128,
             encapsulation=IPsecTunnel.Encapsulation.YES,
             nic_offload=IPsecTunnel.Offload.YES,
+            esn=IPsecTunnel.Esn.NO,
         )
         conn_file_obj = IPsecConnFile(ipsec_tunnel)
         conn_file_obj.template = 'ipsec_conn.jinja2'
@@ -60,6 +61,7 @@ conn IPv4_tunnel_aes128-sha2_encap-yes_192.168.1.1_192.168.1.2
 \tencapsulation=yes
 \treplay-window=128
 \tnic-offload=yes
+\tesn=no
 """
         self.assertEqual(excpexted_output, conn_file_obj._make_content())
 
