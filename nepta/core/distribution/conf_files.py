@@ -172,6 +172,7 @@ class _NetConfFile(JinjaConfFile, ABC):
         net_model.BondChildInterface: 'bond_slave.jinja2',
         net_model.OVSIntPort: 'ovs_int_port.jinja2',
         net_model.LinuxBridge: 'bridge.jinja2',
+        net_model.MACSecInterface: 'macsec.jinja2',
     }
 
     def __init__(self, interface: net_model.Interface):

@@ -14,4 +14,7 @@ conn {{name}}
 	{% if nic_offload %}
 	nic-offload={{ nic_offload.value }}
 	{% endif %}
+	{% if esn %}
+	esn={{ esn.value }}
+	{% endif %}
 

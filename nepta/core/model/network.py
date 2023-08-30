@@ -230,6 +230,24 @@ class BondChildInterface(EthernetInterface):
         self.master_bond: str = ''
 
 
+class MACSecInterface(Interface):
+    def __init__(
+        self,
+        name: str,
+        parent: Interface,
+        cak: str,
+        ckn: str,
+        v4_conf: Optional[IPv4Configuration] = None,
+        v6_conf: Optional[IPv6Configuration] = None,
+        master_bridge: Optional['LinuxBridge'] = None,
+        mtu: int = 1500,
+    ):
+        super().__init__(name, v4_conf, v6_conf, master_bridge, mtu)
+        self.parent = parent
+        self.cak = cak
+        self.ckn = ckn
+
+
 @dataclass
 class WireGuardPeer:
     """
@@ -299,6 +317,11 @@ class IPsecTunnel:
         NO = 'no'
         AUTO = 'auto'
 
+    class Esn(Enum):
+        YES = 'yes'
+        EITHER = 'either'
+        NO = 'no'
+
     # IPsec tunnel attribute definition with type hints
     left_ip: IpInterface
     right_ip: IpInterface
@@ -312,6 +335,7 @@ class IPsecTunnel:
     replay_window: Optional[int] = None
     encapsulation: Encapsulation = Encapsulation.NO
     nic_offload: Offload = Offload.NO
+    esn: Optional[Esn] = None
 
     @classmethod
     def generate_tunnels(cls, addrs1: IPBaseConfiguration, addrs2: IPBaseConfiguration, properties: List[dict]):
