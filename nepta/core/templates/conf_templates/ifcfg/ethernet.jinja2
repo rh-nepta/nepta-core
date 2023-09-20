@@ -1,7 +1,7 @@
 {% extends "generic.jinja2" %}
 {% block additional_values %}
 HWADDR={{ intf.mac }}
-    {% if intf.offloads %}
-ETHTOOL_OPTS="-K {{ intf.name }}{% for k,v in intf.offloads.items() %} {{ k }} {{ v }}{% endfor %}"
+    {% if intf.ethtool_opts|length > 1 %}
+ETHTOOL_OPTS="{{ intf.ethtool_opts }}"
     {% endif %}
 {% endblock %}

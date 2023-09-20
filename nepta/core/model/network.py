@@ -109,6 +109,14 @@ class Interface:
 
 
 class EthernetInterface(Interface):
+    class Duplex(Enum):
+        HALF = 'half'
+        FULL = 'full'
+
+    class Negotiation(Enum):
+        ON = 'on'
+        OFF = 'off'
+
     def __init__(
         self,
         name: str,
@@ -117,10 +125,31 @@ class EthernetInterface(Interface):
         v6_conf: Optional[IPv6Configuration] = None,
         mtu: int = 1500,
         offloads: Optional[Dict[str, str]] = None,
+        duplex: Optional[Duplex] = None,
+        speed: Optional[int] = None,
+        auto_negotiation: Optional[Negotiation] = None,
     ):
         super().__init__(name, v4_conf, v6_conf, mtu=mtu)
         self.mac = mac.lower()
         self.offloads = offloads or {}
+        self.duplex = duplex
+        self.speed = speed
+        self.auto_neg = auto_negotiation
+
+    @property
+    def ethtool_opts(self) -> str:
+        result = ''
+        if self.duplex:
+            result += f'duplex {self.duplex.value} '
+        if self.speed:
+            result += f'speed {self.speed} '
+        if self.auto_neg:
+            result += f'autoneg {self.auto_neg.value} '
+        if self.offloads:
+            result += f'-K {self.name} '
+            for k, v in self.offloads.items():
+                result += f'{k} {v} '
+        return result[:-1]
 
 
 class VlanInterface(Interface):

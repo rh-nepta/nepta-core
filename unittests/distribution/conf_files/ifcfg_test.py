@@ -262,6 +262,27 @@ ETHTOOL_OPTS="-K int1 gro off gso on"
 '''
         self.assertEqual(expected_result, ifcfg.get_content())
 
+    def test_speed_duplex(self):
+        intf = nm.EthernetInterface(
+            'int1',
+            'aa:bb:cc:dd:ee:ff',
+            offloads={'gro': 'off', 'gso': 'on'},
+            speed=40000,
+            duplex=nm.EthernetInterface.Duplex.HALF,
+            auto_negotiation=nm.EthernetInterface.Negotiation.OFF,
+        )
+        ifcfg = cf.IfcfgFile(intf)
+
+        expected_result = '''\
+DEVICE=int1
+ONBOOT=yes
+BOOTPROTO=none
+MTU=1500
+HWADDR=aa:bb:cc:dd:ee:ff
+ETHTOOL_OPTS="duplex half speed 40000 autoneg off -K int1 gro off gso on"
+'''
+        self.assertEqual(expected_result, ifcfg.get_content())
+
 
 class VariousIfcfgTest(TestCase):
     def __init__(self, *args, **kwargs):
