@@ -151,6 +151,15 @@ class EthernetInterface(Interface):
                 result += f'{k} {v} '
         return result[:-1]
 
+    @property
+    def nm_auto_neg(self) -> Optional[str]:
+        if self.auto_neg == self.Negotiation.OFF:
+            return 'false'
+        elif self.auto_neg == self.Negotiation.ON:
+            return 'true'
+        else:
+            return None
+
 
 class VlanInterface(Interface):
     def __init__(

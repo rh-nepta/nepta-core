@@ -222,7 +222,6 @@ type=ethernet
 mac-address=aa:bb:cc:dd:ee:ff
 mtu=1500
 '''
-        print(keyfile.get_content())
         self.assertEqual(
             drop_uuid_line(expected_result),
             drop_uuid_line(keyfile.get_content()),
@@ -338,7 +337,48 @@ mtu=1500
 feature-gro=false
 feature-gso=true
 '''
-        print(keyfile.get_content())
+        self.assertEqual(
+            drop_uuid_line(expected_result),
+            drop_uuid_line(keyfile.get_content()),
+        )
+
+    def test_ipv4_eth_int_w_duplex_speed(self):
+        intf = nm.EthernetInterface(
+            'int1',
+            'aa:bb:cc:dd:ee:ff',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+                [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')],
+            ),
+            mtu=1450,
+            speed=40000,
+            duplex=nm.EthernetInterface.Duplex.FULL,
+            auto_negotiation=nm.EthernetInterface.Negotiation.OFF,
+        )
+        keyfile = NmcliKeyFile(intf)
+
+        expected_result = '''[connection]
+id=int1
+uuid=44ffb090-6c33-5836-a3eb-5cd7f8c6285a
+interface-name=int1
+type=ethernet
+
+[ipv4]
+address1=192.168.0.1/24
+address2=192.168.1.1/24
+gateway=192.168.0.255
+dns=8.8.4.4;1.1.1.1;
+may-fail=false
+method=manual
+
+[ethernet]
+mac-address=aa:bb:cc:dd:ee:ff
+mtu=1450
+speed=40000
+duplex=full
+auto-negotiate=false
+'''
         self.assertEqual(
             drop_uuid_line(expected_result),
             drop_uuid_line(keyfile.get_content()),
