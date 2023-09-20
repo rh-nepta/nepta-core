@@ -8,6 +8,15 @@ type=ethernet
 [ethernet]
 mac-address={{ intf.mac }}
 mtu={{ intf.mtu }}
+    {% if intf.speed %}
+speed={{ intf.speed }}
+    {% endif %}
+    {% if intf.duplex %}
+duplex={{ intf.duplex.value }}
+    {% endif %}
+    {% if intf.auto_neg %}
+auto-negotiate={{ intf.nm_auto_neg }}
+    {% endif %}
     {% if intf.offloads %}
 
 [ethtool]
