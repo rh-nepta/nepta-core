@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [[ -d "/sys/devices/system/cpu/vulnerabilities" ]] && [[ "$(ls -A "/sys/devices/system/cpu/vulnerabilities")" ]]
+then
+  pushd "/sys/devices/system/cpu/vulnerabilities" > /dev/null || exit
+  # shellcheck disable=SC2046
+  tail -v -n +1 $(ls | sort)
+  popd >/dev/null || exit
+fi
