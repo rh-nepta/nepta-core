@@ -75,6 +75,9 @@ python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 test = "pip install . && pytest unittests"
 print = "pip install . && nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org"
 
+[tool.hatch.envs.default.env-vars]
+PIP_CONFIG_FILE = "pip.conf"
+
 [tool.hatch.envs.mypy]
 python = "3.9"
 dependencies = [
