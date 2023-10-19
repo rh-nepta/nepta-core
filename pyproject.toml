@@ -1,0 +1,92 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nepta-core"
+dynamic = ["version"]
+description = 'Core of NePTA framework for network testing.'
+readme = "README.md"
+requires-python = ">=3.6"
+license = "GPL-3.0-or-later"
+keywords = []
+authors = [
+    { name = "Adrian Tomasov", email = "atomasov@redhat.com" },
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "dataclasses",
+    "jinja2",
+    "nepta-dataformat",
+    "numpy",
+    "retry",
+    "singledispatchmethod",
+    "xml-diff",
+]
+
+[project.urls]
+Documentation = "https://github.com/rh-nepta/nepta-core#network-performance-test-automatization---core"
+Issues = "https://github.com/rh-nepta/nepta-core/issues"
+Source = "https://github.com/rh-nepta/nepta-core"
+
+[project.scripts]
+nepta = 'nepta.core.__main__:main'
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build]
+include = [
+    "nepta/*"
+]
+
+[tool.hatch.build.hooks.vcs]
+version-file = "nepta/core/_version.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.envs.default]
+dependencies = [
+    "coloredlogs",
+    "dataclasses",
+    "jinja2",
+    "nepta-dataformat",
+    "numpy",
+    "pytest",
+    "retry",
+    "singledispatchmethod",
+    "xml-diff",
+]
+
+[tool.hatch.envs.default.scripts]
+# Install local package -> namespace import issue
+test = "pip install . && pytest unittests"
+
+[tool.hatch.envs.mypy]
+dependencies = [
+    "mypy",
+    "pytest-mypy",
+    "types-dataclasses",
+    "types-retry",
+]
+
+[tool.hatch.envs.mypy.scripts]
+typing = "mypy -p nepta.core"
+# Install local package -> namespace import issue
+pytest-mypy = "pip install . && pytest --mypy unittests"
+all = [
+    "typing",
+    "pytest-mypy",
+]
+
+[tool.mypy]
+ignore_missing_imports = true
