@@ -1,3 +1,11 @@
+all:
+
+build-container:
+	podman build . -t nepta-env
+
+push-container: build-container
+	podman push nepta-env quay.io/perfqe/nepta-env
+
 test:
 	hatch run test
 
