@@ -1,14 +1,14 @@
 test:
-	pip install .
-	pytest
+	hatch run test
 
-pip:
-	python3 setup.py sdist
+build:
+	hatch build
 
-code-style:
-	unify -r -i ./
-	black -l 120 -S ./
-	flake8 nepta unittests
+fmt:
+	hatch run lint:fmt
+
+code-style-check:
+	hatch run lint:style
 
 clean:
 	# remove all python cache files
