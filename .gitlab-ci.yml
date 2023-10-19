@@ -1,11 +1,14 @@
 image: quay.io/perfqe/nepta-env:latest
 
+include: 
+  - project: kernel-performance/perfqe-gitlab-ci-templates
+    file: pypi/pulp.yml
+
 stages:
   - pytest
-  - print
   - code-style
   - mypy
-  - build
+  - publish
 
 pytest:
   tags:
@@ -16,7 +19,7 @@ pytest:
 print-conf:
   tags:
     - docker
-  stage: print
+  stage: pytest
   script: hatch run print
 
 code-style:
@@ -38,24 +41,3 @@ mypy-typing:
   stage: mypy
   script: hatch run mypy:typing
   allow_failure: true
-
-pulp:
-  tags:
-    - docker
-  stage: build
-  only:
-    - /^v[0-9]*\.[0-9]*\.?[0-9]*$/
-  except:
-    - branches
-  script:
-    - pip install pulp-cli
-    - pulp config create --username $PULP_USER --password $PULP_PASS --base-url $PULP_URL --api-root /pulp/ --no-verify-ssl
-    - python3 setup.py sdist
-    - export PKG=$(ls dist)
-    - cd dist && pulp python content upload --relative-path $PKG --file $PKG
-    - pulp python repository content add --repository nepta --filename $PKG
-
-  artifacts:
-    paths:
-      - dist
-    expire_in: 7 days
