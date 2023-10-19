@@ -67,11 +67,16 @@ dependencies = [
     "xml-diff",
 ]
 
+[[tool.hatch.envs.default.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
 [tool.hatch.envs.default.scripts]
 # Install local package -> namespace import issue
 test = "pip install . && pytest unittests"
+print = "pip install . && nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org"
 
 [tool.hatch.envs.mypy]
+python = "3.9"
 dependencies = [
     "mypy",
     "pytest-mypy",
@@ -105,10 +110,9 @@ ban-relative-imports = "all"
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
 
-[[tool.hatch.envs.all.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
 [tool.hatch.envs.lint]
+python = "3.9"
 detached = true
 dependencies = [
   "black",
