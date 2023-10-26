@@ -15,6 +15,10 @@ pytest:
     - docker
   stage: pytest
   script: hatch run test
+  artifacts:
+    when: always
+    reports:
+      junit: report*.xml
 
 print-conf:
   tags:

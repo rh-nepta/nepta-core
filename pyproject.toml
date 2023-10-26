@@ -72,7 +72,7 @@ python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
 [tool.hatch.envs.default.scripts]
 # Install local package -> namespace import issue
-test = "pip install . && pytest unittests"
+test = "pip install . && pytest unittests --junit-xml=report-$(python --version | cut -f 2 -d ' ').xml"
 print = "pip install . && nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org"
 
 [tool.hatch.envs.default.env-vars]
