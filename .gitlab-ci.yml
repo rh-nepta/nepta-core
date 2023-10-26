@@ -2,7 +2,7 @@ image: quay.io/perfqe/nepta-env:latest
 
 include: 
   - project: kernel-performance/perfqe-gitlab-ci-templates
-    file: pypi/pulp.yml
+    file: pypi/nexus.yml
 
 stages:
   - pytest
