@@ -140,6 +140,19 @@ def create_desynchronize_strategy(strategy: CompoundStrategy, package: DataPacka
     return desync_strategy
 
 
+class ArgRangeMixin(argparse._AppendAction):
+    NMIN = 1
+    NMAX = 3
+
+    def __call__(self, parser, args, values, option_string=None):
+        if not self.NMIN <= len(values) <= self.NMAX:
+            raise argparse.ArgumentError(
+                self,
+                f'Too many values "{values}! The allowed number of arguments is between {self.NMIN} and {self.NMAX}.',
+            )
+        super().__call__(parser, args, values, option_string)
+
+
 class CheckEnvVariable(argparse._AppendAction):
     def __call__(self, parser, namespace, values, option_string=None):
         if values[0] in Environment.__dict__.keys():
@@ -148,6 +161,11 @@ class CheckEnvVariable(argparse._AppendAction):
             raise argparse.ArgumentError(
                 self, "Provided key \"{}\" is not defined in Environment so it cannot be overridden.".format(values[0])
             )
+
+
+class RequiredLengthAppend(ArgRangeMixin, argparse._AppendAction):
+    NMIN = 1
+    NMAX = 2
 
 
 def main():
@@ -238,10 +256,10 @@ def main():
         '-i',
         '--import',
         dest='imp',
-        action='append',
-        nargs=2,
+        action=RequiredLengthAppend,
+        nargs='+',
         metavar=('MODULE_NAME', 'PATH'),
-        help='Dynamically import test configurations.',
+        help='Dynamically import python modules with optional path.',
     )
     parser.add_argument(
         '-t',
@@ -281,10 +299,17 @@ def main():
 
     # import modules defined on CLI
     if args.imp:
-        for module, path in args.imp:
-            sys.path.insert(0, path)
-            importlib.import_module(module)
-            sys.path.pop(0)
+        for arg in args.imp:
+            module = arg[0]
+            if len(arg) == 1:
+                logger.info(f'Importing {module}')
+                importlib.import_module(module)
+            else:
+                path = arg[1]
+                sys.path.insert(0, path)
+                logger.info(f'Importing {module} from {path}')
+                importlib.import_module(module)
+                sys.path.pop(0)
 
     # overriding environments
     if args.environment:

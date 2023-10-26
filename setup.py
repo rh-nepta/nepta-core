@@ -20,5 +20,8 @@ setup(
     install_requires=['jinja2', 'xml-diff', 'numpy', 'singledispatchmethod', 'retry'],
     namespace_packages=['nepta'],
     include_package_data=True,
+    scripts=[
+        'scripts/reportVulnerabilities',
+    ],
     entry_points={'console_scripts': ['nepta = nepta.core.__main__:main']},
 )

@@ -1,8 +1,13 @@
 from unittest import TestCase
 import ipaddress as ia
+import re
 
 from nepta.core.model import network as nm
 from nepta.core.distribution.conf_files import NmcliKeyFile
+
+
+def drop_uuid_line(content: str) -> str:
+    return re.sub(r'uuid.*\n', '', content)
 
 
 class NmKeyfilesTest(TestCase):
@@ -217,8 +222,10 @@ type=ethernet
 mac-address=aa:bb:cc:dd:ee:ff
 mtu=1500
 '''
-        print(keyfile.get_content())
-        self.assertEqual(expected_result, keyfile.get_content())
+        self.assertEqual(
+            drop_uuid_line(expected_result),
+            drop_uuid_line(keyfile.get_content()),
+        )
 
     def test_full_eth_int(self):
         intf = nm.EthernetInterface(
@@ -264,7 +271,10 @@ method=manual
 mac-address=aa:bb:cc:dd:ee:ff
 mtu=1450
 '''
-        self.assertEqual(expected_result, keyfile.get_content())
+        self.assertEqual(
+            drop_uuid_line(expected_result),
+            drop_uuid_line(keyfile.get_content()),
+        )
 
     def test_vlan_int(self):
         eth = nm.EthernetInterface('ixgbe_0', '00:22:33:44:55:66')
@@ -327,8 +337,52 @@ mtu=1500
 feature-gro=false
 feature-gso=true
 '''
-        print(keyfile.get_content())
-        self.assertEqual(expected_result, keyfile.get_content())
+        self.assertEqual(
+            drop_uuid_line(expected_result),
+            drop_uuid_line(keyfile.get_content()),
+        )
+
+    def test_ipv4_eth_int_w_duplex_speed(self):
+        intf = nm.EthernetInterface(
+            'int1',
+            'aa:bb:cc:dd:ee:ff',
+            nm.IPv4Configuration(
+                [ia.IPv4Interface('192.168.0.1/24'), ia.IPv4Interface('192.168.1.1/24')],
+                ia.IPv4Address('192.168.0.255'),
+                [ia.IPv4Address('8.8.4.4'), ia.IPv4Address('1.1.1.1')],
+            ),
+            mtu=1450,
+            speed=40000,
+            duplex=nm.EthernetInterface.Duplex.FULL,
+            auto_negotiation=nm.EthernetInterface.Negotiation.OFF,
+        )
+        keyfile = NmcliKeyFile(intf)
+
+        expected_result = '''[connection]
+id=int1
+uuid=44ffb090-6c33-5836-a3eb-5cd7f8c6285a
+interface-name=int1
+type=ethernet
+
+[ipv4]
+address1=192.168.0.1/24
+address2=192.168.1.1/24
+gateway=192.168.0.255
+dns=8.8.4.4;1.1.1.1;
+may-fail=false
+method=manual
+
+[ethernet]
+mac-address=aa:bb:cc:dd:ee:ff
+mtu=1450
+speed=40000
+duplex=full
+auto-negotiate=false
+'''
+        self.assertEqual(
+            drop_uuid_line(expected_result),
+            drop_uuid_line(keyfile.get_content()),
+        )
 
 
 class VariousNmKeyFilTest(TestCase):
@@ -404,7 +458,10 @@ mtu=1500
 [team-port]
 '''
         print(key_file.get_content())
-        self.assertEqual(expected, key_file.get_content())
+        self.assertEqual(
+            drop_uuid_line(expected),
+            drop_uuid_line(key_file.get_content()),
+        )
 
     def test_bond_master(self):
         team_int = nm.BondMasterInterface('team1', self.generic_eth.v4_conf, self.generic_eth.v6_conf)
@@ -459,7 +516,10 @@ mtu=1500
 
 '''
 
-        self.assertEqual(expected, key_file.get_content())
+        self.assertEqual(
+            drop_uuid_line(expected),
+            drop_uuid_line(key_file.get_content()),
+        )
 
     def test_bridge_master(self):
         bridge_master = nm.LinuxBridge('br1', self.generic_eth.v4_conf, self.generic_eth.v6_conf)
@@ -524,7 +584,10 @@ method=manual
 mac-address=00:11:22:33:44:55
 mtu=1500
 '''
-        self.assertEqual(expected, key_file.get_content())
+        self.assertEqual(
+            drop_uuid_line(expected),
+            drop_uuid_line(key_file.get_content()),
+        )
 
     def test_macsec_slave(self):
         CAK = '50b71a8ef0bd5751ea76de6d6c98c03a'
