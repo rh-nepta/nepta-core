@@ -7,68 +7,39 @@ stages:
   - mypy
   - build
 
-py36:
-  tags:
-    - docker
-  stage: pytest
-  script: tox -e py36
+default:
+  before_script:
+    - export NETWORK_PERFTEST_ARGS="--help"
+    - pipenv install --dev
 
-py37:
+pytest:
   tags:
     - docker
   stage: pytest
-  script: tox -e py37
-
-py39:
-  tags:
-    - docker
-  stage: pytest
-  script: tox -e py39
+  script: pipenv run pytest --junit-xml=report.xml  
+  artifacts:
+    expire_in: 1 week
+    reports:
+      junit: report.xml
 
 nepta-print-conf:
   tags:
     - docker
   stage: print
-  script: 
-    - export NETWORK_PERFTEST_ARGS="--help"
-    - pipenv install --dev
-    - pipenv run env
-    - pipenv run pip install .
-    - pipenv run pip list
-    - pipenv run nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org
+  script: pipenv run nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org
 
 quotes:
   tags:
     - docker
   stage: pytest
-  script: tox -e unify
+  script: pipenv run unify -c -r ./
   allow_failure: true
 
 black:
   tags:
     - docker
   stage: code-style 
-  script: tox -e black
-
-flake8:
-  tags:
-    - docker
-  stage: code-style 
-  script: tox -e flake8
-
-pytest-mypy:
-  tags:
-    - docker
-  stage: mypy 
-  script: tox -e pytest-mypy
-  allow_failure: true
-
-mypy:
-  tags:
-    - docker
-  stage: mypy 
-  script: tox -e mypy
-  allow_failure: true
+  script: pipenv run black -l 120 --check -S ./
 
 pulp:
   tags:

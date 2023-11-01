@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
-from setuptools import setup, find_namespace_packages
+from setuptools import setup, find_packages
 import versioneer
 
 with open('README.md', 'r') as f:
     readme = f.read()
 
-print(find_namespace_packages())
 setup(
     name='nepta-core',
     version=versioneer.get_version(),
@@ -16,7 +15,7 @@ setup(
     author='Adrian Tomasov',
     author_email='atomasov@redhat.com',
     url='https://github.com/rh-nepta/nepta-core',
-    packages=find_namespace_packages(include=['nepta.*']),
+    packages=find_packages(include=['nepta.*']),
     install_requires=['jinja2', 'xml-diff', 'numpy', 'singledispatchmethod', 'retry'],
     namespace_packages=['nepta'],
     include_package_data=True,
