@@ -14,7 +14,7 @@ pytest:
   tags:
     - docker
   stage: pytest
-  script: hatch run test
+  script: hatch run all:test
   artifacts:
     when: always
     reports:
