@@ -30,7 +30,7 @@ code-style:
   tags:
     - docker
   stage: code-style
-  script: hatch run lint:style
+  script: hatch run lint:style nepta
 
 pytest-mypy:
   tags:
