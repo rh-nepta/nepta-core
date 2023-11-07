@@ -15,7 +15,7 @@ setup(
     author='Adrian Tomasov',
     author_email='atomasov@redhat.com',
     url='https://github.com/rh-nepta/nepta-core',
-    packages=find_packages(include=['nepta.*']),
+    packages=[f'nepta.{x}' for x in find_packages('nepta')],
     install_requires=['jinja2', 'xml-diff', 'numpy', 'singledispatchmethod', 'retry'],
     namespace_packages=['nepta'],
     include_package_data=True,
