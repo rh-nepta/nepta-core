@@ -60,6 +60,7 @@ dependencies = [
     "dataclasses",
     "jinja2",
     "nepta-dataformat",
+    "nepta-synchronization",
     "numpy",
     "pytest",
     "retry",
