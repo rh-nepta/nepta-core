@@ -39,6 +39,7 @@ Source = "https://github.com/rh-nepta/nepta-core"
 
 [project.scripts]
 nepta = 'nepta.core.__main__:main'
+reportVulnerabilities = "nepta.core.scripts.wrapper:main"
 
 [tool.hatch.version]
 source = "vcs"
