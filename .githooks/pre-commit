@@ -3,5 +3,5 @@
 # exit on the first error
 set -e
 
-pipenv run make code-style
-pipenv run make test
+hatch run lint:style
+hatch run test

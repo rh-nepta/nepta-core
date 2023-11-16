@@ -1,0 +1,179 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nepta-core"
+dynamic = ["version"]
+description = 'Core of NePTA framework for network testing.'
+readme = "README.md"
+requires-python = ">=3.6"
+license = "GPL-3.0-or-later"
+keywords = []
+authors = [
+    { name = "Adrian Tomasov", email = "atomasov@redhat.com" },
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "dataclasses",
+    "jinja2",
+    "nepta-dataformat",
+    "numpy",
+    "retry",
+    "singledispatchmethod",
+    "xml-diff",
+]
+
+[project.urls]
+Documentation = "https://github.com/rh-nepta/nepta-core#network-performance-test-automatization---core"
+Issues = "https://github.com/rh-nepta/nepta-core/issues"
+Source = "https://github.com/rh-nepta/nepta-core"
+
+[project.scripts]
+nepta = 'nepta.core.__main__:main'
+reportVulnerabilities = "nepta.core.scripts.wrapper:main"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build]
+include = [
+    "nepta/*"
+]
+
+[tool.hatch.build.hooks.vcs]
+version-file = "nepta/core/_version.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.envs.default]
+dependencies = [
+    "coloredlogs",
+    "dataclasses",
+    "jinja2",
+    "nepta-dataformat",
+    "nepta-synchronization",
+    "numpy",
+    "pytest",
+    "retry",
+    "singledispatchmethod",
+    "xml-diff",
+]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+[tool.hatch.envs.default.scripts]
+# Install local package -> namespace import issue
+test = "pip install . && pytest unittests --junit-xml=report-$(python --version | cut -f 2 -d ' ').xml"
+print = "pip install . && nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org"
+
+[tool.hatch.envs.default.env-vars]
+PIP_CONFIG_FILE = "pip.conf"
+
+[tool.hatch.envs.mypy]
+python = "3.9"
+dependencies = [
+    "mypy",
+    "pytest-mypy",
+    "types-dataclasses",
+    "types-retry",
+]
+
+[tool.hatch.envs.mypy.scripts]
+typing = "mypy -p nepta.core"
+# Install local package -> namespace import issue
+pytest-mypy = "pip install . && pytest --mypy unittests"
+all = [
+    "typing",
+    "pytest-mypy",
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.black]
+target-version = ["py37"]
+line-length = 120
+skip-string-normalization = true
+
+[tool.ruff.isort]
+known-first-party = ["nepta"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+
+
+[tool.hatch.envs.lint]
+python = "3.9"
+detached = true
+dependencies = [
+  "black",
+  "mypy",
+  "ruff",
+]
+[tool.hatch.envs.lint.scripts]
+style = [
+  "ruff {args:.}",
+  "black --check --diff {args:.}",
+]
+fmt = [
+  "black {args:.}",
+  "ruff --fix {args:.}",
+  "style",
+]
+
+[tool.ruff]
+target-version = "py37"
+line-length = 120
+select = [
+#  "A",
+#  "ARG",
+#  "B",
+#  "C",
+#  "DTZ",
+#  "E",
+#  "EM",
+#  "F",
+#  "FBT",
+#  "I",
+#  "ICN",
+#  "ISC",
+#  "N",
+#  "PLC",
+#  "PLE",
+#  "PLR",
+#  "PLW",
+#  "Q",
+#  "RUF",
+#  "S",
+#  "T",
+#  "TID",
+#  "UP",
+  "W",
+  "YTT",
+]
+ignore = [
+  # Allow non-abstract empty methods in abstract base classes
+  "B027",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
+  # Ignore complexity
+  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Ignore unused imports, CamelCase as acronym, ignore tmp usage and unused lambda arguments
+  "F401", "N817", "S108", "ARG005",
+]

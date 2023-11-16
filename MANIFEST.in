@@ -1,3 +1,0 @@
-include versioneer.py
-include nepta/core/_version.py
-recursive-include nepta/core/templates *

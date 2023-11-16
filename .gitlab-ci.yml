@@ -1,63 +1,47 @@
 image: quay.io/perfqe/nepta-env:latest
 
+include: 
+  - project: kernel-performance/perfqe-gitlab-ci-templates
+    file: pypi/nexus.yml
+
 stages:
   - pytest
-  - print 
   - code-style
   - mypy
-  - build
-
-default:
-  before_script:
-    - export NETWORK_PERFTEST_ARGS="--help"
-    - pipenv install --dev
+  - publish
 
 pytest:
   tags:
     - docker
   stage: pytest
-  script: pipenv run pytest --junit-xml=report.xml  
+  script: hatch run all:test
   artifacts:
-    expire_in: 1 week
+    when: always
     reports:
-      junit: report.xml
+      junit: report*.xml
 
-nepta-print-conf:
-  tags:
-    - docker
-  stage: print
-  script: pipenv run nepta -i example_config . -p -c Default -e fqdn host_1.testlab.org
-
-quotes:
+print-conf:
   tags:
     - docker
   stage: pytest
-  script: pipenv run unify -c -r ./
+  script: hatch run print
+
+code-style:
+  tags:
+    - docker
+  stage: code-style
+  script: hatch run lint:style nepta
+
+pytest-mypy:
+  tags:
+    - docker
+  stage: mypy
+  script: hatch run mypy:pytest-mypy
   allow_failure: true
 
-black:
+mypy-typing:
   tags:
     - docker
-  stage: code-style 
-  script: pipenv run black -l 120 --check -S ./
-
-pulp:
-  tags:
-    - docker
-  stage: build
-  only:
-    - /^v[0-9]*\.[0-9]*\.?[0-9]*$/
-  except:
-    - branches
-  script:
-    - pip install pulp-cli
-    - pulp config create --username $PULP_USER --password $PULP_PASS --base-url $PULP_URL --api-root /pulp/ --no-verify-ssl
-    - python3 setup.py sdist
-    - export PKG=$(ls dist)
-    - cd dist && pulp python content upload --relative-path $PKG --file $PKG
-    - pulp python repository content add --repository nepta --filename $PKG
-
-  artifacts:
-    paths:
-      - dist
-    expire_in: 7 days
+  stage: mypy
+  script: hatch run mypy:typing
+  allow_failure: true
