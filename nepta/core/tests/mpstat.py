@@ -1,5 +1,6 @@
 import logging
 import json
+from typing import Dict, List
 from nepta.core.tests.cmd_tool import CommandArgument, CommandTool
 
 logger = logging.getLogger(__name__)
@@ -33,12 +34,12 @@ class MPStat(CommandTool):
             raise ValueError('For json output specify output parameter as JSON')
         return json.loads(self.watch_output()[0])
 
-    def cpu_loads(self) -> list:
+    def cpu_loads(self) -> List[List[Dict]]:
         data = self.parse_json()
         cpu_loads = data['sysstat']['hosts'][0]['statistics']
         return [x['cpu-load'][0] for x in cpu_loads]
 
-    def last_cpu_load(self) -> dict:
+    def last_cpu_load(self) -> List[Dict]:
         return self.cpu_loads()[-1]
 
 
