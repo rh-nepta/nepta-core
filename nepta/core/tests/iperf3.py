@@ -93,10 +93,12 @@ class Iperf3TestResult:
         self._array[self._dims[key]] = value
 
     def add_mpstat(self, local: MPStat, remote: MPStat) -> 'Iperf3TestResult':
-        self['local_cpu'] = 100 - local.last_cpu_load()['idle']
-        self['remote_cpu'] = 100 - remote.last_cpu_load()['idle']
+        # There should only one statement for the mpstat test in single stream
+        # scenario: specified core or all. Thus, accessing 0th elem.
+        self['local_cpu'] = 100 - local.last_cpu_load()[0]['idle']
+        self['remote_cpu'] = 100 - remote.last_cpu_load()[0]['idle']
 
-        self._mpstat_from_dict(local.last_cpu_load(), remote.last_cpu_load())
+        self._mpstat_from_dict(local.last_cpu_load()[0], remote.last_cpu_load()[0])
         return self
 
     def add_mpstat_sum(self, local: MPStat, remote: MPStat) -> 'Iperf3TestResult':
@@ -104,8 +106,8 @@ class Iperf3TestResult:
             assert set(a.keys()) == set(b.keys())
             return {k: a[k] + b[k] for k in a.keys()}
 
-        local_data = reduce(add_dict, local.cpu_loads())
-        remote_data = reduce(add_dict, remote.cpu_loads())
+        local_data = reduce(add_dict, local.last_cpu_loads())
+        remote_data = reduce(add_dict, remote.last_cpu_loads())
 
         self['local_cpu'] = 100 - local_data['idle']
         self['remote_cpu'] = 100 - remote_data['idle']
