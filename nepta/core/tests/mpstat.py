@@ -37,7 +37,7 @@ class MPStat(CommandTool):
     def cpu_loads(self) -> List[List[Dict]]:
         data = self.parse_json()
         cpu_loads = data['sysstat']['hosts'][0]['statistics']
-        return [x['cpu-load'][0] for x in cpu_loads]
+        return [x['cpu-load'] for x in cpu_loads]
 
     def last_cpu_load(self) -> List[Dict]:
         return self.cpu_loads()[-1]
