@@ -5,7 +5,6 @@ import numpy as np
 from enum import Enum
 from singledispatchmethod import singledispatchmethod
 from typing import Dict, Callable, Optional
-from functools import reduce
 
 from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
@@ -93,24 +92,25 @@ class Iperf3TestResult:
         self._array[self._dims[key]] = value
 
     def add_mpstat(self, local: MPStat, remote: MPStat) -> 'Iperf3TestResult':
-        self['local_cpu'] = 100 - local.last_cpu_load()['idle']
-        self['remote_cpu'] = 100 - remote.last_cpu_load()['idle']
+        # There should only one statement for the mpstat test in single stream
+        # scenario: specified core or all. Thus, accessing 0th elem.
+        self['local_cpu'] = 100 - local.last_cpu_load()[0]['idle']
+        self['remote_cpu'] = 100 - remote.last_cpu_load()[0]['idle']
 
-        self._mpstat_from_dict(local.last_cpu_load(), remote.last_cpu_load())
+        self._mpstat_from_dict(local.last_cpu_load()[0], remote.last_cpu_load()[0])
         return self
 
     def add_mpstat_sum(self, local: MPStat, remote: MPStat) -> 'Iperf3TestResult':
-        def add_dict(a: dict, b: dict):
-            assert set(a.keys()) == set(b.keys())
-            return {k: a[k] + b[k] for k in a.keys()}
-
-        local_data = reduce(add_dict, local.cpu_loads())
-        remote_data = reduce(add_dict, remote.cpu_loads())
-
-        self['local_cpu'] = 100 - local_data['idle']
-        self['remote_cpu'] = 100 - remote_data['idle']
-
+        local_data = local.sum_last_cpu_load()
+        remote_data = remote.sum_last_cpu_load()
         self._mpstat_from_dict(local_data, remote_data)
+
+        local_data.pop('idle')
+        remote_data.pop('idle')
+
+        self['local_cpu'] = sum(local_data.values())
+        self['remote_cpu'] = sum(remote_data.values())
+
         return self
 
     def _mpstat_from_dict(self, local: dict, remote: dict) -> 'Iperf3TestResult':

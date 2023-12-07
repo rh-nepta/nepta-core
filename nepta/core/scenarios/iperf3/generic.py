@@ -8,6 +8,7 @@ from nepta.core.scenarios.generic.scenario import info_log_func_output
 from nepta.core.scenarios.generic.scenario import SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
 
 from nepta.core.tests import Iperf3Test, Iperf3MPStat, MPStat, RemoteMPStat
+from nepta.core.tests.iperf3 import Iperf3TestResult
 
 logger = logging.getLogger(__name__)
 
@@ -119,9 +120,9 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
     @catch_and_log_exception
     def parse_all_results(self, tests):
         mpstats = tests[-2:]
-        tests = tests[:-2]
-        total = sum([test.get_result() for test in tests])
+        results = [test.get_result() for test in tests[:-2]]
 
+        total: Iperf3TestResult = sum(results)
         total.add_mpstat_sum(*mpstats)
         total.set_data_formatter(self.str_round)
 
@@ -142,10 +143,12 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
         result_dict = OrderedDict()
         mpstats = tests[-2:]
         tests = tests[:-2]
+        up_results = [t.get_result() for t in tests[::2]]
+        down_results = [t.get_result() for t in tests[1::2]]
 
-        stream_test_result = sum([test.get_result() for test in tests[::2]])
+        stream_test_result: Iperf3TestResult = sum(up_results)
         stream_test_result.set_data_formatter(self.str_round)
-        reversed_test_result = sum([test.get_result() for test in tests[1::2]])
+        reversed_test_result: Iperf3TestResult = sum(down_results)
         reversed_test_result.set_data_formatter(self.str_round)
 
         total = stream_test_result + reversed_test_result
