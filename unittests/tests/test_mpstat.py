@@ -132,3 +132,12 @@ class MPstatParserTest(TestCase):
         self.assertNotIn('12', cpu_names)
         self.assertIn('3', cpu_names)
         self.assertIn('9', cpu_names)
+
+        mpstat_sum = mpstat.sum_last_cpu_load()
+        print(last_cpu_loads)
+        print(mpstat_sum)
+        self.assertIsInstance(mpstat_sum, dict)
+        self.assertIn('idle', mpstat_sum.keys())
+        self.assertIn('usr', mpstat_sum.keys())
+        for v in mpstat_sum.values():
+            self.assertIsInstance(v, float)

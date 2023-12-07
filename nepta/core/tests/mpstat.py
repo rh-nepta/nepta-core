@@ -1,5 +1,6 @@
 import logging
 import json
+from functools import reduce
 from typing import Dict, List
 from nepta.core.tests.cmd_tool import CommandArgument, CommandTool
 
@@ -41,6 +42,15 @@ class MPStat(CommandTool):
 
     def last_cpu_load(self) -> List[Dict]:
         return self.cpu_loads()[-1]
+
+    def sum_last_cpu_load(self) -> dict:
+        def add_dict(a: dict, b: dict) -> dict:
+            assert set(a.keys()) == set(b.keys())
+            return {k: a[k] + b[k] for k in a.keys()}
+
+        loads = self.last_cpu_load()
+        all(map(lambda x: x.pop('cpu'), loads))
+        return reduce(add_dict, loads)
 
 
 class RemoteMPStat(MPStat):

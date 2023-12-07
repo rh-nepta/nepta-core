@@ -5,7 +5,6 @@ import numpy as np
 from enum import Enum
 from singledispatchmethod import singledispatchmethod
 from typing import Dict, Callable, Optional
-from functools import reduce
 
 from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
@@ -102,17 +101,16 @@ class Iperf3TestResult:
         return self
 
     def add_mpstat_sum(self, local: MPStat, remote: MPStat) -> 'Iperf3TestResult':
-        def add_dict(a: dict, b: dict):
-            assert set(a.keys()) == set(b.keys())
-            return {k: a[k] + b[k] for k in a.keys()}
-
-        local_data = reduce(add_dict, local.last_cpu_loads())
-        remote_data = reduce(add_dict, remote.last_cpu_loads())
-
-        self['local_cpu'] = 100 - local_data['idle']
-        self['remote_cpu'] = 100 - remote_data['idle']
-
+        local_data = local.sum_last_cpu_load()
+        remote_data = remote.sum_last_cpu_load()
         self._mpstat_from_dict(local_data, remote_data)
+
+        local_data.pop('idle')
+        remote_data.pop('idle')
+
+        self['local_cpu'] = sum(local_data.values())
+        self['remote_cpu'] = sum(remote_data.values())
+
         return self
 
     def _mpstat_from_dict(self, local: dict, remote: dict) -> 'Iperf3TestResult':
