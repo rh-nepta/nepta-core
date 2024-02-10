@@ -53,6 +53,9 @@ class Environment(metaclass=_MetaPrintedType):
     test_name = _env.get('TEST')
     in_rstrnt = test_name is not None
 
+    # TODO: delete WA
+    conf = None
+
 
 class Hardware(metaclass=_MetaPrintedType):
     try:
