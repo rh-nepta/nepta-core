@@ -346,6 +346,9 @@ def main():
 
     # preparing server for test without logging meta and report, which will be logged in the end of test
     if args.setup:
+        # ugly WA for linux bridge
+        if args.configuration == 'LinuxBridge':
+            strategies.setup.Network = strategies.setup.network.OldNetwork
         final_strategy += strategies.setup.get_strategy(conf)
 
     if args.prepare:
