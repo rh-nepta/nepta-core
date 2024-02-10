@@ -201,9 +201,7 @@ class NewNetwork(OldNetwork):
         pass
 
 
-if (
-    env.RedhatRelease.brand == 'Fedora' or env.RedhatRelease.version.startswith('9')
-) and env.Environment.conf != 'LinuxBridge':
+if env.RedhatRelease.brand == 'Fedora' or env.RedhatRelease.version.startswith('9'):
     Network: Type[Setup] = NewNetwork
 else:
     Network = OldNetwork

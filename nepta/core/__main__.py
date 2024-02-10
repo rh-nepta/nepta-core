@@ -297,9 +297,6 @@ def main():
     # setting log level
     std_handler.setLevel(args.log)
 
-    # TODO: try better WA
-    Environment.conf = args.configuration
-
     # import modules defined on CLI
     if args.imp:
         for arg in args.imp:
