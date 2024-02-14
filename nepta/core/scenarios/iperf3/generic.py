@@ -53,6 +53,10 @@ class GenericIPerf3Stream(object):
     def str_round(num, decimal=2):
         return '{:.{}f}'.format(num, decimal)
 
+    @property
+    def num_instances(self) -> int:
+        return len(getattr(self, 'cpu_pinning', []))
+
 
 #######################################################################################################################
 # Single stream scenarios

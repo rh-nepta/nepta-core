@@ -3,7 +3,7 @@ import uuid
 import logging
 import ipaddress as ia
 from collections import OrderedDict
-from typing import Union, List, Sequence, Optional
+from typing import Union, List, Sequence, Optional, Any
 from abc import ABC, abstractmethod
 
 from nepta.core.model.tag import HardwareInventoryTag, SoftwareInventoryTag
@@ -54,7 +54,7 @@ class Path(_PathInterface):
         mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
         their_ip: Union[ia.IPv4Interface, ia.IPv6Interface],
         tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]],
-        cpu_pinning: Optional[Sequence[Sequence]] = None,
+        cpu_pinning: Optional[Sequence[Sequence[int]]] = None,
     ):
         self.mine_ip = mine_ip
         self.their_ip = their_ip
@@ -89,6 +89,14 @@ class CongestedPath(Path):
         d['delay'] = self.delay
         d['bandwidth'] = self.limit_bandwidth
         return d
+
+
+class UBenchPath(Path):
+    cpu_pinning: Sequence[Sequence[Any]]
+
+    def __init__(self, mine_ip, their_ip, tags, cpu_pinning, irq_settings):
+        super().__init__(mine_ip, their_ip, tags, cpu_pinning)
+        self.irq_settings = irq_settings
 
 
 class PathList(list, _PathInterface):

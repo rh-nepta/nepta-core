@@ -30,6 +30,7 @@ dependencies = [
     "retry",
     "singledispatchmethod",
     "xml-diff",
+    "packaging",
 ]
 
 [project.urls]

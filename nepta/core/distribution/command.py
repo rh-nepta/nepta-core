@@ -15,7 +15,10 @@ class Command(object):
         -> out, ret_code = cmd.get_output()
     """
 
-    def __init__(self, cmdline, enable_debug_log=True):
+    def __init__(self, cmdline, enable_debug_log=True, host=None):
+        if host is not None:
+            cmdline = f'ssh -o LogLevel=ERROR {host} {cmdline}'
+
         self._cmdline = cmdline.split()
         self._command_handle = None
         self.enable_debug = enable_debug_log
@@ -106,9 +109,9 @@ class ShellCommand(Command):
     is necessary for command with unix pipes or other shell utilities.
     """
 
-    def __init__(self, cmdline, enable_debug_log=True):
-        super().__init__(cmdline, enable_debug_log)
-        self._cmdline = cmdline
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._cmdline = ' '.join(self._cmdline)
 
     def _cmd_str(self):
         return self._cmdline
