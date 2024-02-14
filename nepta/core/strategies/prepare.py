@@ -41,7 +41,7 @@ class Prepare(Strategy):
 
         for scenario in remote_scenarios:
             base_port = scenario.base_port
-            instances = [max_iperf3_instances, len(scenario.cpu_pinning)]
+            instances = [max_iperf3_instances, scenario.num_instances]
             for path in scenario.paths:
                 if path.cpu_pinning:
                     instances.append(len(path.cpu_pinning))
