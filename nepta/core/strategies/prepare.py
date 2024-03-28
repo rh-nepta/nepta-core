@@ -1,6 +1,8 @@
 import logging
+from time import sleep
 
 from nepta.core import model
+from nepta.core.distribution import env
 from nepta.core.distribution.utils.virt import Docker
 from nepta.core.distribution.utils.system import SystemD
 from nepta.core.tests.iperf3 import Iperf3Server
@@ -13,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class Prepare(Strategy):
+    IPSEC_SLEEP = 60
+
     def __init__(self, configuration):
         super().__init__()
         self.conf = configuration
@@ -84,14 +88,22 @@ class Prepare(Strategy):
         for cont in containers:
             Docker.run(cont)
 
-    # @Strategy.schedule
-    # def restart_ipsec_service(self):
-    #     """
-    #     This is hotfix for issue, when ipsec service stars earlier than IP addresses are assigned. This causes ipsec
-    #     tunnels malfunctions. As a simple solution is just restart IPsec service before test.
-    #     Ref: https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
-    #     """
-    #     SystemD.restart_service(model.system.SystemService('ipsec'))
+    @Strategy.schedule
+    def restart_ipsec_service(self):
+        """
+        This is hotfix for issue, when ipsec service stars earlier than IP addresses are assigned. This causes ipsec
+        tunnels malfunctions. As a simple solution is just restart IPsec service before test.
+        Ref:
+          - https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
+          - https://issues.redhat.com/browse/RHEL-30796
+        """
+        if env.RedhatRelease.version.startswith('9') and self.conf.conf_name == 'IPsec':
+            logger.warning('WA: Restarting IPsec service and sleeping for 60 seconds!!!')
+            sleep(self.IPSEC_SLEEP)
+            SystemD.restart_service(model.system.SystemService('ipsec'))
+            sleep(self.IPSEC_SLEEP)
+        else:
+            logger.warning('IPsec WA is not applied!')
 
     @Strategy.schedule
     def run_shell_commands(self):
