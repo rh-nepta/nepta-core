@@ -1,20 +1,26 @@
 Network Performance Test Automatization - CORE
 ===========================
-* TBD
+
+## Introduction
+Nepta-core is designed to automate network performance testing, offering
+a comprehensive solution for assessing and enhancing network efficiency. 
+This project simplifies complex network testing tasks, ensuring accurate
+and reliable performance evaluations.
 
 
 DEPENDENCIES
 ------------
-For simple installation, all dependencies are specified in `Pipfile`. To 
-install and run **nepta** use following shell commands:
+For an easy setup, the project lists all necessary dependencies within the
+`hatch environment` file. Follow these shell commands to clone, set up the 
+environment, and start using `nepta`:
 
 ```bash
 git clone https://github.com/rh-nepta/nepta-core
 cd nepta-core
-pipenv install
-python3 setup.py install
+hatch shell
 nepta --help
 ```
+
 ##### Required
 * [xml-diff](https://pypi.org/project/xmldiff/)
 * [jinja2](https://pypi.org/project/Jinja2/)
