@@ -37,6 +37,12 @@ from .iperf3.udp import Iperf3UDPStream, Iperf3UDPReversed, Iperf3UDPMultiStream
 # parallel path
 from .iperf3.parallel import Iperf3TCPParallelPath
 
+# UBench
+from .ubench.generic import UBenchGeneric
+from .ubench.generic import UBenchBest
+from .ubench.generic import UBenchNeighbour
+from .ubench.generic import UBenchUnpinned
+
 
 def get_scenario_by_name(scenario_name):
     scenario_class = None

@@ -1,0 +1,32 @@
+{"sysstat": {
+	"hosts": [
+		{
+			"nodename": "secret",
+			"sysname": "Linux",
+			"release": "6.6.0",
+			"machine": "x86_64",
+			"number-of-cpus": 48,
+			"date": "12/06/2023",
+			"statistics": [
+				{
+					"timestamp": "10:34:24 AM",
+					"cpu-load": [
+						{"cpu": "3", "usr": 4.79, "nice": 0.00, "sys": 41.72, "iowait": 0.00, "irq": 0.40, "soft": 1.40, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 51.70},
+						{"cpu": "6", "usr": 4.60, "nice": 0.00, "sys": 42.00, "iowait": 0.00, "irq": 0.40, "soft": 0.20, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 52.80},
+						{"cpu": "9", "usr": 4.99, "nice": 0.00, "sys": 41.32, "iowait": 0.00, "irq": 0.40, "soft": 0.60, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 52.69},
+						{"cpu": "22", "usr": 5.23, "nice": 0.00, "sys": 43.06, "iowait": 0.00, "irq": 0.20, "soft": 0.00, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 51.51}
+					]
+				},
+				{
+					"timestamp": "10:34:29 AM",
+					"cpu-load": [
+						{"cpu": "3", "usr": 5.19, "nice": 0.00, "sys": 43.51, "iowait": 0.00, "irq": 0.60, "soft": 1.00, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 49.70},
+						{"cpu": "6", "usr": 5.59, "nice": 0.00, "sys": 42.91, "iowait": 0.00, "irq": 0.20, "soft": 0.20, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 51.10},
+						{"cpu": "9", "usr": 5.20, "nice": 0.00, "sys": 42.60, "iowait": 0.00, "irq": 0.40, "soft": 1.00, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 50.80},
+						{"cpu": "22", "usr": 5.39, "nice": 0.00, "sys": 43.11, "iowait": 0.00, "irq": 0.40, "soft": 0.00, "steal": 0.00, "guest": 0.00, "gnice": 0.00, "idle": 51.10}
+					]
+				}
+			]
+		}
+	]
+}}

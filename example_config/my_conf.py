@@ -53,9 +53,9 @@ paths = [
 ]
 
 # for detailed description of constructor arguments see definition of constructor
-host_1.scenarios += scenarios.Iperf3TCPSanity(paths, 5, 2, [1024, 8192, 65536], (0, 0), 5201)
-host_1.scenarios += scenarios.Iperf3TCPStream(paths, 60, 2, [1024, 8192, 65536], (0, 0), 5201)
-host_1.scenarios += scenarios.Iperf3TCPReversed(paths, 60, 2, [1024, 8192, 65536], (0, 0), 5201)
+host_1.scenarios += scenarios.Iperf3TCPSanity(paths, 5, 2, [1024, 8192, 65536], (0, 0), 5201, 2, 2)
+host_1.scenarios += scenarios.Iperf3TCPStream(paths, 60, 2, [1024, 8192, 65536], (0, 0), 5201, 2, 2)
+host_1.scenarios += scenarios.Iperf3TCPReversed(paths, 60, 2, [1024, 8192, 65536], (0, 0), 5201, 2, 2)
 # in TCP Multistream len of cpu_pinning list sets number of parallel TCP stream
 host_1.scenarios += scenarios.Iperf3TCPMultiStream(
     paths, 2, 2, 60, 2, [1024, 8192, 65536], [(x, x) for x in range(8)], 5201

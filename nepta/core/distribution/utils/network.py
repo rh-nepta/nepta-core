@@ -194,56 +194,6 @@ class LldpTool:
         return out_string
 
 
-class Tuna:
-    @staticmethod
-    def list_all_irqs():
-        cmd_line = 'tuna --show_irqs'
-        cmd = Command(cmd_line)
-        cmd.run()
-        output, _ = cmd.get_output()
-
-        return output
-
-    @staticmethod
-    def get_irq_of_interface(interface):
-        cmd_line = 'tuna --show_irqs | grep %s' % interface
-        cmd = Command(cmd_line)
-        cmd.run()
-        all_irq, _ = cmd.get_output()
-
-        output = []
-        for i in all_irq.split('\n'):
-            if len(i):
-                output.append(i.split()[0])
-        return output
-
-    @classmethod
-    def set_irq_cpu_binding(cls, interface, cpu):
-        interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ', '.join(interface_irq)
-
-        cmd_line = 'tuna --irqs=%s --cpu=%s --move' % (irqs, cpu)
-        cmd = Command(cmd_line)
-        cmd.run()
-        cmd.get_output()
-
-    @classmethod
-    def set_irq_socket_binding(cls, interface, socket):
-        interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ', '.join(interface_irq)
-
-        cmd_line = 'tuna --irqs=%s --sockets=%s --move' % (irqs, socket)
-        cmd = Command(cmd_line)
-        cmd.run()
-        cmd.get_output()
-
-    @classmethod
-    def reset_irq_binding(cls, interface):
-        # default socket is 0 , we have to use reset if we want to test TCP, because irq binding fuck it up
-        # TODO : using lstopo fin default socket
-        cls.set_irq_socket_binding(interface, 0)
-
-
 class OvsVsctl:
     @staticmethod
     def add_bridge(bridge):

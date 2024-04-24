@@ -1,8 +1,11 @@
 import json
 import socket
 import shutil
+import os
 from unittest import TestCase, skipIf
 from nepta.core.tests.mpstat import MPStat
+
+CUR_DIR = os.path.dirname(__file__)
 
 
 @skipIf(shutil.which('mpstat') is None, 'Skipping because mpstat is not installed')
@@ -56,3 +59,85 @@ class MPStatTests(TestCase):
         self.assertIsNotNone(load)
         self.assertIsNotNone(last_load)
         print(last_load)
+
+
+class MPstatParserTest(TestCase):
+    @staticmethod
+    def mockup_parse_json(test: MPStat, path: str):
+        with open(os.path.join(CUR_DIR, path)) as f:
+            data = json.loads(f.read())
+            test.parse_json = lambda: data  # type: ignore
+
+    def test_parse_all(self):
+        mpstat = MPStat(output='JSON', cpu_list='ALL', count=2, interval=5)
+        self.mockup_parse_json(mpstat, 'mpstat_out/all-cores.json')
+
+        cpu_loads = mpstat.cpu_loads()
+        self.assertEqual(len(cpu_loads), 2)
+
+        last_cpu_loads = mpstat.last_cpu_load()
+        self.assertEqual(len(last_cpu_loads), 49)
+
+        cpu_names = [x['cpu'] for x in last_cpu_loads]
+        self.assertIn('all', cpu_names)
+        self.assertIn('45', cpu_names)
+
+    def test_parse_no_cpu(self):
+        mpstat = MPStat(output='JSON', cpu_list='', count=2, interval=5)
+        self.mockup_parse_json(mpstat, 'mpstat_out/no-cpu.json')
+
+        cpu_loads = mpstat.cpu_loads()
+        self.assertEqual(len(cpu_loads), 2)
+
+        last_cpu_loads = mpstat.last_cpu_load()
+        self.assertEqual(len(last_cpu_loads), 1)
+
+        cpu_names = [x['cpu'] for x in last_cpu_loads]
+        self.assertIn('all', cpu_names)
+        self.assertNotIn('45', cpu_names)
+
+    def test_parse_single_cpu(self):
+        mpstat = MPStat(output='JSON', cpu_list='', count=2, interval=5)
+        self.mockup_parse_json(mpstat, 'mpstat_out/single-core.json')
+
+        cpu_loads = mpstat.cpu_loads()
+        self.assertEqual(len(cpu_loads), 2)
+
+        last_cpu_loads = mpstat.last_cpu_load()
+        self.assertEqual(len(last_cpu_loads), 1)
+
+        cpu_names = [x['cpu'] for x in last_cpu_loads]
+        self.assertNotIn('all', cpu_names)
+        self.assertNotIn('45', cpu_names)
+        self.assertIn('12', cpu_names)
+
+    def test_parse_4_cpu(self):
+        mpstat = MPStat(output='JSON', cpu_list='', count=2, interval=5)
+        self.mockup_parse_json(mpstat, 'mpstat_out/4-cores.json')
+
+        cpu_loads = mpstat.cpu_loads()
+        self.assertEqual(len(cpu_loads), 2)
+        self.assertIsInstance(cpu_loads, list)
+        self.assertIsInstance(cpu_loads[0], list)
+        self.assertIsInstance(cpu_loads[0][0], dict)
+
+        last_cpu_loads = mpstat.last_cpu_load()
+        self.assertEqual(len(last_cpu_loads), 4)
+        self.assertIsInstance(last_cpu_loads, list)
+        self.assertIsInstance(last_cpu_loads[0], dict)
+
+        cpu_names = [x['cpu'] for x in last_cpu_loads]
+        self.assertNotIn('all', cpu_names)
+        self.assertNotIn('45', cpu_names)
+        self.assertNotIn('12', cpu_names)
+        self.assertIn('3', cpu_names)
+        self.assertIn('9', cpu_names)
+
+        mpstat_sum = mpstat.sum_last_cpu_load()
+        print(last_cpu_loads)
+        print(mpstat_sum)
+        self.assertIsInstance(mpstat_sum, dict)
+        self.assertIn('idle', mpstat_sum.keys())
+        self.assertIn('usr', mpstat_sum.keys())
+        for v in mpstat_sum.values():
+            self.assertIsInstance(v, float)

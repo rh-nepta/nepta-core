@@ -40,6 +40,8 @@ class StreamGeneric(ScenarioGeneric):
         msg_sizes: List[int],
         cpu_pinning,
         base_port: int,
+        attempt_count: int,
+        attempt_pause: int,
         result: bool = True,
     ):
         self.paths = paths
@@ -48,6 +50,8 @@ class StreamGeneric(ScenarioGeneric):
         self.msg_sizes = msg_sizes
         self.cpu_pinning = cpu_pinning
         self.base_port = base_port
+        self.attempt_count = attempt_count
+        self.attempt_pause = attempt_pause
         self.result = result
 
     def __str__(self):
@@ -145,14 +149,20 @@ class SingleStreamGeneric(StreamGeneric):
 
     def run_instance(self, path, size):
         test = self.init_test(path, size)
-        test.run()
-        test.watch_output()
-        if test.success():
-            return self.store_instance(Section('run'), test)
-        else:
-            logger.error('Measurement fails. Returning results with zeros.')
-            self.result = False
-            return Section('failed-test')
+
+        for _ in range(self.attempt_count):
+            test.run()
+            test.watch_output()
+            if test.success():
+                return self.store_instance(Section('run'), test)
+
+            logger.info('Measurements was unsuccessful. Trying again...')
+            test.clear()
+            time.sleep(self.attempt_pause)
+
+        logger.error('Measurement fails. Returning results with zeros.')
+        self.result = False
+        return Section('failed-test')
 
     def store_instance(self, section, test):
         for k, v in self.parse_results(test).items():
@@ -161,22 +171,6 @@ class SingleStreamGeneric(StreamGeneric):
 
 
 class MultiStreamsGeneric(StreamGeneric):
-    def __init__(
-        self,
-        paths,
-        attempt_count,
-        attempt_pause,
-        test_length,
-        test_runs,
-        msg_sizes,
-        cpu_pinning,
-        base_port,
-        result=True,
-    ):
-        super().__init__(paths, test_length, test_runs, msg_sizes, cpu_pinning, base_port, result)
-        self.attempt_count = attempt_count
-        self.attempt_pause = attempt_pause
-
     def init_all_tests(self, path, size):
         raise NotImplementedError
 
