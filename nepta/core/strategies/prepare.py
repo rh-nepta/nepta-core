@@ -97,7 +97,7 @@ class Prepare(Strategy):
           - https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
           - https://issues.redhat.com/browse/RHEL-30796
         """
-        if (not env.RedhatRelease.version.startswith('8')) and self.conf.conf_name == 'IPsec':
+        if (not env.RedhatRelease.version.startswith('8')) and str(self.conf.conf_name).startswith('IPsec'):
             logger.warning('WA: Restarting IPsec service and sleeping for 60 seconds!!!')
             sleep(self.IPSEC_SLEEP)
             SystemD.restart_service(model.system.SystemService('ipsec'))
