@@ -13,7 +13,7 @@ from typing import Type
 
 from nepta.core import strategies, synchronization, model
 from nepta.core.strategies.generic import CompoundStrategy
-from nepta.core.distribution.env import Environment
+from nepta.core.distribution.env import Environment, Hardware
 
 from nepta.dataformat import Section, DataPackage
 
@@ -342,6 +342,7 @@ def main():
     extra_meta.update(args.meta)
 
     logger.info('Ours environment is:\n%s' % Environment)
+    logger.info('Ours hardware is:\n%s' % Hardware)
     logger.info('Our configuration:\n%s' % conf)
 
     # preparing server for test without logging meta and report, which will be logged in the end of test
