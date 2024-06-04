@@ -353,6 +353,7 @@ def main():
         final_strategy += strategies.setup.get_strategy(conf)
 
     if args.prepare:
+        final_strategy += strategies.sync.Synchronize(conf, sync, 'prepare')
         final_strategy += strategies.prepare.Prepare(conf)
 
     # Run test code path, saving attachments only if running test

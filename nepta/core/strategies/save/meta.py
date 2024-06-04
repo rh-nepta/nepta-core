@@ -40,6 +40,10 @@ class SaveMeta(Strategy):
             root['BeakerJobID'] = Environment.job_id
             root['BeakerHUB'] = Environment.hub
 
+        if Environment.in_tf:
+            root['TfGitUrl'] = Environment.tf_git_url
+            root['TfGitRef'] = Environment.tf_git_ref
+
         # In some special cases, tuned profile is not set (e.g.: Docker) or tuned-adm is not installed
         try:
             tuned_profile = Tuned.get_profile()
