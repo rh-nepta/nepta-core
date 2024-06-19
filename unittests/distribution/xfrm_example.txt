@@ -1,0 +1,804 @@
+src 172.20.4.27 dst 172.20.4.13
+	proto esp spi 0xbebadf6c reqid 16457 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x7c9db44f7040457cec4e4d2bc0f38434a102b740 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.27/32 dst 172.20.4.13/32 
+src 172.20.4.13 dst 172.20.4.27
+	proto esp spi 0xbf3ed963 reqid 16457 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xee5d3576981672df7d78093a7bd381850c6b96d3 128
+	lastused 2024-06-19 10:30:25
+	anti-replay context: seq 0x0, oseq 0x148, bitmap 0x00000000
+	sel src 172.20.4.13/32 dst 172.20.4.27/32 
+src 172.20.3.22 dst 172.20.3.8
+	proto esp spi 0x4782e92e reqid 16437 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc96b270145c79aef25fa8daa5ae9435e2da8c02d 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.22/32 dst 172.20.3.8/32 
+src 172.20.3.8 dst 172.20.3.22
+	proto esp spi 0xa825f06f reqid 16437 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0426ee114f19ba2766ef24cc0aa485b15f0a58a6 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x1dc87ba, bitmap 0x00000000
+	sel src 172.20.3.8/32 dst 172.20.3.22/32 
+src 172.20.4.27 dst 172.20.4.13
+	proto esp spi 0x0e49b5ea reqid 16457 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xf2035bdce6922508e35f34ecea7267cfd932ca34 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.27/32 dst 172.20.4.13/32 
+src 172.20.4.13 dst 172.20.4.27
+	proto esp spi 0xde0e1633 reqid 16457 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xfcc5e8e2ba004eaaa65357c02f407816ed4a87fa 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.13/32 dst 172.20.4.27/32 
+src fd04:0:0:4::1c dst fd04:0:0:4::e
+	proto esp spi 0xadb91f5c reqid 16609 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xe05b6f2af4d150215ec602d421f9d390dcc75968 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::1c/128 dst fd04:0:0:4::e/128 
+src fd04:0:0:4::e dst fd04:0:0:4::1c
+	proto esp spi 0x75d6072d reqid 16609 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x84689d394aa670d312921cd98a75069a53914928 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::e/128 dst fd04:0:0:4::1c/128 
+src fd04:0:0:3::10 dst fd04:0:0:3::2
+	proto esp spi 0x4d96ca73 reqid 16505 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xccd35b59f883e4464a6fb6c9f57ac5ce57719332 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::10/128 dst fd04:0:0:3::2/128 
+src fd04:0:0:3::2 dst fd04:0:0:3::10
+	proto esp spi 0xba5a1bff reqid 16505 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x097ff0e228ed9a89aea1d2fb4bd44d4d6db34763 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x265447f, bitmap 0x00000000
+	sel src fd04:0:0:3::2/128 dst fd04:0:0:3::10/128 
+src fd04:0:0:3::12 dst fd04:0:0:3::4
+	proto esp spi 0x9bae448c reqid 16513 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xeea49aa66565d38e7f23bb4e73c8af5307722402 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::12/128 dst fd04:0:0:3::4/128 
+src fd04:0:0:3::4 dst fd04:0:0:3::12
+	proto esp spi 0x2ad2de8a reqid 16513 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xfc0fde8e50f07c0272c47e3ea1af4dd0a5f53b7b 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x15f3963, bitmap 0x00000000
+	sel src fd04:0:0:3::4/128 dst fd04:0:0:3::12/128 
+src fd04:0:0:3::f dst fd04:0:0:3::1
+	proto esp spi 0xbce7b4e3 reqid 16501 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x8fde0c9255b43793d52d6d8201150e0b0d757dbb 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::f/128 dst fd04:0:0:3::1/128 
+src fd04:0:0:3::1 dst fd04:0:0:3::f
+	proto esp spi 0x7557cf36 reqid 16501 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xaac1c911d8251333c5f67facf40b09180a872eba 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x190030c, bitmap 0x00000000
+	sel src fd04:0:0:3::1/128 dst fd04:0:0:3::f/128 
+src fd04:0:0:3::17 dst fd04:0:0:3::9
+	proto esp spi 0xf9ebc878 reqid 16533 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xe1f367e4d98504a27ba25fcba4232401af4a767c 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::17/128 dst fd04:0:0:3::9/128 
+src fd04:0:0:3::9 dst fd04:0:0:3::17
+	proto esp spi 0x67ecafb3 reqid 16533 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xaf1d838874cc34ac22c38925a677783d7b870ee3 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x1a556ff, bitmap 0x00000000
+	sel src fd04:0:0:3::9/128 dst fd04:0:0:3::17/128 
+src 172.20.4.19 dst 172.20.4.5
+	proto esp spi 0x36f37bfc reqid 16481 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xf7d164f703e8b6fa7ce44e737d69c18385cb9e6f 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.19/32 dst 172.20.4.5/32 
+src 172.20.4.5 dst 172.20.4.19
+	proto esp spi 0x303ecab4 reqid 16481 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc66e6bafaae76a4318a0f9f2fc15cd501feb2164 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa03adeb, bitmap 0x00000000
+	sel src 172.20.4.5/32 dst 172.20.4.19/32 
+src 172.20.3.19 dst 172.20.3.5
+	proto esp spi 0xaa34bab5 reqid 16425 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x882247599ece31f8a172ea127cd23f8c826898eb 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.19/32 dst 172.20.3.5/32 
+src 172.20.3.5 dst 172.20.3.19
+	proto esp spi 0xfd3c1beb reqid 16425 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xba0485a50dc2dba4976bf12880698925c4160b68 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x20ce930, bitmap 0x00000000
+	sel src 172.20.3.5/32 dst 172.20.3.19/32 
+src 172.20.4.26 dst 172.20.4.12
+	proto esp spi 0xde0d0256 reqid 16453 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6c23285b2d27e8f609466a0b09a3e60a98ed7aa1 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.26/32 dst 172.20.4.12/32 
+src 172.20.4.12 dst 172.20.4.26
+	proto esp spi 0x9d48e608 reqid 16453 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x5b337ec7382034175f9cbce0cba1935295707896 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x46fa874, bitmap 0x00000000
+	sel src 172.20.4.12/32 dst 172.20.4.26/32 
+src 172.20.4.21 dst 172.20.4.7
+	proto esp spi 0x538fa59c reqid 16489 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x686d2b472bd03409aa3b7384f64b70e0c1fdf565 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.21/32 dst 172.20.4.7/32 
+src 172.20.4.7 dst 172.20.4.21
+	proto esp spi 0x9c3f5d78 reqid 16489 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc537e4e85485e21c3b5ebeb7cb8c529e19c6dd45 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x55d2477, bitmap 0x00000000
+	sel src 172.20.4.7/32 dst 172.20.4.21/32 
+src 172.20.3.28 dst 172.20.3.14
+	proto esp spi 0x2c502125 reqid 16405 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd25aa1a0ffb85c5d7565f390c41a246a36e23a1e 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.28/32 dst 172.20.3.14/32 
+src 172.20.3.14 dst 172.20.3.28
+	proto esp spi 0x8c163850 reqid 16405 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x4b25e7ce69d7ece26017d5d0380db8ee29de64d8 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x2f80cfd, bitmap 0x00000000
+	sel src 172.20.3.14/32 dst 172.20.3.28/32 
+src 172.20.3.24 dst 172.20.3.10
+	proto esp spi 0xb5145459 reqid 16389 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd97715f07acf8b1c334cf203254ac627f787a3d7 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.24/32 dst 172.20.3.10/32 
+src 172.20.3.10 dst 172.20.3.24
+	proto esp spi 0xc8302573 reqid 16389 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6c6e80569f5d079b9a665cddde7e9e39dccee819 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x3178ff0, bitmap 0x00000000
+	sel src 172.20.3.10/32 dst 172.20.3.24/32 
+src fd04:0:0:3::13 dst fd04:0:0:3::5
+	proto esp spi 0x0bb76fc3 reqid 16517 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xf74545e9290fcb5f79e391a7cd58a4985fb9d56f 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::13/128 dst fd04:0:0:3::5/128 
+src fd04:0:0:3::5 dst fd04:0:0:3::13
+	proto esp spi 0x4fd5775e reqid 16517 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x5b852718e258d9f8fc744dd5a32f9fe6d3385eff 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x161ffd6, bitmap 0x00000000
+	sel src fd04:0:0:3::5/128 dst fd04:0:0:3::13/128 
+src fd04:0:0:4::12 dst fd04:0:0:4::4
+	proto esp spi 0x2e06959c reqid 16569 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xdc9900891735ff85c7f5cb1a00cfe84e33ac8e16 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::12/128 dst fd04:0:0:4::4/128 
+src fd04:0:0:4::4 dst fd04:0:0:4::12
+	proto esp spi 0x3f170a70 reqid 16569 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xef627114cb6782e5e796a97415167f719243ff6e 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::4/128 dst fd04:0:0:4::12/128 
+src fd04:0:0:3::19 dst fd04:0:0:3::b
+	proto esp spi 0xbc27f783 reqid 16541 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x4ccb61df10b74c0dda34a63e15c0018a3ea8dbf2 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::19/128 dst fd04:0:0:3::b/128 
+src fd04:0:0:3::b dst fd04:0:0:3::19
+	proto esp spi 0x40c4636f reqid 16541 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xa982d5dd64dfc3abecd7e8686c782bbee023db4d 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x26be6ae, bitmap 0x00000000
+	sel src fd04:0:0:3::b/128 dst fd04:0:0:3::19/128 
+src fd04:0:0:4::14 dst fd04:0:0:4::6
+	proto esp spi 0xf7e189e7 reqid 16577 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x3782a90883e24a4f64bc409498fd8f14b572fe69 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::14/128 dst fd04:0:0:4::6/128 
+src fd04:0:0:4::6 dst fd04:0:0:4::14
+	proto esp spi 0x2a65d546 reqid 16577 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x19555965d8dc8507c643614374d203c65f5e3199 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::6/128 dst fd04:0:0:4::14/128 
+src fd04:0:0:3::1b dst fd04:0:0:3::d
+	proto esp spi 0x94afa2a4 reqid 16549 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x8b23662ae8b5279dfdc0518bb6523a0632676a75 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::1b/128 dst fd04:0:0:3::d/128 
+src fd04:0:0:3::d dst fd04:0:0:3::1b
+	proto esp spi 0x1241c815 reqid 16549 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xb666d076a6f97a331310a366b76e6839801f96cb 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x22d76f8, bitmap 0x00000000
+	sel src fd04:0:0:3::d/128 dst fd04:0:0:3::1b/128 
+src 172.20.4.28 dst 172.20.4.14
+	proto esp spi 0x9ba816bc reqid 16461 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x9129f209481c0d394603b5751ede596726bbc92e 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.28/32 dst 172.20.4.14/32 
+src 172.20.4.14 dst 172.20.4.28
+	proto esp spi 0xddf3103d reqid 16461 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x2606aa241e7d3db86bacb46ac05c5763f93d4a44 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa2232cf, bitmap 0x00000000
+	sel src 172.20.4.14/32 dst 172.20.4.28/32 
+src 172.20.4.17 dst 172.20.4.3
+	proto esp spi 0x2b047f46 reqid 16473 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xcf58f307e01b737a85e194735ca10a952b0c2eb2 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.17/32 dst 172.20.4.3/32 
+src 172.20.4.3 dst 172.20.4.17
+	proto esp spi 0x77e834a8 reqid 16473 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0593ac58f00a8997d3323c52c13da1ed7000b826 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa34d516, bitmap 0x00000000
+	sel src 172.20.4.3/32 dst 172.20.4.17/32 
+src fd04:0:0:4::15 dst fd04:0:0:4::7
+	proto esp spi 0x53dbdb2d reqid 16581 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0cc4a5a9d74e90a3d6c941d47416414830df3520 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::15/128 dst fd04:0:0:4::7/128 
+src fd04:0:0:4::7 dst fd04:0:0:4::15
+	proto esp spi 0x0c1f81e3 reqid 16581 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x749ed266498f7d1e8d3a719f799bbb68ab47a5d9 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::7/128 dst fd04:0:0:4::15/128 
+src fd04:0:0:4::16 dst fd04:0:0:4::8
+	proto esp spi 0x7bac25c5 reqid 16585 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd594b5e45a5883a67dd8df44e48c67e2952b038c 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::16/128 dst fd04:0:0:4::8/128 
+src fd04:0:0:4::8 dst fd04:0:0:4::16
+	proto esp spi 0xb7f832f3 reqid 16585 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xb0ae7562c016c3e5f6d05c4b10e7f33587db45a1 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::8/128 dst fd04:0:0:4::16/128 
+src 172.20.3.18 dst 172.20.3.4
+	proto esp spi 0x9be17032 reqid 16421 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x9dd98394041c56de149e80a1d8a3f0c693b88798 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.18/32 dst 172.20.3.4/32 
+src 172.20.3.4 dst 172.20.3.18
+	proto esp spi 0x864bd7f5 reqid 16421 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xced9c0974b0ac43e9196ea8e63525c35157a0763 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x1cabcaf, bitmap 0x00000000
+	sel src 172.20.3.4/32 dst 172.20.3.18/32 
+src fd04:0:0:4::17 dst fd04:0:0:4::9
+	proto esp spi 0xffa6c9ba reqid 16589 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x3b2f4c5e51d8ba39a169baa0282dd231f6b1a400 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::17/128 dst fd04:0:0:4::9/128 
+src fd04:0:0:4::9 dst fd04:0:0:4::17
+	proto esp spi 0x993a63d5 reqid 16589 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xe79827c630e13e4c34f08a9d41a8167ebca7cb50 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::9/128 dst fd04:0:0:4::17/128 
+src 172.20.4.15 dst 172.20.4.1
+	proto esp spi 0x11f1b217 reqid 16465 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xcaff49b69f17a703faf2205a79e4b21b0c1b3758 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.15/32 dst 172.20.4.1/32 
+src 172.20.4.1 dst 172.20.4.15
+	proto esp spi 0xf1bd057f reqid 16465 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xad92dd61ffb43048bd5766fa8f7654d326867acb 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa2be13f, bitmap 0x00000000
+	sel src 172.20.4.1/32 dst 172.20.4.15/32 
+src 172.20.3.25 dst 172.20.3.11
+	proto esp spi 0xd049e9d5 reqid 16393 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd36555dd23a2a2b7b9db3d40975a82a84803e621 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.25/32 dst 172.20.3.11/32 
+src 172.20.3.11 dst 172.20.3.25
+	proto esp spi 0x519ee422 reqid 16393 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6cf232a2416ab8084dcacca98075f9db40aa24a2 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x11f14e0, bitmap 0x00000000
+	sel src 172.20.3.11/32 dst 172.20.3.25/32 
+src fd04:0:0:4::13 dst fd04:0:0:4::5
+	proto esp spi 0x1777ac38 reqid 16573 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x2f4e980aaa5bfd0546fc8c01d91363cfa6482994 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::13/128 dst fd04:0:0:4::5/128 
+src fd04:0:0:4::5 dst fd04:0:0:4::13
+	proto esp spi 0x53eea67d reqid 16573 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x3bd26922d6e344cf195b7d92be2247bb7225aecd 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::5/128 dst fd04:0:0:4::13/128 
+src 172.20.3.17 dst 172.20.3.3
+	proto esp spi 0x053806ee reqid 16417 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x1ade433d1be340968f60fdaccea58779d92fd36c 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.17/32 dst 172.20.3.3/32 
+src 172.20.3.3 dst 172.20.3.17
+	proto esp spi 0x735c94ac reqid 16417 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x4be8d2d72d8e818d774f5ef1b8d901e711b040c7 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x1a71872, bitmap 0x00000000
+	sel src 172.20.3.3/32 dst 172.20.3.17/32 
+src fd04:0:0:3::11 dst fd04:0:0:3::3
+	proto esp spi 0x2a52cbba reqid 16509 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xa4b9c106fa0df204d131a74acf5bdb1ed8afddbd 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::11/128 dst fd04:0:0:3::3/128 
+src fd04:0:0:3::3 dst fd04:0:0:3::11
+	proto esp spi 0xae346981 reqid 16509 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x629e4144da58ea9c63a9356b14f8fa5e1a409932 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x1616ef8, bitmap 0x00000000
+	sel src fd04:0:0:3::3/128 dst fd04:0:0:3::11/128 
+src fd04:0:0:3::1c dst fd04:0:0:3::e
+	proto esp spi 0xb1914469 reqid 16553 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0878070fafa3d003f46882a8ed62708384364a9b 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::1c/128 dst fd04:0:0:3::e/128 
+src fd04:0:0:3::e dst fd04:0:0:3::1c
+	proto esp spi 0xf64ca256 reqid 16553 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc37561da720f46646c355fa990b91e047c2f9c07 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x25448af, bitmap 0x00000000
+	sel src fd04:0:0:3::e/128 dst fd04:0:0:3::1c/128 
+src 172.20.3.15 dst 172.20.3.1
+	proto esp spi 0x8e9ef6eb reqid 16409 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xb738765d71ea0f824329ed337f1c887f085fcd9a 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.15/32 dst 172.20.3.1/32 
+src 172.20.3.1 dst 172.20.3.15
+	proto esp spi 0x2ebca0c7 reqid 16409 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xde7c6e0af59e2d32dda2902716dbb2fffc3d936a 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x14af3c1, bitmap 0x00000000
+	sel src 172.20.3.1/32 dst 172.20.3.15/32 
+src 172.20.4.22 dst 172.20.4.8
+	proto esp spi 0x738d1a22 reqid 16493 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x457d3ed99a6ddc202166f47a517eaa9f32e7f3f7 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.22/32 dst 172.20.4.8/32 
+src 172.20.4.8 dst 172.20.4.22
+	proto esp spi 0x023c580e reqid 16493 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x7eee94dcc32f2bd2866710a294e61cbdb52a44bb 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x5bf9001, bitmap 0x00000000
+	sel src 172.20.4.8/32 dst 172.20.4.22/32 
+src 172.20.4.23 dst 172.20.4.9
+	proto esp spi 0xdab74608 reqid 16497 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x379b83f8776d23bf508ca0afc71a6385b7c78207 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.23/32 dst 172.20.4.9/32 
+src 172.20.4.9 dst 172.20.4.23
+	proto esp spi 0x3ffd3c5a reqid 16497 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6f4089d72979debe546de6e726fc49a3c15b4024 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa29c224, bitmap 0x00000000
+	sel src 172.20.4.9/32 dst 172.20.4.23/32 
+src 172.20.3.20 dst 172.20.3.6
+	proto esp spi 0xe8d8813b reqid 16429 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xe35ea179b3dfcce850cd8cdd93ec0fe8d0598e9a 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.20/32 dst 172.20.3.6/32 
+src 172.20.3.6 dst 172.20.3.20
+	proto esp spi 0x2085a814 reqid 16429 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0232ba2f39301b41554438c2f96bc13f3ea7e798 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x110e56b, bitmap 0x00000000
+	sel src 172.20.3.6/32 dst 172.20.3.20/32 
+src fd04:0:0:4::10 dst fd04:0:0:4::2
+	proto esp spi 0x92499f02 reqid 16561 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x26efaa7d27912d4bbda3c369aab6194dbb7cc189 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::10/128 dst fd04:0:0:4::2/128 
+src fd04:0:0:4::2 dst fd04:0:0:4::10
+	proto esp spi 0xbd2300e9 reqid 16561 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xa24374672b548290798d4d71df505215c8a24eff 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::2/128 dst fd04:0:0:4::10/128 
+src fd04:0:0:3::1a dst fd04:0:0:3::c
+	proto esp spi 0xaa7d2e88 reqid 16545 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6d66c4dc718cb89d73d742cd312cf514bc98ba16 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::1a/128 dst fd04:0:0:3::c/128 
+src fd04:0:0:3::c dst fd04:0:0:3::1a
+	proto esp spi 0xe32f8c57 reqid 16545 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0c43de04ea82732e1974ec9837bdf918ebd08c68 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x26f6519, bitmap 0x00000000
+	sel src fd04:0:0:3::c/128 dst fd04:0:0:3::1a/128 
+src fd04:0:0:4::19 dst fd04:0:0:4::b
+	proto esp spi 0x5ab31826 reqid 16597 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x1c919a7b52fb30189363a934f3fe2ba40a098c84 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::19/128 dst fd04:0:0:4::b/128 
+src fd04:0:0:4::b dst fd04:0:0:4::19
+	proto esp spi 0x70db68ac reqid 16597 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xe4671a72b7e3f52da7d7af935195ed5c1d7c0158 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::b/128 dst fd04:0:0:4::19/128 
+src 172.20.3.23 dst 172.20.3.9
+	proto esp spi 0x37499a36 reqid 16441 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x3b32d7d81c9c6809838f66f2cdd9d60123312187 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.23/32 dst 172.20.3.9/32 
+src 172.20.3.9 dst 172.20.3.23
+	proto esp spi 0x90ed1f55 reqid 16441 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x7b3f465ab74ad26801c71f69120d33e378bab8bf 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x1bddc3e, bitmap 0x00000000
+	sel src 172.20.3.9/32 dst 172.20.3.23/32 
+src fd04:0:0:3::18 dst fd04:0:0:3::a
+	proto esp spi 0x22480d63 reqid 16537 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0246ca2b812b5af0727d5a255ad995f4542b4b89 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::18/128 dst fd04:0:0:3::a/128 
+src fd04:0:0:3::a dst fd04:0:0:3::18
+	proto esp spi 0x2150facf reqid 16537 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xb4046319cb37f9dc80675d933f9f8b629d372718 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x1e3c859, bitmap 0x00000000
+	sel src fd04:0:0:3::a/128 dst fd04:0:0:3::18/128 
+src fd04:0:0:4::f dst fd04:0:0:4::1
+	proto esp spi 0x3f023c55 reqid 16557 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x4ac0068431be8980b942521092cc2ca3e0123c6e 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::f/128 dst fd04:0:0:4::1/128 
+src fd04:0:0:4::1 dst fd04:0:0:4::f
+	proto esp spi 0x56cdb806 reqid 16557 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xb0aaabdbbc6c4208de4fd14393c94c71af4d22be 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::1/128 dst fd04:0:0:4::f/128 
+src fd04:0:0:4::1b dst fd04:0:0:4::d
+	proto esp spi 0x6faa9a3a reqid 16605 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6115809e4c5447ab2dfb13cba46ef9d2d520271c 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::1b/128 dst fd04:0:0:4::d/128 
+src fd04:0:0:4::d dst fd04:0:0:4::1b
+	proto esp spi 0x5ecd76ba reqid 16605 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd6b5524e6633fe7cdc08035a9cda157b8a862798 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::d/128 dst fd04:0:0:4::1b/128 
+src 172.20.4.20 dst 172.20.4.6
+	proto esp spi 0x54df4515 reqid 16485 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xcdac27bc8c1337a32baa866fecab48f504668e23 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.20/32 dst 172.20.4.6/32 
+src 172.20.4.6 dst 172.20.4.20
+	proto esp spi 0xff4eefb2 reqid 16485 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xcb50bbb7805670673c89c13514272f1de893d7b7 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa189f73, bitmap 0x00000000
+	sel src 172.20.4.6/32 dst 172.20.4.20/32 
+src 172.20.3.21 dst 172.20.3.7
+	proto esp spi 0x421dcf92 reqid 16433 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x0aa17598bcdab079987787f20e3c13640b0aa7dc 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.21/32 dst 172.20.3.7/32 
+src 172.20.3.7 dst 172.20.3.21
+	proto esp spi 0x88963cff reqid 16433 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x00a435630671f4ad9fb54df8d4c2e5e1e852aa2c 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x120aa20, bitmap 0x00000000
+	sel src 172.20.3.7/32 dst 172.20.3.21/32 
+src 172.20.4.24 dst 172.20.4.10
+	proto esp spi 0x41778a78 reqid 16445 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xfb6bbac65eb010c5b637535962970341959bb49b 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.24/32 dst 172.20.4.10/32 
+src 172.20.4.10 dst 172.20.4.24
+	proto esp spi 0xff71c34c reqid 16445 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x3165227afec8cb90f246145b3fbbf53d23243e69 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x876a611, bitmap 0x00000000
+	sel src 172.20.4.10/32 dst 172.20.4.24/32 
+src 172.20.4.25 dst 172.20.4.11
+	proto esp spi 0xded692ea reqid 16449 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x25adf6a5e9ce2763ad8219307a9d279e37c8607f 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.25/32 dst 172.20.4.11/32 
+src 172.20.4.11 dst 172.20.4.25
+	proto esp spi 0xa23de865 reqid 16449 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xad8c7790a984deb8a38fca0f531a794c0fce451c 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa0131c3, bitmap 0x00000000
+	sel src 172.20.4.11/32 dst 172.20.4.25/32 
+src 172.20.3.24 dst 172.20.3.10
+	proto esp spi 0x4b93d186 reqid 16389 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x69bfeebe3f81262d78e38272924c8097dacbdb3e 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.24/32 dst 172.20.3.10/32 
+src 172.20.3.10 dst 172.20.3.24
+	proto esp spi 0x5b4a083d reqid 16389 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x8dcc4f18731f94a28a51e793cedad5f29bf24be0 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.10/32 dst 172.20.3.24/32 
+src fd04:0:0:3::15 dst fd04:0:0:3::7
+	proto esp spi 0xa9dd370f reqid 16525 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc3729ad1c6ff2f563a65ab6912d3c56c15fa624a 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::15/128 dst fd04:0:0:3::7/128 
+src fd04:0:0:3::7 dst fd04:0:0:3::15
+	proto esp spi 0x35972f58 reqid 16525 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x03014a09473341bd5032327044da915047a6ee6c 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x2358bf2, bitmap 0x00000000
+	sel src fd04:0:0:3::7/128 dst fd04:0:0:3::15/128 
+src fd04:0:0:4::1a dst fd04:0:0:4::c
+	proto esp spi 0x08770c92 reqid 16601 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x48d2ce9753baccc0a8a0c08d8f55adf0f56a5432 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::1a/128 dst fd04:0:0:4::c/128 
+src fd04:0:0:4::c dst fd04:0:0:4::1a
+	proto esp spi 0x5bfc493b reqid 16601 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x21c9e85f12832f8e249ceb64b62f542fb701f5db 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::c/128 dst fd04:0:0:4::1a/128 
+src 172.20.4.18 dst 172.20.4.4
+	proto esp spi 0x2cf012df reqid 16477 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xfff15c99feb5c8eb9127d9dbdcfab55b3ed3bdcd 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.18/32 dst 172.20.4.4/32 
+src 172.20.4.4 dst 172.20.4.18
+	proto esp spi 0x01517f44 reqid 16477 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6fd794ba4f22d5f7e8858c5916ae5e4236a7987a 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0xa3a8ee3, bitmap 0x00000000
+	sel src 172.20.4.4/32 dst 172.20.4.18/32 
+src fd04:0:0:4::18 dst fd04:0:0:4::a
+	proto esp spi 0x8fac97f6 reqid 16593 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x76253c444457438b0ded671ed4bbacadd0e5a459 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::18/128 dst fd04:0:0:4::a/128 
+src fd04:0:0:4::a dst fd04:0:0:4::18
+	proto esp spi 0xf06775c9 reqid 16593 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x11797702d3a20d1871defca07420b9cf26ac89fd 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::a/128 dst fd04:0:0:4::18/128 
+src 172.20.4.16 dst 172.20.4.2
+	proto esp spi 0xb3f003b3 reqid 16469 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc9f61318984eddfe0560b4188c41e6245e36e1d6 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.16/32 dst 172.20.4.2/32 
+src 172.20.4.2 dst 172.20.4.16
+	proto esp spi 0x5b701015 reqid 16469 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc82d13c41514266b96ec20d00a42b6571e18521a 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x477b4b7, bitmap 0x00000000
+	sel src 172.20.4.2/32 dst 172.20.4.16/32 
+src fd04:0:0:3::14 dst fd04:0:0:3::6
+	proto esp spi 0x0793b778 reqid 16521 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x5129b432fcc407b9c7639228c82384ee896b2047 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::14/128 dst fd04:0:0:3::6/128 
+src fd04:0:0:3::6 dst fd04:0:0:3::14
+	proto esp spi 0xbf4c81fe reqid 16521 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc80a17f7f159e7a796980809a8d6190d1f808635 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x1822a6f, bitmap 0x00000000
+	sel src fd04:0:0:3::6/128 dst fd04:0:0:3::14/128 
+src 172.20.3.16 dst 172.20.3.2
+	proto esp spi 0x4f80f2fe reqid 16413 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x6123f3c5a4144abfaf7d1501e3f43ad1c0b77d88 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.16/32 dst 172.20.3.2/32 
+src 172.20.3.2 dst 172.20.3.16
+	proto esp spi 0xa677a7ff reqid 16413 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x2005841ee1d57d8226e88f3fc41dfb5410999d66 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x1cf7341, bitmap 0x00000000
+	sel src 172.20.3.2/32 dst 172.20.3.16/32 
+src fd04:0:0:4::11 dst fd04:0:0:4::3
+	proto esp spi 0x5b9bf184 reqid 16565 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x794bd5a2d14b5e772a385ad2c3c9e3ee74a67f66 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::11/128 dst fd04:0:0:4::3/128 
+src fd04:0:0:4::3 dst fd04:0:0:4::11
+	proto esp spi 0x34d430d2 reqid 16565 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd8eba185a1dfa21140cf9f42d24a7164f28b8edb 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:4::3/128 dst fd04:0:0:4::11/128 
+src 172.20.4.20 dst 172.20.4.6
+	proto esp spi 0xafbf2b33 reqid 16485 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x34e133743e202b3196ccb8219f7b81fe8fc00d77 128
+	lastused 2024-06-19 10:30:23
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.20/32 dst 172.20.4.6/32 
+src 172.20.4.6 dst 172.20.4.20
+	proto esp spi 0x4fe66dbb reqid 16485 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xca157f5ec491b8978787540cdb537d61fc5c7bd9 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.4.6/32 dst 172.20.4.20/32 
+src fd04:0:0:3::16 dst fd04:0:0:3::8
+	proto esp spi 0x4d20f78f reqid 16529 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xc3fdba7386c897ef432e0ac21b75b7dee62bb1fb 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src fd04:0:0:3::16/128 dst fd04:0:0:3::8/128 
+src fd04:0:0:3::8 dst fd04:0:0:3::16
+	proto esp spi 0x5b351be1 reqid 16529 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x2f496712f76d94a4f61243f91be1ea35ee26c786 128
+	lastused 2024-06-19 08:46:14
+	anti-replay context: seq 0x0, oseq 0x16288fd, bitmap 0x00000000
+	sel src fd04:0:0:3::8/128 dst fd04:0:0:3::16/128 
+src 172.20.3.25 dst 172.20.3.11
+	proto esp spi 0x80f7c908 reqid 16393 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x20252469b89172f293526d99934100cbf75329a1 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.25/32 dst 172.20.3.11/32 
+src 172.20.3.11 dst 172.20.3.25
+	proto esp spi 0x5bb21b05 reqid 16393 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0x9aec1805c1f93e4b35af7446b3bef37896edef93 128
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.11/32 dst 172.20.3.25/32 
+src 172.20.3.27 dst 172.20.3.13
+	proto esp spi 0xea258bc5 reqid 16401 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xf6eefcd743f2bf37ae4eb024c513582658185572 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.27/32 dst 172.20.3.13/32 
+src 172.20.3.13 dst 172.20.3.27
+	proto esp spi 0xa87948ed reqid 16401 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd100beaeb0ef1c6c343c890a43150436494d25a0 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x1719d86, bitmap 0x00000000
+	sel src 172.20.3.13/32 dst 172.20.3.27/32 
+src 172.20.3.26 dst 172.20.3.12
+	proto esp spi 0x9544c0ab reqid 16397 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xd4587fe4d44e9558fffa2be672caf41eecd1c79d 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x0, bitmap 0x00000000
+	sel src 172.20.3.26/32 dst 172.20.3.12/32 
+src 172.20.3.12 dst 172.20.3.26
+	proto esp spi 0xe32cfed9 reqid 16397 mode transport
+	replay-window 0 
+	aead rfc4106(gcm(aes)) 0xdc981fd5cb4971d7d6309f7e97d4e2a6425bca27 128
+	lastused 2024-06-19 08:33:38
+	anti-replay context: seq 0x0, oseq 0x30e1cde, bitmap 0x00000000
+	sel src 172.20.3.12/32 dst 172.20.3.26/32 
+

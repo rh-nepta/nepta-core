@@ -59,6 +59,20 @@ class IpCommand:
             _, retcode = link_cmd.get_output()
             return retcode
 
+    class Xfrm:
+
+        @classmethod
+        def state(cls) -> str:
+            xfrm_cmd = Command('ip xfrm state')
+            xfrm_cmd.run()
+            out, _ = xfrm_cmd.get_output()
+            return out
+
+        @classmethod
+        def number_of_tunnel(cls) -> int:
+            tunnel_headers = [x for x in cls.state().split('\n') if x.startswith('src')]
+            return len(tunnel_headers)
+
 
 class NmCli:
     class Con:
