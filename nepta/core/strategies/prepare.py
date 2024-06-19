@@ -5,6 +5,7 @@ from nepta.core import model
 from nepta.core.distribution import env
 from nepta.core.distribution.utils.virt import Docker
 from nepta.core.distribution.utils.system import SystemD
+from nepta.core.distribution.utils.network import IpCommand
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
@@ -104,6 +105,16 @@ class Prepare(Strategy):
             sleep(self.IPSEC_SLEEP)
         else:
             logger.warning('IPsec WA is not applied!')
+
+    @Strategy.schedule
+    def check_ipsec_tunnels(self):
+        tunnels = self.conf.get_subset(m_class=model.network.IPsecTunnel)
+
+        if len(tunnels) != IpCommand.Xfrm.number_of_tunnel():
+            logger.error(
+                f'IPsec tunnel count mismatch: {len(tunnels)} tunnels expected, {IpCommand.Xfrm.number_of_tunnel()} found.'
+            )
+            raise RuntimeError('IPsec tunnel count mismatch')
 
     @Strategy.schedule
     def run_shell_commands(self):
