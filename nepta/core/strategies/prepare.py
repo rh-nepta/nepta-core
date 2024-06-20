@@ -110,7 +110,8 @@ class Prepare(Strategy):
     def check_ipsec_tunnels(self):
         tunnels = self.conf.get_subset(m_class=model.network.IPsecTunnel)
 
-        if len(tunnels) != IpCommand.Xfrm.number_of_tunnel():
+        # each tunnel has two entries, for each direction
+        if len(tunnels) * 2 != IpCommand.Xfrm.number_of_tunnel():
             logger.error(
                 f'IPsec tunnel count mismatch: {len(tunnels)} tunnels expected, {IpCommand.Xfrm.number_of_tunnel()} found.'
             )
