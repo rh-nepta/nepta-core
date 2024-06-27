@@ -74,6 +74,9 @@ gateway=192.168.0.255
 dns=8.8.4.4;1.1.1.1;
 may-fail=false
 method=manual
+
+[ipv6]
+method=disabled
 '''
         self.assertEqual(expected_result, nm_keyfile.get_content())
 
@@ -93,6 +96,9 @@ address1=192.168.0.1/24
 address2=192.168.1.1/24
 may-fail=false
 method=manual
+
+[ipv6]
+method=disabled
 '''
         self.assertEqual(expected_result, keyfile.get_content())
 
@@ -117,6 +123,9 @@ address2=192.168.1.1/24
 gateway=192.168.0.255
 may-fail=false
 method=manual
+
+[ipv6]
+method=disabled
 '''
         self.assertEqual(expected_result, keyfile.get_content())
 
@@ -137,6 +146,9 @@ id=int1
 uuid=60b96431-e7aa-535a-b4f0-02ce4b185506
 interface-name=int1
 
+[ipv4]
+method=disabled
+
 [ipv6]
 address1=fd00::1/64
 address2=fec0::34/64
@@ -155,6 +167,12 @@ method=manual
 id=int1
 uuid=740ddd22-19a5-5d29-b30a-e9c074169100
 interface-name=int1
+
+[ipv4]
+method=disabled
+
+[ipv6]
+method=disabled
 '''
         self.assertEqual(expected_result, keyfile.get_content())
 
@@ -217,6 +235,12 @@ id=int1
 uuid=806b64d9-2550-52b8-9d6c-7684320e15a8
 interface-name=int1
 type=ethernet
+
+[ipv4]
+method=disabled
+
+[ipv6]
+method=disabled
 
 [ethernet]
 mac-address=aa:bb:cc:dd:ee:ff
@@ -329,6 +353,12 @@ uuid=67a78a49-7849-5797-a5cb-00641d6f8b22
 interface-name=int1
 type=ethernet
 
+[ipv4]
+method=disabled
+
+[ipv6]
+method=disabled
+
 [ethernet]
 mac-address=aa:bb:cc:dd:ee:ff
 mtu=1500
@@ -371,6 +401,9 @@ gateway=192.168.0.255
 dns=8.8.4.4;1.1.1.1;
 may-fail=false
 method=manual
+
+[ipv6]
+method=disabled
 
 [ethernet]
 mac-address=aa:bb:cc:dd:ee:ff
@@ -451,6 +484,12 @@ type=ethernet
 master=asdf
 slave-type=team
 
+[ipv4]
+method=disabled
+
+[ipv6]
+method=disabled
+
 [ethernet]
 mac-address=00:11:22:33:44:55
 mtu=1500
@@ -509,6 +548,12 @@ interface-name=ixgbe_1
 type=ethernet
 master=asdf
 slave-type=bond
+
+[ipv4]
+method=disabled
+
+[ipv6]
+method=disabled
 
 [ethernet]
 mac-address=00:11:22:33:44:55
@@ -612,6 +657,9 @@ gateway=192.168.0.255
 dns=8.8.4.4;1.1.1.1;
 may-fail=false
 method=manual
+
+[ipv6]
+method=disabled
 
 [macsec]
 mka-cak=50b71a8ef0bd5751ea76de6d6c98c03a
