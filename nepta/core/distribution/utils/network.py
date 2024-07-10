@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import Optional, Union
 
 from nepta.core import model
 from nepta.core.model.network import Interface
@@ -305,16 +306,16 @@ class OvsVsctl:
 class TcpDump:
 
     @staticmethod
-    def count(expression: str, interface: str = None, timeout: int = None) -> int:
+    def count(expression: str, interface: Optional[str] = None, timeout: Optional[int] = None) -> int:
         cmd = f'tcpdump {expression} --count'
         if interface:
             cmd += f' -i {interface}'
         if timeout:
             cmd = f'timeout {timeout} {cmd}'
 
-        cmd = Command(cmd)
-        cmd.run()
-        out, ret = cmd.get_output()
+        exec_cmd = Command(cmd)
+        exec_cmd.run()
+        out, ret = exec_cmd.get_output()
 
         for line in out.split('\n'):
             if 'packets captured' in line:
