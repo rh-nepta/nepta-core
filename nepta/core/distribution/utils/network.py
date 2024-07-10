@@ -300,3 +300,24 @@ class OvsVsctl:
         if retcode:
             logger.error(output)
         return retcode
+
+
+class TcpDump:
+
+    @staticmethod
+    def count(expression: str, interface: str = None, timeout: int = None) -> int:
+        cmd = f'tcpdump {expression} --count'
+        if interface:
+            cmd += f' -i {interface}'
+        if timeout:
+            cmd = f'timeout {timeout} {cmd}'
+
+        cmd = Command(cmd)
+        cmd.run()
+        out, ret = cmd.get_output()
+
+        for line in out.split('\n'):
+            if 'packets captured' in line:
+                return int(line.split()[0])
+        else:
+            raise ValueError('Cannot find packets captured in tcpdump output.')
