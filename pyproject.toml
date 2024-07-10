@@ -127,12 +127,12 @@ dependencies = [
 ]
 [tool.hatch.envs.lint.scripts]
 style = [
-  "ruff {args:.}",
+  "ruff check {args:.}",
   "black --check --diff {args:.}",
 ]
 fmt = [
   "black {args:.}",
-  "ruff --fix {args:.}",
+  "ruff --fix check {args:.}",
   "style",
 ]
 
