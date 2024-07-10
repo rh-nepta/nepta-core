@@ -73,6 +73,21 @@ class IpCommand:
             tunnel_headers = [x for x in cls.state().split('\n') if x.startswith('src')]
             return len(tunnel_headers)
 
+    class Route:
+
+        @staticmethod
+        def get_route_for_ip(ip):
+            route_cmd = Command(f'ip route get {ip}')
+            route_cmd.run()
+            out, _ = route_cmd.get_output()
+            return out
+
+        @classmethod
+        def get_outgoing_interface(cls, ip):
+            # output example: 8.8.8.8 via 10.40.144.254 dev bnx2_0 src 10.40.144.1 uid 0
+            route = cls.get_route_for_ip(ip).split(' ')
+            return route[route.index('dev') + 1]
+
 
 class NmCli:
     class Con:
