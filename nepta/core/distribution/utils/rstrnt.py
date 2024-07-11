@@ -15,7 +15,7 @@ def rstrnt_only(f):
     :return:
     """
 
-    @wraps
+    @wraps(f)
     def inner(*args, **kwargs):
         if not Environment.in_rstrnt:
             logger.warning('Skipping method, NOT in rstrnt environment!!!')
