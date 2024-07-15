@@ -5,7 +5,7 @@ from nepta.core import model
 from nepta.core.distribution import env
 from nepta.core.distribution.utils.virt import Docker
 from nepta.core.distribution.utils.system import SystemD
-from nepta.core.distribution.utils.network import IpCommand
+from nepta.core.distribution.utils.network import IpCommand, TcpDump
 from nepta.core.tests.iperf3 import Iperf3Server
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 class Prepare(Strategy):
     IPSEC_SLEEP = 60
+    IPSEC_PING_INTERVAL = 0.1
+    IPSEC_PING_COUNT = 50
 
     def __init__(self, configuration):
         super().__init__()
@@ -118,6 +120,33 @@ class Prepare(Strategy):
             raise RuntimeError('IPsec tunnel count mismatch')
 
     @Strategy.schedule
+    def check_ipsec_encryption(self):
+        tunnels = self.conf.get_subset(m_class=model.network.IPsecTunnel)
+        for tunnel in tunnels:
+            logger.info(f'Checking encryption for tunnel {tunnel}')
+            Command(
+                f'ping -c {self.IPSEC_PING_COUNT} -i {self.IPSEC_PING_INTERVAL} -I {tunnel.right_ip.ip} {tunnel.left_ip.ip}'
+            ).run()
+            Command(
+                f'ping -c {self.IPSEC_PING_COUNT} -i {self.IPSEC_PING_INTERVAL} -I {tunnel.left_ip.ip} {tunnel.right_ip.ip}'
+            ).run()
+
+            interface = IpCommand.Route.get_outgoing_interface(tunnel.right_ip.ip)
+            if interface == 'lo':
+                interface = IpCommand.Route.get_outgoing_interface(tunnel.left_ip.ip)
+
+            logger.info(f'Checking interface {interface} for ESP packets.')
+            if (
+                TcpDump.count(
+                    'esp',
+                    timeout=int(self.IPSEC_PING_COUNT * self.IPSEC_PING_INTERVAL),
+                    interface=interface,
+                )
+                == 0
+            ):
+                logger.error(f'No ESP packets found for tunnel {tunnel}')
+                raise RuntimeError('No ESP packets found')
+
     def run_shell_commands(self):
         commands = self.conf.get_subset(m_class=model.system.PrepareCommand)
         for cmd in commands:

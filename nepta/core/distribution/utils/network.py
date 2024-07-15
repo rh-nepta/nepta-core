@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import Optional, Union
 
 from nepta.core import model
 from nepta.core.model.network import Interface
@@ -72,6 +73,21 @@ class IpCommand:
         def number_of_tunnel(cls) -> int:
             tunnel_headers = [x for x in cls.state().split('\n') if x.startswith('src')]
             return len(tunnel_headers)
+
+    class Route:
+
+        @staticmethod
+        def get_route_for_ip(ip):
+            route_cmd = Command(f'ip route get {ip}')
+            route_cmd.run()
+            out, _ = route_cmd.get_output()
+            return out
+
+        @classmethod
+        def get_outgoing_interface(cls, ip):
+            # output example: 8.8.8.8 via 10.40.144.254 dev bnx2_0 src 10.40.144.1 uid 0
+            route = cls.get_route_for_ip(ip).split(' ')
+            return route[route.index('dev') + 1]
 
 
 class NmCli:
@@ -285,3 +301,24 @@ class OvsVsctl:
         if retcode:
             logger.error(output)
         return retcode
+
+
+class TcpDump:
+
+    @staticmethod
+    def count(expression: str, interface: Optional[str] = None, timeout: Optional[int] = None) -> int:
+        cmd = f'tcpdump {expression} --count'
+        if interface:
+            cmd += f' -i {interface}'
+        if timeout:
+            cmd = f'timeout {timeout} {cmd}'
+
+        exec_cmd = Command(cmd)
+        exec_cmd.run()
+        out, ret = exec_cmd.get_output()
+
+        for line in out.split('\n'):
+            if 'packets captured' in line:
+                return int(line.split()[0])
+        else:
+            raise ValueError('Cannot find packets captured in tcpdump output.')
