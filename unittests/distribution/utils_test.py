@@ -37,7 +37,7 @@ class IpCmdTest(TestCase):
             content = f.read()
             IpCommand.Xfrm.state = lambda: content
 
-        self.assertEqual(IpCommand.Xfrm.number_of_tunnel(), 120, 'Number of tunnels should be 100')
+        self.assertEqual(IpCommand.Xfrm.number_of_tunnel(), 112, 'Number of tunnels should be 100')
 
         IpCommand.Xfrm.state = lambda: ''
         self.assertEqual(IpCommand.Xfrm.number_of_tunnel(), 0, 'Number of tunnels should be 0')

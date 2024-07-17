@@ -72,7 +72,7 @@ class IpCommand:
         @classmethod
         def number_of_tunnel(cls) -> int:
             tunnel_headers = [x for x in cls.state().split("\n") if x.startswith("src")]
-            return len(tunnel_headers)
+            return len(set(tunnel_headers))
 
     class Route:
 
