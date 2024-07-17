@@ -16,11 +16,11 @@ class IRQBalanceCheck(ScenarioGeneric):
     are interrupts on different cores than 0.
     """
 
-    def __init__(self, paths, test_length=30, msg_size='64k'):
+    def __init__(self, paths, test_length=30, msg_size="64k"):
         self.paths = paths
         self.test_length = test_length
         self.msg_size = msg_size
-        self.interrupt_cmd = Command('cat /proc/interrupts')
+        self.interrupt_cmd = Command("cat /proc/interrupts")
 
     def get_parsed_interrupts(self, ignore_cpu_interrupts=True):
         # TODO think about ignoring IRQ0: timer
@@ -28,7 +28,7 @@ class IRQBalanceCheck(ScenarioGeneric):
         cmd_out = self.interrupt_cmd.watch_output()[0].strip()
 
         # split output by lines
-        lines = cmd_out.split('\n')
+        lines = cmd_out.split("\n")
 
         # count number of cpu and add collumn for IRQ id and comment
         num_of_columns = len(lines[0].split()) + 2
@@ -42,7 +42,7 @@ class IRQBalanceCheck(ScenarioGeneric):
 
         # if ignore_cpu_interrupt option is enabled, it allows only interrupts which names starts with numbers
         if ignore_cpu_interrupts:
-            int_table = list(filter(lambda line: re.match(r'[0-9]+:', line[0]), int_table))
+            int_table = list(filter(lambda line: re.match(r"[0-9]+:", line[0]), int_table))
 
         # delete the first and the last column, which contain IRQ id and description
         int_table = [line[1:-1] for line in int_table]
@@ -60,7 +60,7 @@ class IRQBalanceCheck(ScenarioGeneric):
             -> evaluate results
             -> store results into dataformat package
         """
-        logger.info('Running scenario: %s' % self)
+        logger.info("Running scenario: %s" % self)
 
         for path in self.paths:
             iperf3_test = Iperf3Test(
@@ -80,13 +80,13 @@ class IRQBalanceCheck(ScenarioGeneric):
         logger.info(f'Evaluation of testing condition: {cpu_sums[0]} < {sum(cpu_sums[1:])} ???')
         logger.info(f'{self.__class__.__name__} test result: {test_result}.')
 
-        root_sec = Section('scenario')
-        root_sec.params['scenario_name'] = self.__class__.__name__
-        root_sec.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
+        root_sec = Section("scenario")
+        root_sec.params["scenario_name"] = self.__class__.__name__
+        root_sec.params["uuid"] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
 
-        runs = Section('runs')
-        run = Section('run')
-        item = Section('item', key='irq_balance_check', value=str(test_result))
+        runs = Section("runs")
+        run = Section("run")
+        item = Section("item", key="irq_balance_check", value=str(test_result))
 
         root_sec.subsections.append(runs)
         runs.subsections.append(run)

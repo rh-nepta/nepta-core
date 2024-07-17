@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 class Packages(Setup):
-    _PKG_MANAGERS_CMD = 'dnf -y --allowerasing install '
+    _PKG_MANAGERS_CMD = "dnf -y --allowerasing install "
 
     # Use yum pkg manager for RHEL7
-    if env.RedhatRelease.version.startswith('7'):
-        _PKG_MANAGERS_CMD = 'yum -y install '
+    if env.RedhatRelease.version.startswith("7"):
+        _PKG_MANAGERS_CMD = "yum -y install "
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -27,16 +27,16 @@ class Packages(Setup):
 
     @Setup.schedule
     def add_repositories(self):
-        logger.info('Adding repositories')
+        logger.info("Adding repositories")
         repos = self.conf.get_subset(m_class=model.system.Repository)
         for repo in repos:
-            logger.info('Adding repo %s', repo)
+            logger.info("Adding repo %s", repo)
             conf_files.RepositoryFile(repo).apply()
 
     @Setup.schedule
     def install_packages(self):
         pkgs = self.conf.get_subset(m_type=model.system.Package)
-        install_cmd = self._installer + ' '.join([str(pkg.value) for pkg in pkgs])
+        install_cmd = self._installer + " ".join([str(pkg.value) for pkg in pkgs])
         c = Command(install_cmd)
         c.run()
         out, retcode = c.watch_output()

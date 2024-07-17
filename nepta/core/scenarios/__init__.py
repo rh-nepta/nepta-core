@@ -46,7 +46,7 @@ from .ubench.generic import UBenchUnpinned
 
 def get_scenario_by_name(scenario_name):
     scenario_class = None
-    scenario_classes = inspect.getmembers(sys.modules['testing.scenarios'], inspect.isclass)
+    scenario_classes = inspect.getmembers(sys.modules["testing.scenarios"], inspect.isclass)
     for cls in scenario_classes:
         if cls[0] == scenario_name:
             scenario_class = cls[1]

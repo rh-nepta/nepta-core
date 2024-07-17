@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Virtualization(Setup):
     @Setup.schedule
     def setup_virtual_guest(self):
-        logger.info('Configuring virtual hardware for virtual guests')
+        logger.info("Configuring virtual hardware for virtual guests")
         virtual_guests = self.conf.get_subset(m_class=model.system.VirtualGuest)
 
         for guest in virtual_guests:
@@ -29,15 +29,15 @@ class Virtualization(Setup):
 
     @Setup.schedule
     def delete_guest_interfaces(self):
-        logger.info('Deleting interfaces of virtual guests')
+        logger.info("Deleting interfaces of virtual guests")
         guests = self.conf.get_subset(m_class=model.system.VirtualGuest)
         for g in guests:
             for i in Virsh.domiflist(g):
-                Virsh.detach_interface(g, i['type'], i['mac'])
+                Virsh.detach_interface(g, i["type"], i["mac"])
 
     @Setup.schedule
     def setup_virt_taps(self):
-        logger.info('Setting up virtual guest taps')
+        logger.info("Setting up virtual guest taps")
         tap_interfaces = self.conf.get_subset(m_class=model.network.GenericGuestTap)
         logger.info(tap_interfaces)
 
@@ -50,14 +50,14 @@ class Virtualization(Setup):
 
     @Setup.schedule
     def setup_docker(self):
-        logger.info('Configuring docker components')
+        logger.info("Configuring docker components")
 
         docker_settings = self.conf.get_subset(m_type=model.docker.DockerDaemonSettings)
         for setting in docker_settings:
             docker_conf_file = conf_files.DockerDaemonJson(setting)
             docker_conf_file.update()
         # after changing docker settings, daemon needs to be restarted
-        SystemD.restart_service(model.system.SystemService('docker'))
+        SystemD.restart_service(model.system.SystemService("docker"))
 
         creds = self.conf.get_subset(m_type=model.docker.DockerCredentials)
         for cred in creds:

@@ -26,12 +26,12 @@ class Prepare(Strategy):
 
     @Strategy.schedule
     def start_iperf3_services(self):
-        logger.info('Starting necessary iPerf3 services')
+        logger.info("Starting necessary iPerf3 services")
         sync_objs = self.conf.get_subset(m_class=model.bundles.SyncHost)
 
         # if there is no host for Sync, we are not able to find out how many iPerf3 services we should start
         if not len(sync_objs):
-            logger.info('There is no host for synchronization')
+            logger.info("There is no host for synchronization")
             return
 
         remote_scenarios = model.bundles.Bundle()
@@ -61,12 +61,12 @@ class Prepare(Strategy):
 
     @Strategy.schedule
     def start_netperf_service(self):
-        logger.info('Start netserver for netperf test')
+        logger.info("Start netserver for netperf test")
         sync_objs = self.conf.get_subset(m_class=model.bundles.SyncHost)
 
         # if there is no host for Sync, we are not able to find out how many iPerf3 services we should start
         if not len(sync_objs):
-            logger.info('There is no host for synchronization')
+            logger.info("There is no host for synchronization")
             return
 
         remote_scenarios = model.bundles.Bundle()
@@ -77,16 +77,16 @@ class Prepare(Strategy):
             else:
                 logger.error(f'Synchronized host {host} does not have configuration for current testcase.')
 
-        if any(map(lambda x: x.__class__.__name__.find('Netperf') > -1, remote_scenarios)):
-            logger.info('Starting netserver')
-            cmd = Command('netserver')
+        if any(map(lambda x: x.__class__.__name__.find("Netperf") > -1, remote_scenarios)):
+            logger.info("Starting netserver")
+            cmd = Command("netserver")
             cmd.run()
             if cmd.get_output()[1] != 0:
-                logger.error('Cannot start netperf server !!!')
+                logger.error("Cannot start netperf server !!!")
 
     @Strategy.schedule
     def start_docker_container(self):
-        logger.info('Starting containers')
+        logger.info("Starting containers")
         containers = self.conf.get_subset(m_class=model.docker.Container)
         for cont in containers:
             Docker.run(cont)
@@ -100,13 +100,13 @@ class Prepare(Strategy):
           - https://gitlab.cee.redhat.com/kernel-performance/testplans/issues/3
           - https://issues.redhat.com/browse/RHEL-30796
         """
-        if (not env.RedhatRelease.version.startswith('8')) and str(self.conf.conf_name).startswith('IPsec'):
-            logger.warning('WA: Restarting IPsec service and sleeping for 60 seconds!!!')
+        if (not env.RedhatRelease.version.startswith("8")) and str(self.conf.conf_name).startswith("IPsec"):
+            logger.warning("WA: Restarting IPsec service and sleeping for 60 seconds!!!")
             sleep(self.IPSEC_SLEEP)
-            SystemD.restart_service(model.system.SystemService('ipsec'))
+            SystemD.restart_service(model.system.SystemService("ipsec"))
             sleep(self.IPSEC_SLEEP)
         else:
-            logger.warning('IPsec WA is not applied!')
+            logger.warning("IPsec WA is not applied!")
 
     @Strategy.schedule
     def check_ipsec_tunnels(self):
@@ -132,20 +132,20 @@ class Prepare(Strategy):
             ).run()
 
             interface = IpCommand.Route.get_outgoing_interface(tunnel.right_ip.ip)
-            if interface == 'lo':
+            if interface == "lo":
                 interface = IpCommand.Route.get_outgoing_interface(tunnel.left_ip.ip)
 
             logger.info(f'Checking interface {interface} for ESP packets.')
             if (
                 TcpDump.count(
-                    'esp',
+                    "esp",
                     timeout=int(self.IPSEC_PING_COUNT * self.IPSEC_PING_INTERVAL),
                     interface=interface,
                 )
                 == 0
             ):
                 logger.error(f'No ESP packets found for tunnel {tunnel}')
-                raise RuntimeError('No ESP packets found')
+                raise RuntimeError("No ESP packets found")
 
     def run_shell_commands(self):
         commands = self.conf.get_subset(m_class=model.system.PrepareCommand)

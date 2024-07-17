@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Uname:
-    UNAME_CMD = 'uname -a'
+    UNAME_CMD = "uname -a"
 
     @classmethod
     def __str__(cls):
@@ -33,16 +33,16 @@ class Uname:
 
 
 class RPMTool:
-    CMD_RPM = '/bin/rpm'
+    CMD_RPM = "/bin/rpm"
 
     @classmethod
     def get_src_name(cls, pkg_nvr) -> Optional[str]:
-        rpm_cmd = Command('%s -q -i %s' % (cls.CMD_RPM, pkg_nvr))
+        rpm_cmd = Command("%s -q -i %s" % (cls.CMD_RPM, pkg_nvr))
         rpm_cmd.run()
         out, _ = rpm_cmd.get_output()
-        re_match = re.search(r'Source\s+RPM\s*:\s+(?P<all_src_name>.*[^\n])', out, re.MULTILINE)
+        re_match = re.search(r"Source\s+RPM\s*:\s+(?P<all_src_name>.*[^\n])", out, re.MULTILINE)
         if re_match:
-            src_name = re_match.group('all_src_name')
+            src_name = re_match.group("all_src_name")
             return src_name
         else:
             return None
@@ -51,21 +51,21 @@ class RPMTool:
     def get_src_name_from_file(cls, path) -> Optional[str]:
         rpm_cmd = Command(f'{cls.CMD_RPM} -qif {path}').run()
         out, _ = rpm_cmd.get_output()
-        re_match = re.search(r'Source\s+RPM\s*:\s+(?P<all_src_name>.*[^\n])', out, re.MULTILINE)
+        re_match = re.search(r"Source\s+RPM\s*:\s+(?P<all_src_name>.*[^\n])", out, re.MULTILINE)
         if re_match:
-            return re_match.group('all_src_name')
+            return re_match.group("all_src_name")
         else:
             return None
 
     @classmethod
     def get_package_version(cls, package) -> Optional[str]:
-        rpm_cmd = Command('%s -qa %s' % (cls.CMD_RPM, package))
+        rpm_cmd = Command("%s -qa %s" % (cls.CMD_RPM, package))
         rpm_cmd.run()
         out, ret_code = rpm_cmd.watch_output()
         if ret_code == 0 and len(out):
             first_match = out.split()[0]  # strip whitespaces
             #  "kernel-4.18.0-67.el8.x86_64".split("kernel-") -> [[], ['4.18.0-67.el8.x86_64']]
-            return first_match.split('%s-' % package)[1]
+            return first_match.split("%s-" % package)[1]
         else:
             return None
 
@@ -73,7 +73,7 @@ class RPMTool:
 class SELinux:
     @staticmethod
     def getenforce():
-        cmd = Command('getenforce')
+        cmd = Command("getenforce")
         cmd.run()
         out, ret_code = cmd.get_output()
         out = out.split()[0]  # skipping new line character
@@ -81,7 +81,7 @@ class SELinux:
 
     @staticmethod
     def setenforce(level):
-        cmd = Command('setenforce %s' % level)
+        cmd = Command("setenforce %s" % level)
         cmd.run()
         out, ret_code = cmd.watch_output()
         return out
@@ -90,18 +90,18 @@ class SELinux:
 class Tuned(object):
     @staticmethod
     def set_profile(profile):
-        cmd = Command('tuned-adm profile %s' % profile)
+        cmd = Command("tuned-adm profile %s" % profile)
         cmd.run()
         return cmd.watch_output()
 
     @staticmethod
     def get_profile():
-        cmd = Command('tuned-adm active')
+        cmd = Command("tuned-adm active")
         cmd.run()
         out, ret = cmd.watch_output()
         if ret:
             return None
-        re_match = re.search(r'.*: (.*)\n', out)
+        re_match = re.search(r".*: (.*)\n", out)
         if re_match:
             return re_match.group(1)
         else:
@@ -111,30 +111,30 @@ class Tuned(object):
 class Lscpu:
     @staticmethod
     def parse_output_into_dict():
-        cmd = Command('lscpu')
+        cmd = Command("lscpu")
         ret_dict = {}
         cmd.run()
         out, ret_code = cmd.watch_output()
-        for line in out.split('\n'):
+        for line in out.split("\n"):
             if line:  # skip blank line
-                first_double_dot = line.find(':')
+                first_double_dot = line.find(":")
                 ret_dict[line[:first_double_dot].strip()] = line[first_double_dot + 1 :].strip()
 
         return ret_dict
 
     @staticmethod
     def architecture():
-        return Lscpu.parse_output_into_dict()['Architecture']
+        return Lscpu.parse_output_into_dict()["Architecture"]
 
 
 class GenericServiceHandler(abc.ABC):
     class Actions(Enum):
-        START = 'start'
-        STOP = 'stop'
-        RESTART = 'restart'
-        STATUS = 'status'
-        ENABLE = 'enable'
-        DISABLE = 'disable'
+        START = "start"
+        STOP = "stop"
+        RESTART = "restart"
+        STATUS = "status"
+        ENABLE = "enable"
+        DISABLE = "disable"
 
     @classmethod
     @abc.abstractmethod
@@ -143,27 +143,27 @@ class GenericServiceHandler(abc.ABC):
 
     @classmethod
     def start_service(cls, service: SystemService):
-        logger.info('starting service %s', service)
+        logger.info("starting service %s", service)
         cls.run_service_cmd(cls.Actions.START, service)
 
     @classmethod
     def stop_service(cls, service: SystemService):
-        logger.info('stopping service %s', service)
+        logger.info("stopping service %s", service)
         cls.run_service_cmd(cls.Actions.STOP, service)
 
     @classmethod
     def restart_service(cls, service: SystemService):
-        logger.info('restarting service %s', service)
+        logger.info("restarting service %s", service)
         cls.run_service_cmd(cls.Actions.RESTART, service)
 
     @classmethod
     def enable_service(cls, service: SystemService):
-        logger.info('enabling service %s', service)
+        logger.info("enabling service %s", service)
         cls.run_service_cmd(cls.Actions.ENABLE, service)
 
     @classmethod
     def disable_service(cls, service: SystemService):
-        logger.info('disabling service %s', service)
+        logger.info("disabling service %s", service)
         cls.run_service_cmd(cls.Actions.DISABLE, service)
 
     @classmethod
@@ -174,21 +174,21 @@ class GenericServiceHandler(abc.ABC):
     @classmethod
     def configure_service(cls, service: SystemService):
         if service.enable:
-            logger.info('configuring service %s to be enabled' % service)
+            logger.info("configuring service %s to be enabled" % service)
             cls.enable_service(service)
             if cls.is_running(service):
-                logger.info('service %s is running at the moment, no further action required' % service)
+                logger.info("service %s is running at the moment, no further action required" % service)
             else:
-                logger.info('service %s is not running at the moment, starting' % service)
+                logger.info("service %s is not running at the moment, starting" % service)
                 cls.start_service(service)
         else:
-            logger.info('configuring service %s to be disabled' % service)
+            logger.info("configuring service %s to be disabled" % service)
             cls.disable_service(service)
             if cls.is_running(service):
-                logger.info('service %s is running at the moment, disabling' % service)
+                logger.info("service %s is running at the moment, disabling" % service)
                 cls.stop_service(service)
             else:
-                logger.info('service %s is not running at the moment, no further action required' % service)
+                logger.info("service %s is not running at the moment, no further action required" % service)
 
 
 class SysVInit(GenericServiceHandler):
@@ -215,7 +215,7 @@ class SystemD(GenericServiceHandler):
 class KernelModuleUtils:
     @staticmethod
     def modprobe(module: KernelModule):
-        opts = ' '.join([f'{k}={v}' for k, v in module.options.items()])
+        opts = " ".join([f'{k}={v}' for k, v in module.options.items()])
         cmd = Command(f'modprobe {module.name} {opts}')
         cmd.run()
         out, ret = cmd.get_output()
@@ -224,19 +224,19 @@ class KernelModuleUtils:
 
 
 class TimeDateCtl:
-    CMD = 'timedatectl'
+    CMD = "timedatectl"
 
     @classmethod
     def _run(cls, sub_cmd, *args):
-        cmd = ' '.join([cls.CMD, sub_cmd, *args])
+        cmd = " ".join([cls.CMD, sub_cmd, *args])
         cmd = Command(cmd)
         cmd.run()
         return cmd.watch_and_log_error()[0]
 
     @classmethod
     def status(cls):
-        return cls._run('status')
+        return cls._run("status")
 
     @classmethod
     def set_timezone(cls, timezone: TimeZone):
-        return cls._run('set-timezone', timezone.value)
+        return cls._run("set-timezone", timezone.value)

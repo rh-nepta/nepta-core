@@ -31,8 +31,8 @@ class _PathInterface(ABC):
     def id(self) -> uuid.UUID:
         sorted_tags = copy.deepcopy(self.tags)
         sorted_tags.sort()
-        uid = uuid.uuid5(uuid.NAMESPACE_DNS, ','.join(map(str, sorted_tags)))
-        logger.debug('Sorted tags : {}, generated uid: {}'.format(sorted_tags, uid))
+        uid = uuid.uuid5(uuid.NAMESPACE_DNS, ",".join(map(str, sorted_tags)))
+        logger.debug("Sorted tags : {}, generated uid: {}".format(sorted_tags, uid))
         return uid
 
     def __repr__(self):
@@ -64,7 +64,7 @@ class Path(_PathInterface):
 
     @property
     def desc(self) -> str:
-        return '{} {} <=> {}, tags:{}'.format(
+        return "{} {} <=> {}, tags:{}".format(
             self.__class__.__name__, self.mine_ip, self.their_ip, (self.hw_inventory + self.sw_inventory)
         )
 
@@ -75,9 +75,9 @@ class Path(_PathInterface):
 class CongestedPath(Path):
     def __init__(self, mine_ip, their_ip, limit_bandwidth, delay, cca, tags, cpu_pinning=None):
         path_tags = [
-            SoftwareInventoryTag('delay', delay),
-            SoftwareInventoryTag('bandwidth', limit_bandwidth),
-            SoftwareInventoryTag('congestion_control_alg', cca),
+            SoftwareInventoryTag("delay", delay),
+            SoftwareInventoryTag("bandwidth", limit_bandwidth),
+            SoftwareInventoryTag("congestion_control_alg", cca),
         ]
         super().__init__(mine_ip, their_ip, tags + path_tags, cpu_pinning)
         self.limit_bandwidth = limit_bandwidth
@@ -86,8 +86,8 @@ class CongestedPath(Path):
 
     def dict(self):
         d = super().dict()
-        d['delay'] = self.delay
-        d['bandwidth'] = self.limit_bandwidth
+        d["delay"] = self.delay
+        d["bandwidth"] = self.limit_bandwidth
         return d
 
 
@@ -100,23 +100,23 @@ class UBenchPath(Path):
 
 
 class PathList(list, _PathInterface):
-    def clone(self) -> 'PathList':
+    def clone(self) -> "PathList":
         return copy.deepcopy(self)
 
-    def set_all_cpu_pinning(self, cpu_pinning, clone=True) -> 'PathList':
+    def set_all_cpu_pinning(self, cpu_pinning, clone=True) -> "PathList":
         new = self.clone() if clone else self
         for path in new:
             path.cpu_pinning = cpu_pinning
         return new
 
-    def set_dynamic_duplex_stream_pinning(self, clone=True) -> 'PathList':
+    def set_dynamic_duplex_stream_pinning(self, clone=True) -> "PathList":
         new = self.clone() if clone else self
         for path in new:
             if path.cpu_pinning:
                 path.cpu_pinning = (path.cpu_pinning[0], [path.cpu_pinning[0][0] + 1, path.cpu_pinning[0][1] + 1])
         return new
 
-    def __add__(self, other) -> 'PathList':
+    def __add__(self, other) -> "PathList":
         return self.__class__(super().__add__(other))
 
     @property
@@ -132,7 +132,7 @@ class PathList(list, _PathInterface):
 
     @property
     def desc(self) -> str:
-        return '[[' + ', '.join([p.desc for p in self]) + ']]'
+        return "[[" + ", ".join([p.desc for p in self]) + "]]"
 
     @property
     def cpu_pinning(self):

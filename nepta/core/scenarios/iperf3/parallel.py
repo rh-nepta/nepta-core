@@ -26,19 +26,19 @@ class Iperf3TCPParallelPath(GenericIPerf3Stream, ParallelPathGeneric):
                 interval=self.interval,
                 parallel=self.parallel,
             )
-            new_test.affinity = ','.join([str(x) for x in cpu])
+            new_test.affinity = ",".join([str(x) for x in cpu])
             tests.append(new_test)
 
-        assert len(tests) == len(paths), 'The number of tests is not equal to the number of defined paths!'
+        assert len(tests) == len(paths), "The number of tests is not equal to the number of defined paths!"
         tests.append(
-            MPStat(interval=self.test_length, count=1, cpu_list=','.join([str(x[0]) for x in cpu_pinning_list]))
+            MPStat(interval=self.test_length, count=1, cpu_list=",".join([str(x[0]) for x in cpu_pinning_list]))
         )
         tests.append(
             RemoteMPStat(
                 host=path.their_ip.ip,
                 interval=self.test_length,
                 count=1,
-                cpu_list=','.join([str(x[1]) for x in cpu_pinning_list]),
+                cpu_list=",".join([str(x[1]) for x in cpu_pinning_list]),
             )
         )
 
@@ -54,5 +54,5 @@ class Iperf3TCPParallelPath(GenericIPerf3Stream, ParallelPathGeneric):
         total.add_mpstat_sum(*mpstats)
         total.set_data_formatter(self.str_round)
 
-        result_dict = OrderedDict({'total_' + key: value for key, value in total})
+        result_dict = OrderedDict({"total_" + key: value for key, value in total})
         return result_dict

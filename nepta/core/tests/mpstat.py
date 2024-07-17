@@ -8,37 +8,37 @@ logger = logging.getLogger(__name__)
 
 
 class MPStat(CommandTool):
-    PROGRAM_NAME = 'mpstat'
+    PROGRAM_NAME = "mpstat"
 
     MAPPING = [
         CommandArgument(
-            'node_list',
-            '-N',
+            "node_list",
+            "-N",
         ),
-        CommandArgument('output', '-o', default_value='JSON'),
+        CommandArgument("output", "-o", default_value="JSON"),
         CommandArgument(
-            'cpu_list',
-            '-P',
+            "cpu_list",
+            "-P",
         ),
-        CommandArgument('interval', '', argument_type=int),
-        CommandArgument('count', '', argument_type=int),
+        CommandArgument("interval", "", argument_type=int),
+        CommandArgument("count", "", argument_type=int),
     ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         if self.count is not None and self.interval is None:
-            raise ValueError('Count parameter can be specifies only with interval argument')
+            raise ValueError("Count parameter can be specifies only with interval argument")
 
     def parse_json(self) -> dict:
-        if self.output != 'JSON':
-            raise ValueError('For json output specify output parameter as JSON')
+        if self.output != "JSON":
+            raise ValueError("For json output specify output parameter as JSON")
         return json.loads(self.watch_output()[0])
 
     def cpu_loads(self) -> List[List[Dict]]:
         data = self.parse_json()
-        cpu_loads = data['sysstat']['hosts'][0]['statistics']
-        return [x['cpu-load'] for x in cpu_loads]
+        cpu_loads = data["sysstat"]["hosts"][0]["statistics"]
+        return [x["cpu-load"] for x in cpu_loads]
 
     def last_cpu_load(self) -> List[Dict]:
         return self.cpu_loads()[-1]
@@ -49,7 +49,7 @@ class MPStat(CommandTool):
             return {k: a[k] + b[k] for k in a.keys()}
 
         loads = self.last_cpu_load()
-        all(map(lambda x: x.pop('cpu'), loads))
+        all(map(lambda x: x.pop("cpu"), loads))
         return reduce(add_dict, loads)
 
 

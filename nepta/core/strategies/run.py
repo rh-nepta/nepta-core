@@ -50,7 +50,7 @@ class RunScenarios(Strategy):
         unmatched_names = set(override_names) - set(run_names)
         excluded_names = set(scenario_names) - set(run_names)
 
-        logger.info('\n\nWe will run following scenarios: %s\n', run_names)
+        logger.info("\n\nWe will run following scenarios: %s\n", run_names)
         if len(unmatched_names) > 0:
             logger.warning('Scenarios %s are not defined in configuration. They won\'t be run.' % unmatched_names)
         if len(excluded_names) > 0:
@@ -61,11 +61,11 @@ class RunScenarios(Strategy):
     @Strategy.schedule
     def run_scenarios(self):
         # creating data section and running filtered scenarios
-        scenarios_section = Section('scenarios')
+        scenarios_section = Section("scenarios")
         self.package.store.root.subsections.append(scenarios_section)
 
         for item in self.get_running_scenarios():
-            logger.info('\n\nRunning scenario: %s', item)
+            logger.info("\n\nRunning scenario: %s", item)
             data, result = item()
             scenarios_section.subsections.append(data)
             self.aggregated_result &= result
@@ -85,11 +85,11 @@ class RunScenariosPCP(RunScenarios):
     def init_pcp_conf(self):
         pcp_confs = self.conf.get_subset(m_type=PCPConfiguration)
         if len(pcp_confs):
-            self.conf.attachments.scenarios.pcp = Directory(pcp_confs[0].log_path, 'pcp', compression=Compression.XZ)
+            self.conf.attachments.scenarios.pcp = Directory(pcp_confs[0].log_path, "pcp", compression=Compression.XZ)
             return pcp_confs[0]
         else:
-            logger.error('PCP configuration is missing!!! Cannot continue in testing. Please define PCPConfiguration!')
-            raise ValueError('PCP config is missing!')
+            logger.error("PCP configuration is missing!!! Cannot continue in testing. Please define PCPConfiguration!")
+            raise ValueError("PCP config is missing!")
 
     def start_pmlogger(self, archive_name):
         logger.info(f'Running pmlogger with conf >> {self.pcp_conf}')
@@ -114,7 +114,7 @@ class RunScenariosPCP(RunScenarios):
     def check_pmlogger(self):
         for cmd in self._pmlogger_cmds:
             if cmd.poll() is not None:
-                logger.error('PCP >> pmlogger failed to run')
+                logger.error("PCP >> pmlogger failed to run")
                 logger.error(f'PCP >> pmlogger error: {cmd.get_output()}')
 
     def stop_pmlogger(self):
@@ -127,12 +127,12 @@ class RunScenariosPCP(RunScenarios):
     @Strategy.schedule
     def run_scenarios(self):
         # creating data section and running filtered scenarios
-        scenarios_section = Section('scenarios')
+        scenarios_section = Section("scenarios")
         self.package.store.root.subsections.append(scenarios_section)
 
         for item in self.get_running_scenarios():
-            logger.info('\n\nRunning scenario: %s', item)
-            logger.info('Running pmlogger')
+            logger.info("\n\nRunning scenario: %s", item)
+            logger.info("Running pmlogger")
             self.start_pmlogger(item.__class__.__name__)
             data, result = item()
             self.stop_pmlogger()

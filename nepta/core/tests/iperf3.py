@@ -30,12 +30,12 @@ class Iperf3TestResult:
     _DIMENSIONS: Dict[str, int] = {}
 
     # additional dimensions for mpstat results
-    _METRICS = ['sys', 'usr', 'irq', 'soft', 'nice', 'iowait', 'steal', 'guest', 'gnice', 'idle']
-    _MPSTAT_DIMENSIONS = [f'mpstat_{j}_{i}' for i in _METRICS for j in ['local', 'remote']]
+    _METRICS = ["sys", "usr", "irq", "soft", "nice", "iowait", "steal", "guest", "gnice", "idle"]
+    _MPSTAT_DIMENSIONS = [f'mpstat_{j}_{i}' for i in _METRICS for j in ["local", "remote"]]
 
     @classmethod
     @abc.abstractmethod
-    def from_json(cls, json_data: dict) -> 'Iperf3TestResult':
+    def from_json(cls, json_data: dict) -> "Iperf3TestResult":
         """
         Parse important results from iPerf3 test output in JSON format.
         :param json_data: parsed JSON
@@ -51,7 +51,7 @@ class Iperf3TestResult:
         self._format_func = formatter if formatter is not None else lambda x: x
 
     def __str__(self):
-        return 'iPerf3 parsed test results >> ' + ' | '.join([f'{k}->{v}' for k, v in self])
+        return "iPerf3 parsed test results >> " + " | ".join([f'{k}->{v}' for k, v in self])
 
     # decorator needed to enable polymorphism
     @singledispatchmethod
@@ -91,47 +91,47 @@ class Iperf3TestResult:
     def __setitem__(self, key, value):
         self._array[self._dims[key]] = value
 
-    def add_mpstat(self, local: MPStat, remote: MPStat) -> 'Iperf3TestResult':
+    def add_mpstat(self, local: MPStat, remote: MPStat) -> "Iperf3TestResult":
         # There should only one statement for the mpstat test in single stream
         # scenario: specified core or all. Thus, accessing 0th elem.
-        self['local_cpu'] = 100 - local.last_cpu_load()[0]['idle']
-        self['remote_cpu'] = 100 - remote.last_cpu_load()[0]['idle']
+        self["local_cpu"] = 100 - local.last_cpu_load()[0]["idle"]
+        self["remote_cpu"] = 100 - remote.last_cpu_load()[0]["idle"]
 
         self._mpstat_from_dict(local.last_cpu_load()[0], remote.last_cpu_load()[0])
         return self
 
-    def add_mpstat_sum(self, local: MPStat, remote: MPStat) -> 'Iperf3TestResult':
+    def add_mpstat_sum(self, local: MPStat, remote: MPStat) -> "Iperf3TestResult":
         local_data = local.sum_last_cpu_load()
         remote_data = remote.sum_last_cpu_load()
         self._mpstat_from_dict(local_data, remote_data)
 
-        local_data.pop('idle')
-        remote_data.pop('idle')
+        local_data.pop("idle")
+        remote_data.pop("idle")
 
-        self['local_cpu'] = sum(local_data.values())
-        self['remote_cpu'] = sum(remote_data.values())
+        self["local_cpu"] = sum(local_data.values())
+        self["remote_cpu"] = sum(remote_data.values())
 
         return self
 
-    def _mpstat_from_dict(self, local: dict, remote: dict) -> 'Iperf3TestResult':
+    def _mpstat_from_dict(self, local: dict, remote: dict) -> "Iperf3TestResult":
         self._array = np.array(self._array.tolist() + [x[y] for y in self._METRICS for x in [local, remote]])
         self._dims.update({k: v for v, k in enumerate(self._MPSTAT_DIMENSIONS, max(self._dims.values()) + 1)})
         return self
 
 
 class Iperf3TCPTestResult(Iperf3TestResult):
-    _DIMENSIONS = {name: order for order, name in enumerate(['throughput', 'local_cpu', 'remote_cpu'])}
+    _DIMENSIONS = {name: order for order, name in enumerate(["throughput", "local_cpu", "remote_cpu"])}
 
     @classmethod
     def from_json(cls, json_data: dict) -> Iperf3TestResult:
-        end = json_data['end']
+        end = json_data["end"]
 
         return cls(
             np.array(
                 [
-                    end['sum_received']['bits_per_second'],
-                    end['cpu_utilization_percent']['host_total'],
-                    end['cpu_utilization_percent']['remote_total'],
+                    end["sum_received"]["bits_per_second"],
+                    end["cpu_utilization_percent"]["host_total"],
+                    end["cpu_utilization_percent"]["remote_total"],
                 ]
             )
         )
@@ -140,20 +140,20 @@ class Iperf3TCPTestResult(Iperf3TestResult):
 class Iperf3UDPTestResult(Iperf3TCPTestResult):
     _DIMENSIONS = {
         name: order
-        for order, name in enumerate(['sender_throughput', 'receiver_throughput', 'local_cpu', 'remote_cpu'])
+        for order, name in enumerate(["sender_throughput", "receiver_throughput", "local_cpu", "remote_cpu"])
     }
 
     @classmethod
     def from_json(cls, json_data: dict):
-        end = json_data['end']
+        end = json_data["end"]
 
         return cls(
             np.array(
                 [
-                    end['sum']['bits_per_second'],
-                    end['sum']['bits_per_second'] * (1 - end['sum']['lost_percent'] / 100),
-                    end['cpu_utilization_percent']['host_total'],
-                    end['cpu_utilization_percent']['remote_total'],
+                    end["sum"]["bits_per_second"],
+                    end["sum"]["bits_per_second"] * (1 - end["sum"]["lost_percent"] / 100),
+                    end["cpu_utilization_percent"]["host_total"],
+                    end["cpu_utilization_percent"]["remote_total"],
                 ]
             )
         )
@@ -166,12 +166,12 @@ class Iperf3(CommandTool):
     definition of iPerf3 program.
     """
 
-    PROGRAM_NAME = 'iperf3'
+    PROGRAM_NAME = "iperf3"
     MAPPING = [
-        CommandArgument('port', '--port'),
-        CommandArgument('bind', '--bind'),
-        CommandArgument('json', '--json', default_value=True, argument_type=bool),
-        CommandArgument('affinity', '--affinity'),
+        CommandArgument("port", "--port"),
+        CommandArgument("bind", "--bind"),
+        CommandArgument("json", "--json", default_value=True, argument_type=bool),
+        CommandArgument("affinity", "--affinity"),
     ]
 
 
@@ -183,8 +183,8 @@ class Iperf3Server(Iperf3):
     """
 
     MAPPING = Iperf3.MAPPING + [
-        CommandArgument('server', '--server', argument_type=bool, default_value=True),
-        CommandArgument('daemon', '--daemon', argument_type=bool, default_value=True),
+        CommandArgument("server", "--server", argument_type=bool, default_value=True),
+        CommandArgument("daemon", "--daemon", argument_type=bool, default_value=True),
     ]
 
 
@@ -197,17 +197,17 @@ class Iperf3Test(Iperf3Server):
     """
 
     MAPPING = Iperf3.MAPPING + [
-        CommandArgument('interval', '--interval'),
-        CommandArgument('client', '--client', required=True),
-        CommandArgument('time', ' --time'),
-        CommandArgument('len', '--len'),
-        CommandArgument('sctp', '--sctp', argument_type=bool),
-        CommandArgument('udp', '--udp', argument_type=bool),
-        CommandArgument('bitrate', '--bitrate'),
-        CommandArgument('parallel', '--parallel'),
-        CommandArgument('reverse', '--reverse', argument_type=bool),
-        CommandArgument('congestion', '--congestion'),
-        CommandArgument('zerocopy', '--zerocopy', argument_type=bool),
+        CommandArgument("interval", "--interval"),
+        CommandArgument("client", "--client", required=True),
+        CommandArgument("time", " --time"),
+        CommandArgument("len", "--len"),
+        CommandArgument("sctp", "--sctp", argument_type=bool),
+        CommandArgument("udp", "--udp", argument_type=bool),
+        CommandArgument("bitrate", "--bitrate"),
+        CommandArgument("parallel", "--parallel"),
+        CommandArgument("reverse", "--reverse", argument_type=bool),
+        CommandArgument("congestion", "--congestion"),
+        CommandArgument("zerocopy", "--zerocopy", argument_type=bool),
     ]
 
     def run(self):
@@ -221,19 +221,19 @@ class Iperf3Test(Iperf3Server):
         if self._output is None:
             self.watch_output()
         if self._output is not None:
-            json_start = self._output.find('{')
+            json_start = self._output.find("{")
             return json.loads(self._output[json_start:])
         else:
-            raise RuntimeError('The iPerf3 JSON output is not available.')
+            raise RuntimeError("The iPerf3 JSON output is not available.")
 
     def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS) -> Iperf3TestResult:
         if self.udp:
             test = Iperf3UDPTestResult.from_json(self.get_json_out())
-            test['sender_throughput'] /= throughput_format.value
-            test['receiver_throughput'] /= throughput_format.value
+            test["sender_throughput"] /= throughput_format.value
+            test["receiver_throughput"] /= throughput_format.value
         else:
             test = Iperf3TCPTestResult.from_json(self.get_json_out())
-            test['throughput'] /= throughput_format.value
+            test["throughput"] /= throughput_format.value
         return test
 
 
@@ -244,8 +244,8 @@ class Iperf3MPStat(Iperf3Test):
         self._rem_mpstat: MPStat = None
 
     def run(self):
-        self._loc_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[0], count=1, output='JSON')
-        self._rem_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(',')[1], count=1, output='JSON')
+        self._loc_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(",")[0], count=1, output="JSON")
+        self._rem_mpstat = MPStat(interval=self.time, cpu_list=self.affinity.split(",")[1], count=1, output="JSON")
         self._loc_mpstat.run()
         self._rem_mpstat.remote_run(self.client)
         super(Iperf3MPStat, self).run()

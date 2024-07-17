@@ -24,7 +24,7 @@ class Command(object):
         self.enable_debug = enable_debug_log
 
     def __str__(self):
-        return '{cls}: {cmd}'.format(cls=self.__class__.__name__, cmd=self._cmd_str())
+        return "{cls}: {cmd}".format(cls=self.__class__.__name__, cmd=self._cmd_str())
 
     def __enter__(self):
         self.run()
@@ -40,10 +40,10 @@ class Command(object):
             logger.debug(*args, **kwargs)
 
     def _cmd_str(self):
-        return ' '.join(self._cmdline)
+        return " ".join(self._cmdline)
 
     def run(self):
-        self.log_debug('Running %s', self)
+        self.log_debug("Running %s", self)
         self._command_handle = subprocess.Popen(self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         return self
 
@@ -80,15 +80,15 @@ class Command(object):
         :return: command output and return code
         """
         logger.info(f'Watching output of >> {self}')
-        output_buffer = ''
+        output_buffer = ""
 
         while self.poll() is None:
             line = self._read_line_from_pipe()
-            self.log_debug(line.replace('\n', ''))
+            self.log_debug(line.replace("\n", ""))
             output_buffer += line
         else:  # the end of the cycle
             line = self._read_whole_pipe()
-            self.log_debug(line.replace('\n', ''))
+            self.log_debug(line.replace("\n", ""))
             output_buffer += line
 
         return output_buffer, self.poll()
@@ -111,13 +111,13 @@ class ShellCommand(Command):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._cmdline = ' '.join(self._cmdline)
+        self._cmdline = " ".join(self._cmdline)
 
     def _cmd_str(self):
         return self._cmdline
 
     def run(self):
-        self.log_debug('Running command: %s', self._cmdline)
+        self.log_debug("Running command: %s", self._cmdline)
         self._command_handle = subprocess.Popen(
             self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
         )

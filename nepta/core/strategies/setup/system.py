@@ -31,7 +31,7 @@ class SystemSetup(Setup):
 
     @Setup.schedule
     def configure_ssh(self):
-        logger.info('Configuring SSH client')
+        logger.info("Configuring SSH client")
         pub_keys = self.conf.get_subset(m_class=model.system.SSHAuthorizedKey)
         conf_files.SSHAuthorizedKeysFile(pub_keys).apply()
 
@@ -50,16 +50,16 @@ class SystemSetup(Setup):
     # test framework.
     @Setup.schedule
     def configure_kdump(self):
-        logger.info('Configuring KDump')
+        logger.info("Configuring KDump")
         confs = self.conf.get_subset(m_class=model.system.KDumpOption)
         conf_files.KDump(confs).apply()
 
     @Setup.schedule
     def configure_kernel_variables(self):
-        logger.info('Configuring sysctl variables')
+        logger.info("Configuring sysctl variables")
         kvars = self.conf.get_subset(m_class=model.system.SysctlVariable)
         conf_files.SysctlFile(kvars).apply()
-        c = Command('sysctl --system')
+        c = Command("sysctl --system")
         c.run()
         c.watch_output()
 
@@ -68,9 +68,9 @@ class SystemSetup(Setup):
         profile = self.conf.get_subset(m_type=model.system.TunedAdmProfile)
         if len(profile):
             if len(profile) > 1:
-                logger.warning('Too many tuned profiles in configuration \n%s' % self.conf)
+                logger.warning("Too many tuned profiles in configuration \n%s" % self.conf)
             profile = profile[0]
-            logger.info('Setting tuned-adm profile: %s' % profile)
+            logger.info("Setting tuned-adm profile: %s" % profile)
             out, retcode = Tuned.set_profile(profile.value)
             if retcode:
                 logger.error(out)
@@ -82,7 +82,7 @@ class SystemSetup(Setup):
 
     @Setup.schedule
     def configure_kernel_modules(self):
-        logger.info('Configuring kernel modules')
+        logger.info("Configuring kernel modules")
         for mod in self.conf.get_subset(m_class=model.system.KernelModule):
             logger.info(f'Configuring module {mod}')
             conf_files.KernelLoadModuleConfig(mod).apply()
@@ -95,7 +95,7 @@ class SystemSetup(Setup):
         for pcp in self.conf.get_subset(m_type=model.system.PCPConfiguration):
             logger.info(f'Generating PCP configuration: {pcp}')
             if os.path.exists(pcp.config_path):
-                logger.info('PCP config already exists >> Deleting ')
+                logger.info("PCP config already exists >> Deleting ")
                 os.remove(pcp.config_path)
 
             os.makedirs(pcp.log_path, exist_ok=True)
@@ -106,8 +106,8 @@ class SystemSetup(Setup):
 
     @Setup.schedule
     def setup_ntp(self):
-        if env.RedhatRelease.version.startswith('6'):
-            logger.warning('Skipping NTP configuration!')
+        if env.RedhatRelease.version.startswith("6"):
+            logger.warning("Skipping NTP configuration!")
             return
         servers = self.conf.get_subset(m_class=model.system.NTPServer)
         conf_files.ChronyConf(servers).apply()

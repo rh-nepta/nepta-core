@@ -21,7 +21,7 @@ class Report(Strategy):
             for strategy in self.all_strategies.strategies:
                 if isinstance(strategy, RunScenarios):
                     self.result &= strategy.aggregated_result
-        logger.info('reporting results to beaker')
+        logger.info("reporting results to beaker")
         Rstrnt.submit_log(self.package.metas._xml_file.path)
         Rstrnt.submit_log(self.package.store.path)
         Rstrnt.report_result(success=self.result)

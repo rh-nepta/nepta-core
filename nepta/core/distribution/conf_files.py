@@ -29,11 +29,11 @@ class ConfigFile(ABC):
         path_str = self._make_path()
         content_str = self._make_content()
 
-        strategy_str = 'will be written to'
+        strategy_str = "will be written to"
         if self.STRATEGY == self.APPEND_STRATEGY:
-            strategy_str = 'will be apended to'
+            strategy_str = "will be apended to"
 
-        return '%s, file content %s path: %s,\nFile content:\n%s' % (type_name_str, strategy_str, path_str, content_str)
+        return "%s, file content %s path: %s,\nFile content:\n%s" % (type_name_str, strategy_str, path_str, content_str)
 
     @abstractmethod
     def _make_path(self):
@@ -54,7 +54,7 @@ class ConfigFile(ABC):
         Fs.chmod_path(path_str, self.ACCESS_RIGHTS)
 
     def apply(self):
-        logger.info('Creating configuration file.\n%s' % str(self))
+        logger.info("Creating configuration file.\n%s" % str(self))
         path_str = self._make_path()
         content_str = self._make_content()
         if self.STRATEGY == self.REWRITE_STRATEGY:
@@ -65,8 +65,8 @@ class ConfigFile(ABC):
 
 
 class JinjaConfFile(ConfigFile, ABC):
-    TEMPLATE: str = ''
-    TEMPLATE_DIR: str = 'templates/conf_templates'
+    TEMPLATE: str = ""
+    TEMPLATE_DIR: str = "templates/conf_templates"
 
     def __init__(self):
         template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.TEMPLATE_DIR)
@@ -89,9 +89,9 @@ class JinjaConfFile(ConfigFile, ABC):
 #
 # Same thing applies to IPsec secrets files
 class GenericIPsecFile(JinjaConfFile, ABC):
-    IPSEC_CONF_DIR = '/etc/ipsec.d'
-    IPSEC_CONF_PREFIX = 'conn'
-    SUFFIX = ''
+    IPSEC_CONF_DIR = "/etc/ipsec.d"
+    IPSEC_CONF_PREFIX = "conn"
+    SUFFIX = ""
 
     def __init__(self, connection: net_model.IPsecTunnel):
         super().__init__()
@@ -102,36 +102,36 @@ class GenericIPsecFile(JinjaConfFile, ABC):
 
 
 class IPsecConnFile(GenericIPsecFile):
-    TEMPLATE = 'ipsec_rhel8_conn.jinja2'
+    TEMPLATE = "ipsec_rhel8_conn.jinja2"
     # Use different ipsec template for RHEL7
-    if env.RedhatRelease.version.startswith('7'):
-        TEMPLATE = 'ipsec_conn.jinja2'
-    SUFFIX = 'conf'
+    if env.RedhatRelease.version.startswith("7"):
+        TEMPLATE = "ipsec_conn.jinja2"
+    SUFFIX = "conf"
 
     def _make_jinja_context(self):
         return {
-            'name': self.connection.name,
-            'family': self.connection.family,
+            "name": self.connection.name,
+            "family": self.connection.family,
             **self.connection.__dict__,
         }
 
 
 class IPsecSecretsFile(GenericIPsecFile):
-    TEMPLATE = 'ipsec_secret.jinja2'
-    SUFFIX = 'secrets'
+    TEMPLATE = "ipsec_secret.jinja2"
+    SUFFIX = "secrets"
 
     def _make_jinja_context(self):
         return {
-            'left': self.connection.left_ip.ip,
-            'right': self.connection.right_ip.ip,
-            'password': self.connection.passphrase,
+            "left": self.connection.left_ip.ip,
+            "right": self.connection.right_ip.ip,
+            "password": self.connection.passphrase,
         }
 
 
 class WireGuardConnectionFile(JinjaConfFile):
-    TEMPLATE = 'wireguard_conn.jinja2'
-    CONF_DIR = '/etc/wireguard/'
-    SUFFIX = '.conf'
+    TEMPLATE = "wireguard_conn.jinja2"
+    CONF_DIR = "/etc/wireguard/"
+    SUFFIX = ".conf"
 
     def __init__(self, connection: net_model.WireGuardTunnel):
         super().__init__()
@@ -145,8 +145,8 @@ class WireGuardConnectionFile(JinjaConfFile):
 
 
 class UdevRulesFile(JinjaConfFile):
-    RULES_FILE = '/etc/udev/rules.d/70-persistent-net.rules'
-    TEMPLATE = 'udev_rule_line.jinja2'
+    RULES_FILE = "/etc/udev/rules.d/70-persistent-net.rules"
+    TEMPLATE = "udev_rule_line.jinja2"
 
     def __init__(self, interfaces):
         super(UdevRulesFile, self).__init__()
@@ -156,23 +156,23 @@ class UdevRulesFile(JinjaConfFile):
         return self.RULES_FILE
 
     def _make_jinja_context(self):
-        return {'interfaces': self._interfaces}
+        return {"interfaces": self._interfaces}
 
 
 class _NetConfFile(JinjaConfFile, ABC):
-    CFG_DIRECTORY: str = '/etc/'
+    CFG_DIRECTORY: str = "/etc/"
     TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR)
     TEMPLATE_MAPPING = {
-        net_model.Interface: 'generic.jinja2',
-        net_model.EthernetInterface: 'ethernet.jinja2',
-        net_model.VlanInterface: 'vlan.jinja2',
-        net_model.TeamMasterInterface: 'team_master.jinja2',
-        net_model.TeamChildInterface: 'team_slave.jinja2',
-        net_model.BondMasterInterface: 'bond_master.jinja2',
-        net_model.BondChildInterface: 'bond_slave.jinja2',
-        net_model.OVSIntPort: 'ovs_int_port.jinja2',
-        net_model.LinuxBridge: 'bridge.jinja2',
-        net_model.MACSecInterface: 'macsec.jinja2',
+        net_model.Interface: "generic.jinja2",
+        net_model.EthernetInterface: "ethernet.jinja2",
+        net_model.VlanInterface: "vlan.jinja2",
+        net_model.TeamMasterInterface: "team_master.jinja2",
+        net_model.TeamChildInterface: "team_slave.jinja2",
+        net_model.BondMasterInterface: "bond_master.jinja2",
+        net_model.BondChildInterface: "bond_slave.jinja2",
+        net_model.OVSIntPort: "ovs_int_port.jinja2",
+        net_model.LinuxBridge: "bridge.jinja2",
+        net_model.MACSecInterface: "macsec.jinja2",
     }
 
     def __init__(self, interface: net_model.Interface):
@@ -181,24 +181,24 @@ class _NetConfFile(JinjaConfFile, ABC):
         self.template = self.TEMPLATE_MAPPING[interface.__class__]
 
     def _make_jinja_context(self):
-        return {'intf': self._interface}
+        return {"intf": self._interface}
 
 
 class IfcfgFile(_NetConfFile):
-    CFG_DIRECTORY = '/etc/sysconfig/network-scripts/'
-    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'ifcfg')
+    CFG_DIRECTORY = "/etc/sysconfig/network-scripts/"
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, "ifcfg")
 
     def _make_path(self):
-        file_name = 'ifcfg-%s' % self._interface.name
+        file_name = "ifcfg-%s" % self._interface.name
         file_path = os.path.join(self.CFG_DIRECTORY, file_name)
         return file_path
 
 
 class NmcliKeyFile(_NetConfFile):
-    CFG_DIRECTORY = '/etc/NetworkManager/system-connections/'
-    SUFFIX = '.nmconnection'
+    CFG_DIRECTORY = "/etc/NetworkManager/system-connections/"
+    SUFFIX = ".nmconnection"
     ACCESS_RIGHTS = 0o600
-    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, 'nm-keyfiles')
+    TEMPLATE_DIR = os.path.join(JinjaConfFile.TEMPLATE_DIR, "nm-keyfiles")
 
     def _make_path(self):
         file_name = self._interface.name + self.SUFFIX
@@ -207,7 +207,7 @@ class NmcliKeyFile(_NetConfFile):
 
 
 class SysctlFile(ConfigFile):
-    SYSCTL_CONF_FILE = '/etc/sysctl.conf'
+    SYSCTL_CONF_FILE = "/etc/sysctl.conf"
 
     def __init__(self, variables: List[model.system.SysctlVariable]):
         super(SysctlFile, self).__init__()
@@ -217,14 +217,14 @@ class SysctlFile(ConfigFile):
         return self.SYSCTL_CONF_FILE
 
     def _make_content(self):
-        conf = ''
+        conf = ""
         for var in self._variables:
-            conf += '%s = %s\n' % (var.key, var.value)
+            conf += "%s = %s\n" % (var.key, var.value)
         return conf
 
 
 class SSHPrivateKey(ConfigFile):
-    PRIVATE_KEY_FILENAME = '/root/.ssh/{name}'
+    PRIVATE_KEY_FILENAME = "/root/.ssh/{name}"
     ACCESS_RIGHTS = 0o600
 
     def __init__(self, identity: model.system.SSHIdentity):
@@ -239,7 +239,7 @@ class SSHPrivateKey(ConfigFile):
 
 
 class SSHPublicKey(ConfigFile):
-    PUBLIC_KEY_FILENAME = '/root/.ssh/{name}.pub'
+    PUBLIC_KEY_FILENAME = "/root/.ssh/{name}.pub"
     ACCESS_RIGHTS = 0o644
 
     def __init__(self, identity: model.system.SSHIdentity):
@@ -254,7 +254,7 @@ class SSHPublicKey(ConfigFile):
 
 
 class SSHAuthorizedKeysFile(ConfigFile):
-    AUTHORIZED_KEYS_FILE = '/root/.ssh/authorized_keys'
+    AUTHORIZED_KEYS_FILE = "/root/.ssh/authorized_keys"
     STRATEGY = ConfigFile.APPEND_STRATEGY
 
     def __init__(self, pubkeys: List[model.system.SSHAuthorizedKey]):
@@ -265,11 +265,11 @@ class SSHAuthorizedKeysFile(ConfigFile):
         return self.AUTHORIZED_KEYS_FILE
 
     def _make_content(self):
-        return '\n'.join(pk.value for pk in self._pubkeys)
+        return "\n".join(pk.value for pk in self._pubkeys)
 
 
 class SSHConfig(ConfigFile):
-    CONFIG_FILENAME = '/root/.ssh/config'
+    CONFIG_FILENAME = "/root/.ssh/config"
 
     def __init__(self, configs: List[model.system.SSHConfigItem]):
         super(SSHConfig, self).__init__()
@@ -279,11 +279,11 @@ class SSHConfig(ConfigFile):
         return self.CONFIG_FILENAME
 
     def _make_content(self):
-        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._configs])
+        return "\n".join(["%s %s" % (item.key, item.value) for item in self._configs])
 
 
 class SSHDConfig(ConfigFile):
-    CONFIG_FILENAME = '/etc/ssh/sshd_config'
+    CONFIG_FILENAME = "/etc/ssh/sshd_config"
     STRATEGY = ConfigFile.APPEND_STRATEGY
 
     def __init__(self, configs: List[model.system.SSHDConfigItem]):
@@ -294,11 +294,11 @@ class SSHDConfig(ConfigFile):
         return self.CONFIG_FILENAME
 
     def _make_content(self):
-        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._configs])
+        return "\n".join(["%s %s" % (item.key, item.value) for item in self._configs])
 
 
 class RcLocalScriptFile(ConfigFile):
-    RC_LOCAL_SCRIPT_FILE = '/etc/rc.local'
+    RC_LOCAL_SCRIPT_FILE = "/etc/rc.local"
 
     def __init__(self, script: model.system.RcLocalScript):
         super(RcLocalScriptFile, self).__init__()
@@ -312,25 +312,25 @@ class RcLocalScriptFile(ConfigFile):
 
 
 class RepositoryFile(JinjaConfFile):
-    REPOSITORY_DIRECTORY = '/etc/yum.repos.d/'
-    TEMPLATE = 'repo.jinja2'
+    REPOSITORY_DIRECTORY = "/etc/yum.repos.d/"
+    TEMPLATE = "repo.jinja2"
 
     def __init__(self, repository: model.system.Repository):
         super().__init__()
         self._repo = repository
 
     def _make_path(self):
-        file_name = '%s.repo' % self._repo.key
+        file_name = "%s.repo" % self._repo.key
         file_path = os.path.join(self.REPOSITORY_DIRECTORY, file_name)
         return file_path
 
     def _make_jinja_context(self):
-        return {'name': self._repo.key, 'url': self._repo.value}
+        return {"name": self._repo.key, "url": self._repo.value}
 
 
 class RouteGenericFile(JinjaConfFile):
-    ROUTE_DIRECTORY = '/etc/sysconfig/network-scripts/'
-    TEMPLATE = 'route.jinja2'
+    ROUTE_DIRECTORY = "/etc/sysconfig/network-scripts/"
+    TEMPLATE = "route.jinja2"
 
     def __init__(self, routes: List[net_model.RouteGeneric]):
         super().__init__()
@@ -341,25 +341,25 @@ class RouteGenericFile(JinjaConfFile):
         raise NotImplementedError
 
     def _make_jinja_context(self):
-        return {'routes': self._routes}
+        return {"routes": self._routes}
 
 
 class Route4File(RouteGenericFile):
     def _make_path(self):
-        file_name = 'route-%s' % self._interface.name
+        file_name = "route-%s" % self._interface.name
         file_path = os.path.join(self.ROUTE_DIRECTORY, file_name)
         return file_path
 
 
 class Route6File(RouteGenericFile):
     def _make_path(self):
-        file_name = 'route6-%s' % self._interface.name
+        file_name = "route6-%s" % self._interface.name
         file_path = os.path.join(self.ROUTE_DIRECTORY, file_name)
         return file_path
 
 
 class KDump(ConfigFile):
-    CONFIG_FILENAME = '/etc/kdump.conf'
+    CONFIG_FILENAME = "/etc/kdump.conf"
 
     def __init__(self, opts: List[model.system.KDumpOption]):
         super(KDump, self).__init__()
@@ -369,15 +369,15 @@ class KDump(ConfigFile):
         return self.CONFIG_FILENAME
 
     def _make_content(self):
-        return '\n'.join(['%s %s' % (item.key, item.value) for item in self._opts])
+        return "\n".join(["%s %s" % (item.key, item.value) for item in self._opts])
 
 
 class GuestTap(JinjaConfFile):
-    FILE_TEMP_DIRECTORY = '/tmp/taps/'
+    FILE_TEMP_DIRECTORY = "/tmp/taps/"
     TEMPLATE_MAPPING = {
-        net_model.BridgeGuestTap: 'bridge_tap.jinja2',
-        net_model.OVSGuestTap: 'ovs_tap.jinja2',
-        net_model.OVSGuestVlanTap: 'ovs_vlan_tap.jinja2',
+        net_model.BridgeGuestTap: "bridge_tap.jinja2",
+        net_model.OVSGuestTap: "ovs_tap.jinja2",
+        net_model.OVSGuestVlanTap: "ovs_vlan_tap.jinja2",
     }
 
     def __init__(self, tap: net_model.GenericGuestTap):
@@ -390,11 +390,11 @@ class GuestTap(JinjaConfFile):
         return file_path
 
     def _make_jinja_context(self):
-        return {'tap': self.tap}
+        return {"tap": self.tap}
 
 
 class HostnameConfFile(ConfigFile):
-    HOSTNAME_CONF_FILE = '/etc/hostname'
+    HOSTNAME_CONF_FILE = "/etc/hostname"
 
     def __init__(self, hostname: str):
         super().__init__()
@@ -404,12 +404,12 @@ class HostnameConfFile(ConfigFile):
         return self.HOSTNAME_CONF_FILE
 
     def _make_content(self):
-        return '%s\n' % self._hostname
+        return "%s\n" % self._hostname
 
 
 class ChronyConf(JinjaConfFile):
-    CONFIG_FILENAME = '/etc/chrony.conf'
-    TEMPLATE = 'chrony.jinja2'
+    CONFIG_FILENAME = "/etc/chrony.conf"
+    TEMPLATE = "chrony.jinja2"
 
     def __init__(self, servers: List[model.system.NTPServer]):
         super().__init__()
@@ -419,11 +419,11 @@ class ChronyConf(JinjaConfFile):
         return self.CONFIG_FILENAME
 
     def _make_jinja_context(self):
-        return {'servers': self._servers}
+        return {"servers": self._servers}
 
 
 class DockerDaemonJson(ConfigFile):
-    DOCKER_DAEMON_FILE = '/etc/docker/daemon.json'
+    DOCKER_DAEMON_FILE = "/etc/docker/daemon.json"
 
     def __init__(self, settings: model.docker.DockerDaemonSettings):
         super().__init__()
@@ -443,19 +443,19 @@ class DockerDaemonJson(ConfigFile):
 
     def _load_content(self):
         if os.path.exists(self.DOCKER_DAEMON_FILE):
-            with open(self.DOCKER_DAEMON_FILE, 'r') as json_file:
+            with open(self.DOCKER_DAEMON_FILE, "r") as json_file:
                 return json.load(json_file)
         else:
             return {}
 
     def update(self):
-        logger.info('Updating docker daemon file')
-        logger.info('New content: {}'.format(self._new_content))
+        logger.info("Updating docker daemon file")
+        logger.info("New content: {}".format(self._new_content))
         Fs.write_to_path(self._make_path(), self._new_content)
 
 
 class KernelModuleConf(ConfigFile, ABC):
-    CONF_DIR: str = ''
+    CONF_DIR: str = ""
 
     def __init__(self, mod: model.system.KernelModule):
         super().__init__()
@@ -466,15 +466,15 @@ class KernelModuleConf(ConfigFile, ABC):
 
 
 class KernelLoadModuleConfig(KernelModuleConf):
-    CONF_DIR = '/etc/modules-load.d/'
+    CONF_DIR = "/etc/modules-load.d/"
 
     def _make_content(self):
         return self.mod.name
 
 
 class KernelModuleOptions(KernelModuleConf, JinjaConfFile):
-    CONF_DIR = '/etc/modprobe.d/'
-    TEMPLATE = 'kernel_options.jinja2'
+    CONF_DIR = "/etc/modprobe.d/"
+    TEMPLATE = "kernel_options.jinja2"
 
     def _make_jinja_context(self):
-        return {'mod': self.mod}
+        return {"mod": self.mod}

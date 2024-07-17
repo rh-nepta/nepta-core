@@ -20,12 +20,12 @@ def catch_and_log_exception(f):
             return f(*args, **kwargs)
         except Exception as e:
             logger.error(f'An error {e} occurred during test execution. iPerf3 output is :')
-            if hasattr(args[1], '__iter__'):
+            if hasattr(args[1], "__iter__"):
                 for test in args[1]:
                     logger.error(test.get_json_out())
             else:
                 logger.error(args[1].get_json_out())
-            logger.error('Traceback of catch exception :')
+            logger.error("Traceback of catch exception :")
             logger.error(traceback.print_exc(file=sys.stdout))
         return OrderedDict()
 
@@ -41,7 +41,7 @@ class GenericIPerf3Stream(object):
     @staticmethod
     def log_iperf3_error(out_json):
         try:
-            logger.error(out_json['error'])
+            logger.error(out_json["error"])
         except KeyError:
             pass
 
@@ -51,11 +51,11 @@ class GenericIPerf3Stream(object):
 
     @staticmethod
     def str_round(num, decimal=2):
-        return '{:.{}f}'.format(num, decimal)
+        return "{:.{}f}".format(num, decimal)
 
     @property
     def num_instances(self) -> int:
-        return len(getattr(self, 'cpu_pinning', []))
+        return len(getattr(self, "cpu_pinning", []))
 
 
 #######################################################################################################################
@@ -69,9 +69,9 @@ class Iperf3Stream(GenericIPerf3Stream, SingleStreamGeneric):
             client=path.their_ip.ip, bind=path.mine_ip.ip, time=self.test_length, len=size, interval=self.interval
         )
         if path.cpu_pinning:
-            iperf_test.affinity = ','.join([str(x) for x in path.cpu_pinning[0]])
+            iperf_test.affinity = ",".join([str(x) for x in path.cpu_pinning[0]])
         elif self.cpu_pinning:
-            iperf_test.affinity = ','.join([str(x) for x in self.cpu_pinning[0]])
+            iperf_test.affinity = ",".join([str(x) for x in self.cpu_pinning[0]])
         return iperf_test
 
     @info_log_func_output
@@ -103,18 +103,18 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
                 interval=self.interval,
                 parallel=self.parallel,
             )
-            new_test.affinity = ','.join([str(x) for x in cpu_pinning])
+            new_test.affinity = ",".join([str(x) for x in cpu_pinning])
             tests.append(new_test)
 
         tests.append(
-            MPStat(interval=self.test_length, count=1, cpu_list=','.join([str(x[0]) for x in cpu_pinning_list]))
+            MPStat(interval=self.test_length, count=1, cpu_list=",".join([str(x[0]) for x in cpu_pinning_list]))
         )
         tests.append(
             RemoteMPStat(
                 host=path.their_ip.ip,
                 interval=self.test_length,
                 count=1,
-                cpu_list=','.join([str(x[1]) for x in cpu_pinning_list]),
+                cpu_list=",".join([str(x[1]) for x in cpu_pinning_list]),
             )
         )
 
@@ -130,7 +130,7 @@ class Iperf3MultiStream(GenericIPerf3Stream, MultiStreamsGeneric):
         total.add_mpstat_sum(*mpstats)
         total.set_data_formatter(self.str_round)
 
-        result_dict = OrderedDict({'total_' + key: value for key, value in total})
+        result_dict = OrderedDict({"total_" + key: value for key, value in total})
         return result_dict
 
 
@@ -157,7 +157,7 @@ class Iperf3DuplexStream(DuplexStreamGeneric, Iperf3MultiStream):
 
         total = stream_test_result + reversed_test_result
         total.add_mpstat_sum(*mpstats)
-        result_dict['up_throughput'] = stream_test_result['throughput']
-        result_dict['down_throughput'] = reversed_test_result['throughput']
-        result_dict.update({'total_' + key: value for key, value in total})
+        result_dict["up_throughput"] = stream_test_result["throughput"]
+        result_dict["down_throughput"] = reversed_test_result["throughput"]
+        result_dict.update({"total_" + key: value for key, value in total})
         return result_dict

@@ -16,7 +16,7 @@ class Synchronize(Strategy):
 
     @Strategy.schedule
     def sync(self):
-        logger.info('synchronizing for condition %s' % self.condition)
+        logger.info("synchronizing for condition %s" % self.condition)
         sync_hosts = self.configuration.get_subset(m_class=SyncHost)
         hostnames = [host.hostname for host in sync_hosts]
         self.synchronizer.barier(hostnames, self.condition)

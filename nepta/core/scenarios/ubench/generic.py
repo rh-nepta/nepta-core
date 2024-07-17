@@ -47,16 +47,16 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
     def __str__(self):
         ret_str = super().__str__()
         for k, v in self.__dict__.items():
-            ret_str += '\n\t{}: {}'.format(k, v)
+            ret_str += "\n\t{}: {}".format(k, v)
         return ret_str
 
     def run_scenario(self) -> Tuple[Section, bool]:
-        logger.info('Running UBench scenario: %s' % self)
+        logger.info("Running UBench scenario: %s" % self)
 
-        root_section = Section('scenario')
+        root_section = Section("scenario")
         self.store_scenario(root_section)
 
-        paths_section = Section('paths')
+        paths_section = Section("paths")
         root_section.subsections.append(paths_section)
 
         for path in self.paths:
@@ -65,7 +65,7 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
         logger.info(f'Summary {self}')
         for tags, instances in self.summary.items():
             logger.info(tags)
-            logger.info('Instances\tThroughput\t\tLocal util\t\tRemote util')
+            logger.info("Instances\tThroughput\t\tLocal util\t\tRemote util")
             for k, v in instances.items():
                 logger.info(
                     f'{k} instance\tmean {v[0]}\tstdev {v[1]}\tmean {v[2]}\tstdev {v[3]}\tmean {v[4]}\tstdev {v[5]}'
@@ -74,32 +74,32 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
         return root_section, True
 
     def store_scenario(self, section: Section):
-        section.params['scenario_name'] = self.__class__.__name__
-        section.params['uuid'] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
+        section.params["scenario_name"] = self.__class__.__name__
+        section.params["uuid"] = uuid.uuid5(uuid.NAMESPACE_DNS, self.__class__.__name__)
         return section
 
     def store_path(self, section: Section, path):
         section.params.update(path.dict())
-        hw_inv_sec = Section('hardware_inventory')
-        sw_inv_sec = Section('software_inventory')
+        hw_inv_sec = Section("hardware_inventory")
+        sw_inv_sec = Section("software_inventory")
 
         for tag in path.hw_inventory:
-            hw_inv_sec.subsections.append(Section('tag', value=tag))
+            hw_inv_sec.subsections.append(Section("tag", value=tag))
 
         for tag in path.sw_inventory:
-            sw_inv_sec.subsections.append(Section('tag', value=tag))
+            sw_inv_sec.subsections.append(Section("tag", value=tag))
 
         section.subsections.append(hw_inv_sec)
         section.subsections.append(sw_inv_sec)
         return section
 
     def run_path(self, path: UBenchPath):
-        logger.info('Running UBenchPath: %s' % path)
+        logger.info("Running UBenchPath: %s" % path)
 
-        path_section = Section('path')
+        path_section = Section("path")
         self.store_path(path_section, path)
 
-        test_cases_section = Section('test_cases')
+        test_cases_section = Section("test_cases")
         path_section.subsections.append(test_cases_section)
 
         self.summary[str(path.tags)] = {}
@@ -110,8 +110,8 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
         return path_section
 
     def run_streams(self, path: UBenchPath, cpu_pinning, irq_settings):
-        test_case_section = Section('test_case')
-        runs_section = Section('runs')
+        test_case_section = Section("test_case")
+        runs_section = Section("runs")
 
         self.store_stream(test_case_section, cpu_pinning)
         test_case_section.subsections.append(runs_section)
@@ -148,13 +148,13 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
         return test_case_section
 
     def store_stream(self, section, cpu_pinning):
-        section.params['uuid'] = uuid.uuid5(
-            uuid.NAMESPACE_DNS, 'affinity=%s test_length=%s' % (cpu_pinning, self.test_length)
+        section.params["uuid"] = uuid.uuid5(
+            uuid.NAMESPACE_DNS, "affinity=%s test_length=%s" % (cpu_pinning, self.test_length)
         )
-        test_settings_sec = Section('test_settings')
-        test_settings_sec.subsections.append(Section('item', key='affinity', value=cpu_pinning))
-        test_settings_sec.subsections.append(Section('item', key='streams', value=len(cpu_pinning)))
-        test_settings_sec.subsections.append(Section('item', key='test_length', value=self.test_length))
+        test_settings_sec = Section("test_settings")
+        test_settings_sec.subsections.append(Section("item", key="affinity", value=cpu_pinning))
+        test_settings_sec.subsections.append(Section("item", key="streams", value=len(cpu_pinning)))
+        test_settings_sec.subsections.append(Section("item", key="test_length", value=self.test_length))
         section.subsections.append(test_settings_sec)
         return section
 
@@ -175,27 +175,27 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
             if success:
                 break
 
-            logger.info('Measurements were unsuccessful. Trying again...')
+            logger.info("Measurements were unsuccessful. Trying again...")
             for test in tests:
                 test.clear()
             time.sleep(self.retry_pause)
 
         else:  # if every attempt fails
-            logger.error('All measurements failed. Returning results with zeros.')
+            logger.error("All measurements failed. Returning results with zeros.")
             self.result = False
-            return Section('failed-test')
+            return Section("failed-test")
 
-        return self.store_instance(Section('run'), tests)
+        return self.store_instance(Section("run"), tests)
 
     def store_instance(self, section, tests):
         for k, v in self.parse_all_results(tests).items():
-            if k == 'throughput':
+            if k == "throughput":
                 self.throughputs.append(float(v))
-            elif k == 'local_cpu':
+            elif k == "local_cpu":
                 self.local_cpu_utils.append(float(v))
-            elif k == 'remote_cpu':
+            elif k == "remote_cpu":
                 self.remote_cpu_utils.append(float(v))
-            section.subsections.append(Section('item', key=k, value=v))
+            section.subsections.append(Section("item", key=k, value=v))
         return section
 
     def init_all_tests(self, path, cpu_pinning):
@@ -213,11 +213,11 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
             if self.message_size:
                 test.len = self.message_size
             if affinity:
-                test.affinity = ','.join([str(x) for x in affinity])
+                test.affinity = ",".join([str(x) for x in affinity])
             tests.append(test)
-        tests.append(MPStat(interval=self.test_length, count=1, cpu_list='ALL'))
+        tests.append(MPStat(interval=self.test_length, count=1, cpu_list="ALL"))
 
-        tests.append(RemoteMPStat(host=path.their_ip.ip, interval=self.test_length, count=1, cpu_list='ALL'))
+        tests.append(RemoteMPStat(host=path.their_ip.ip, interval=self.test_length, count=1, cpu_list="ALL"))
 
         return tests
 
@@ -239,8 +239,8 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
 
         result = {key: value for key, value in total}
 
-        result['local_efficiency'] = str(float(result['throughput']) / (total_local_cpu_loads / 100))
-        result['remote_efficiency'] = str(float(result['throughput']) / (total_remote_cpu_loads / 100))
+        result["local_efficiency"] = str(float(result["throughput"]) / (total_local_cpu_loads / 100))
+        result["remote_efficiency"] = str(float(result["throughput"]) / (total_remote_cpu_loads / 100))
 
         # pretty print cpu stats
         logger.info(f'Local mpstat:\n{json.dumps(local_cpu_loads, indent=2)}')
@@ -250,8 +250,8 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
 
     def cpu_loads(self, mpstat_test):
         data = mpstat_test.parse_json()
-        cpu_loads = data['sysstat']['hosts'][0]['statistics'][-1][
-            'cpu-load'
+        cpu_loads = data["sysstat"]["hosts"][0]["statistics"][-1][
+            "cpu-load"
         ]  # always use the last one, might be first in some cases ;)
         return cpu_loads
 
@@ -259,7 +259,7 @@ class UBenchGeneric(GenericIPerf3Stream, ScenarioGeneric):
         # mpstat with all statistics used to calculate efficiency
         total_load = 0
         for load in cpu_loads:
-            total_load += 100 - load['idle']
+            total_load += 100 - load["idle"]
         return total_load
 
 
