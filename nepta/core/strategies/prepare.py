@@ -138,7 +138,7 @@ class Prepare(Strategy):
             logger.info(f'Checking interface {interface} for ESP packets.')
             if (
                 TcpDump.count(
-                    "esp",
+                    "esp or udp port 4500",
                     timeout=int(self.IPSEC_PING_COUNT * self.IPSEC_PING_INTERVAL),
                     interface=interface,
                 )
