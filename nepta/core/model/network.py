@@ -416,13 +416,13 @@ class IPsecTunnel:
             SoftwareInventoryTag(self.mode.value.capitalize()),
         ]
         if self.encapsulation == self.Encapsulation.YES:
-            tags.append(SoftwareInventoryTag('NatTraversal'))
+            tags.append(SoftwareInventoryTag("NatTraversal"))
         if self.replay_window:
-            tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
+            tags.append(SoftwareInventoryTag("ReplayWindow", self.replay_window))
         if self.nic_offload != self.Offload.NO:
-            tags.append(SoftwareInventoryTag('NicOffload-yes'))
+            tags.append(SoftwareInventoryTag("NicOffload-yes"))
         if self.esn:
-            tags.append(SoftwareInventoryTag('ESN', self.esn.value))
+            tags.append(SoftwareInventoryTag("ESN", self.esn.value))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
 

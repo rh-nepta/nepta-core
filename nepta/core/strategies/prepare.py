@@ -117,7 +117,7 @@ class Prepare(Strategy):
             logger.error(
                 f'IPsec tunnel count mismatch: {len(tunnels) * 2} tunnels expected, {IpCommand.Xfrm.number_of_tunnel()} found.'
             )
-            raise RuntimeError('IPsec tunnel count mismatch')
+            raise RuntimeError("IPsec tunnel count mismatch")
 
     @Strategy.schedule
     def check_ipsec_encryption(self):
