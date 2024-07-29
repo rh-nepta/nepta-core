@@ -384,7 +384,7 @@ class IPsecTunnel:
         return (
             f'IPSec {self.family} tunnel {self.left_ip} <=> {self.right_ip}, [{self.phase2.value}], '
             f'cipher: {self.cipher}, mode: {self.mode.value}, replay-window: {replay_window_str}, '
-            f'nat-traversal: {self.encapsulation.value}, nic-offload {self.nic_offload.value}'
+            f'nat-traversal: {self.encapsulation.value}, nic-offload {self.nic_offload.value}, esn {self.esn},'
         )
 
     @property
@@ -416,11 +416,13 @@ class IPsecTunnel:
             SoftwareInventoryTag(self.mode.value.capitalize()),
         ]
         if self.encapsulation == self.Encapsulation.YES:
-            tags.append(SoftwareInventoryTag("NatTraversal"))
+            tags.append(SoftwareInventoryTag('NatTraversal'))
         if self.replay_window:
-            tags.append(SoftwareInventoryTag("ReplayWindow", self.replay_window))
+            tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
         if self.nic_offload != self.Offload.NO:
-            tags.append(SoftwareInventoryTag("NicOffload-yes"))
+            tags.append(SoftwareInventoryTag('NicOffload-yes'))
+        if self.esn:
+            tags.append(SoftwareInventoryTag('ESN', self.esn.value))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
 
