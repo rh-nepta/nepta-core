@@ -147,6 +147,7 @@ class Prepare(Strategy):
                 logger.error(f'No ESP packets found for tunnel {tunnel}')
                 raise RuntimeError("No ESP packets found")
 
+    @Strategy.schedule
     def run_shell_commands(self):
         commands = self.conf.get_subset(m_class=model.system.PrepareCommand)
         for cmd in commands:
