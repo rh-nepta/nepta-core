@@ -1,6 +1,7 @@
 from unittest import TestCase, skip
 import os
 
+from nepta.core.distribution.utils.perf import Perf
 from nepta.core.distribution.utils.network import IpCommand
 from nepta.core.distribution.utils.system import TimeDateCtl
 from nepta.core.model.system import TimeZone
@@ -41,3 +42,20 @@ class IpCmdTest(TestCase):
 
         IpCommand.Xfrm.state = lambda: ''
         self.assertEqual(IpCommand.Xfrm.number_of_tunnel(), 0, 'Number of tunnels should be 0')
+
+
+class PerfTest(TestCase):
+    PERF_FILE = os.path.join(CUR_DIR, 'perf_ping', 'test.perf')
+    EXPECTED_FOLD_FILE = os.path.join(CUR_DIR, 'perf_ping', 'test.perf-folded')
+
+    def test_fold_output(self):
+        import ipdb
+
+        output_file = self.PERF_FILE + '-folded-test'
+        ipdb.set_trace()
+        Perf.fold_output(self.PERF_FILE, output_file)
+        with open(output_file) as f:
+            out = f.read()
+        with open(self.EXPECTED_FOLD_FILE) as f:
+            expected = f.read()
+        self.assertEqual(out, expected)
