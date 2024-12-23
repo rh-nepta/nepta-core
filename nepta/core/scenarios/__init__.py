@@ -43,6 +43,8 @@ from .ubench.generic import UBenchBest
 from .ubench.generic import UBenchNeighbour
 from .ubench.generic import UBenchUnpinned
 
+from .perun.iperf3 import Iperf3TCPStreamPerun, Iperf3TCPReversedPerun
+
 
 def get_scenario_by_name(scenario_name):
     scenario_class = None
