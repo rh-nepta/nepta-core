@@ -18,7 +18,7 @@ class Perf:
 
     @classmethod
     def record(cls, command: str, output_file: str, extra_options: Optional[str] = None):
-        record_command = ShellCommand(f'perf {extra_options} record -o {output_file} {command}')
+        record_command = ShellCommand(f'perf record {extra_options} -o {output_file} {command}', stderr=None)
         record_command.run()
         return record_command.watch_output()
 

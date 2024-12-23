@@ -15,13 +15,14 @@ class Command(object):
         -> out, ret_code = cmd.get_output()
     """
 
-    def __init__(self, cmdline, enable_debug_log=True, host=None):
+    def __init__(self, cmdline, enable_debug_log=True, host=None, stderr=subprocess.STDOUT):
         if host is not None:
             cmdline = f'ssh -o LogLevel=ERROR {host} {cmdline}'
 
         self._cmdline = cmdline.split()
         self._command_handle = None
         self.enable_debug = enable_debug_log
+        self.stderr = stderr
 
     def __str__(self):
         return "{cls}: {cmd}".format(cls=self.__class__.__name__, cmd=self._cmd_str())
@@ -44,7 +45,7 @@ class Command(object):
 
     def run(self):
         self.log_debug("Running %s", self)
-        self._command_handle = subprocess.Popen(self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        self._command_handle = subprocess.Popen(self._cmdline, stdout=subprocess.PIPE, stderr=self.stderr)
         return self
 
     def wait(self):
@@ -118,7 +119,5 @@ class ShellCommand(Command):
 
     def run(self):
         self.log_debug("Running command: %s", self._cmdline)
-        self._command_handle = subprocess.Popen(
-            self._cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
-        )
+        self._command_handle = subprocess.Popen(self._cmdline, stdout=subprocess.PIPE, stderr=self.stderr, shell=True)
         return self
