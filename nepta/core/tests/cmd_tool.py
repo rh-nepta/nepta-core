@@ -109,7 +109,7 @@ class CommandTool(object):
         """
         Execute current command.
         """
-        self._cmd = Command(self._make_cmd())
+        self._cmd = Command(self._make_cmd(), stderr=None)
         self._cmd.run()
         return self
 
