@@ -133,7 +133,7 @@ style = [
 ]
 fmt = [
   "black {args:.}",
-  "ruff --fix check {args:.}",
+  "ruff check --fix {args:.}",
   "style",
 ]
 
