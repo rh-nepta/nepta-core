@@ -37,3 +37,29 @@ class Iperf3TCPReversedPerun(Iperf3TCPStreamPerun):
         iperf_test = super().init_test(path, size)
         iperf_test.reverse = True
         return iperf_test
+
+
+class Iperf3TCPMultiStreamPerun(PerunMixin, Iperf3TCPMultiStream):
+
+    def init_all_tests(self, path, size):
+        tests = super().init_all_tests(path, size)
+        test = tests.pop(0)
+        perf_test = Iperf3Perf(
+            perun_output_file=os.path.join(self.perun_directory, f"{path.id}_{size}.perf.data"),
+            **test.__dict__,
+        )
+        perf_test.time -= 1  # subtract one second due to perf overhead
+        tests.insert(0, perf_test)
+        return tests
+
+    def store_instance(self, section, tests):
+        section.subsections.append(Section("item", key="perun_data", value=tests[0].perun_output_file))
+        return super().store_instance(section, tests)
+
+
+class Iperf3TCPMultiStreamReversedPerun(Iperf3TCPMultiStreamPerun):
+    def init_all_tests(self, path, size):
+        tests = super().init_all_tests(path, size)
+        for t in tests:
+            t.reverse = True
+        return tests

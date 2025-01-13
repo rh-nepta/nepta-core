@@ -2,7 +2,7 @@ import inspect
 import sys
 from . import netperf
 
-from .generic.scenario import ScenarioGeneric
+from .generic.scenario import ScenarioGeneric, SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
 from .generic.interrupts import IRQBalanceCheck
 
 # Standard streams
@@ -43,7 +43,12 @@ from .ubench.generic import UBenchBest
 from .ubench.generic import UBenchNeighbour
 from .ubench.generic import UBenchUnpinned
 
-from .perun.iperf3 import Iperf3TCPStreamPerun, Iperf3TCPReversedPerun
+from .perun.iperf3 import (
+    Iperf3TCPStreamPerun,
+    Iperf3TCPReversedPerun,
+    Iperf3TCPMultiStreamPerun,
+    Iperf3TCPMultiStreamReversedPerun,
+)
 
 
 def get_scenario_by_name(scenario_name):
