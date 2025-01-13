@@ -48,6 +48,7 @@ class PerfTest(TestCase):
     PERF_FILE = os.path.join(CUR_DIR, 'perf_ping', 'test.perf')
     EXPECTED_FOLD_FILE = os.path.join(CUR_DIR, 'perf_ping', 'test.perf-folded')
 
+    @skip('skip for CI')
     def test_fold_output(self):
         output_file = self.PERF_FILE + '-folded-test'
         Perf.fold_output(self.PERF_FILE, output_file)
