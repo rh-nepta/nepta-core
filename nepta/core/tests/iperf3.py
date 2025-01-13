@@ -258,7 +258,7 @@ class Iperf3MPStat(Iperf3Test):
 
 class Iperf3Perf(Iperf3Test):
 
-    def __init__(self, perun_output_file: str = None, **kwargs):
+    def __init__(self, perun_output_file: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
         self.perun_output_file = perun_output_file
 
