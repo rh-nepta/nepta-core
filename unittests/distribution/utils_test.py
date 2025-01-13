@@ -49,10 +49,7 @@ class PerfTest(TestCase):
     EXPECTED_FOLD_FILE = os.path.join(CUR_DIR, 'perf_ping', 'test.perf-folded')
 
     def test_fold_output(self):
-        import ipdb
-
         output_file = self.PERF_FILE + '-folded-test'
-        ipdb.set_trace()
         Perf.fold_output(self.PERF_FILE, output_file)
         with open(output_file) as f:
             out = f.read()
