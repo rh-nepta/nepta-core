@@ -214,7 +214,7 @@ class Iperf3Test(Iperf3Server):
         """
         Execute current command with no debug logs.
         """
-        self._cmd = Command(self._make_cmd(), enable_debug_log=False)
+        self._cmd = Command(self._make_cmd(), stderr=None, enable_debug_log=False)
         self._cmd.run()
 
     def get_json_out(self) -> dict:
@@ -254,3 +254,13 @@ class Iperf3MPStat(Iperf3Test):
         result = super(Iperf3MPStat, self).get_result()
         result.add_mpstat(self._loc_mpstat, self._rem_mpstat)
         return result
+
+
+class Iperf3Perf(Iperf3Test):
+
+    def __init__(self, perun_output_file: Optional[str] = None, **kwargs):
+        super().__init__(**kwargs)
+        self.perun_output_file = perun_output_file
+
+    def _make_cmd(self):
+        return f"perf record --call-graph fp -a -o {self.perun_output_file}  {super(Iperf3Perf, self)._make_cmd()}"

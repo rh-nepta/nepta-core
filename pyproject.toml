@@ -41,6 +41,7 @@ Source = "https://github.com/rh-nepta/nepta-core"
 [project.scripts]
 nepta = 'nepta.core.__main__:main'
 reportVulnerabilities = "nepta.core.scripts.wrapper:main"
+generate_machine_info = "nepta.core.scripts.wrapper:main"
 
 [tool.hatch.version]
 source = "vcs"
@@ -132,7 +133,7 @@ style = [
 ]
 fmt = [
   "black {args:.}",
-  "ruff --fix check {args:.}",
+  "ruff check --fix {args:.}",
   "style",
 ]
 
