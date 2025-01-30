@@ -1,4 +1,7 @@
-image: quay.io/perfqe/nepta-env:latest
+default:
+  image: quay.io/perfqe/nepta-env:latest
+  tags:
+    - shared-podman
 
 include: 
   - project: kernel-performance/perfqe-gitlab-ci-templates
@@ -11,8 +14,6 @@ stages:
   - publish
 
 pytest:
-  tags:
-    - docker
   stage: pytest
   script: hatch run all:test
   artifacts:
@@ -21,27 +22,19 @@ pytest:
       junit: report*.xml
 
 print-conf:
-  tags:
-    - docker
   stage: pytest
   script: hatch run print
 
 code-style:
-  tags:
-    - docker
   stage: code-style
   script: hatch run lint:style nepta
 
 pytest-mypy:
-  tags:
-    - docker
   stage: mypy
   script: hatch run mypy:pytest-mypy
   allow_failure: true
 
 mypy-typing:
-  tags:
-    - docker
   stage: mypy
   script: hatch run mypy:typing
   allow_failure: true
