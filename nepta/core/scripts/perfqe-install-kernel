@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Function to print usage instructions
+usage() {
+  echo "Usage: $0 <repo_url>"
+  echo "  repo_url : URL of the repository containing the RPM package to install."
+  exit 1
+}
+
+# Check if an argument is provided
+if [ "$#" -ne 1 ]; then
+  echo "Error: Invalid number of arguments."
+  usage
+fi
+
+# Capture the repository URL
+REPO_URL=$1
+
+# Ensure the script is run as root
+if [ "$EUID" -ne 0 ]; then
+  echo "Error: This script must be run as root."
+  exit 1
+fi
+
+# Extract the repository base name for creating a .repo file
+REPO_NAME=$(basename "$REPO_URL" | sed 's/.repo$//')
+REPO_FILE="/etc/yum.repos.d/${REPO_NAME}.repo"
+
+# Create the repo file
+cat <<EOF > "$REPO_FILE"
+[${REPO_NAME}]
+name=${REPO_NAME}
+baseurl=${REPO_URL}
+enabled=1
+gpgcheck=0
+EOF
+
+# Update the package cache
+echo "Updating package cache..."
+dnf makecache
+
+# Extract the kernel package name from the repo URL
+KERNEL_PACKAGE=$(basename "$REPO_URL" | grep -o 'kernel-[^/]*' | sed 's/.repo$//')
+
+# Check if kernel package name was extracted
+if [ -z "$KERNEL_PACKAGE" ]; then
+  echo "Error: Failed to extract kernel package name from $REPO_URL."
+  exit 1
+fi
+
+# Install the kernel package
+echo "Installing $KERNEL_PACKAGE..."
+if ! dnf install -y "$KERNEL_PACKAGE"; then
+  echo "Error: Failed to install $KERNEL_PACKAGE."
+  exit 1
+fi
+
+echo "Installation of $KERNEL_PACKAGE completed successfully."
+
