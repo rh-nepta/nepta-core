@@ -25,4 +25,6 @@ class PerunMixin(StreamGeneric):
         for perf_file in pathlib.Path(self.perun_directory).rglob('*.perf.data'):
             logger.debug(f'Folding {perf_file}')
             Perf.fold_output(perf_file, f"{perf_file}.folded")
+            logger.debug(f'Deleting {perf_file}!')
+            os.remove(perf_file)
         return results
