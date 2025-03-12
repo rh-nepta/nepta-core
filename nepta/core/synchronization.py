@@ -19,7 +19,7 @@ class Synchronization(object):
 
 class NoSynchronization(Synchronization):
     def __init__(self):
-        logger.info('Synchronization is not enabled')
+        logger.info("Synchronization is not enabled")
 
     def set_sync_condition(self, condition):
         pass
@@ -33,11 +33,11 @@ class NoSynchronization(Synchronization):
 
 class BeakerSynchronization(Synchronization):
     def __init__(self):
-        logger.info('Beaker synchronization enabled')
+        logger.info("Beaker synchronization enabled")
         self._rstrnt = Rstrnt
 
     def set_sync_condition(self, condition):
-        logger.info('setting my sychronization condition to %s' % condition)
+        logger.info("setting my sychronization condition to %s" % condition)
         self._rstrnt.sync_set(condition)
 
     def sync_for_condition(self, hosts, condition):
@@ -56,16 +56,16 @@ class PerfSynchronization(Synchronization):
         self._poll_interval = poll_inerval
         self._client = synchronization.client.SyncClient(self._sync_server)
         if Environment.job_id is None:
-            raise ValueError('JOBID environment variable must be specified when using PerfSynchonization')
+            raise ValueError("JOBID environment variable must be specified when using PerfSynchonization")
         self._jobid = Environment.job_id
-        logger.info('PerfSync synchronization enabled, sync server is %s', sync_server)
+        logger.info("PerfSync synchronization enabled, sync server is %s", sync_server)
 
     def set_sync_condition(self, condition):
-        logger.info('setting my synchronization condition to %s' % condition)
+        logger.info("setting my synchronization condition to %s" % condition)
         self._client.set_state(self._jobid, condition)
 
     def sync_for_condition(self, hosts, condition):
-        logger.info('waiting for hosts %s to be in condition %s' % (hosts, condition))
+        logger.info("waiting for hosts %s to be in condition %s" % (hosts, condition))
         for host in hosts:
             self._client.wait_for_state(host, self._jobid, condition, poll=self._poll_interval)
 

@@ -115,16 +115,16 @@ class Container:
 @dataclass
 class NeptaContainer(Container):
     DEFAULT_INHERIT_ENV = [
-        'RSTRNT_JOBID',
-        'TEST',
-        'RSTRNT_OSDISTRO',
-        'RSTRNT_OSARCH',
-        'BEAKER_JOB_WHITEBOARD',
-        'LAB_CONTROLLER',
-        'BEAKER_RECIPE_ID',
-        'BEAKER_HUB_URL',
-        'TASKID',
-        'RECIPE_URL',
+        "RSTRNT_JOBID",
+        "TEST",
+        "RSTRNT_OSDISTRO",
+        "RSTRNT_OSARCH",
+        "BEAKER_JOB_WHITEBOARD",
+        "LAB_CONTROLLER",
+        "BEAKER_RECIPE_ID",
+        "BEAKER_HUB_URL",
+        "TASKID",
+        "RECIPE_URL",
     ]
 
     def __post_init__(self):

@@ -25,16 +25,16 @@ class Submit(Strategy):
 
     @Strategy.schedule
     def submit(self):
-        logger.info('Starting rsync results')
+        logger.info("Starting rsync results")
         for rsync in self.configuration.get_subset(m_class=RsyncHost):
-            logger.info('Rsyncing results to %s', ':'.join([rsync.server, rsync.destination]))
+            logger.info("Rsyncing results to %s", ":".join([rsync.server, rsync.destination]))
             c = Command(self._RSYNC_TEMPLATE.render(path=self.package.path, rsync=rsync))
             c.run()
             out, ret = c.watch_output()
             if not ret:
-                logger.info('Rsync successful')
+                logger.info("Rsync successful")
             else:
-                logger.error('Rsync failed')
+                logger.error("Rsync failed")
                 logger.error(out)
 
 
@@ -43,7 +43,7 @@ class ReliableSubmit(Submit):
     def _rsync_sender(rsync: RsyncHost, cmd: str):
         for delay in rsync.attempt_delays:
             sleep(delay * 60)
-            dest = ':'.join([rsync.server, rsync.destination])
+            dest = ":".join([rsync.server, rsync.destination])
             logger.info(
                 f'Rsyncing results to {dest}',
             )
@@ -64,7 +64,7 @@ class ReliableSubmit(Submit):
 
     @Strategy.schedule
     def submit(self):
-        logger.info('Starting reliable rsyncing results to servers')
+        logger.info("Starting reliable rsyncing results to servers")
         rsyncs = list(self.configuration.get_subset(m_class=RsyncHost))
 
         with Pool(len(rsyncs)) as p:
@@ -73,4 +73,4 @@ class ReliableSubmit(Submit):
                 [(rsync, self._RSYNC_TEMPLATE.render(rsync=rsync, path=self.package.path)) for rsync in rsyncs],
             )
 
-        logging.debug('Quitting reliable rsyncing results to servers')
+        logging.debug("Quitting reliable rsyncing results to servers")

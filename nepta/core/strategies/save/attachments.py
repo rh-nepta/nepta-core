@@ -25,7 +25,7 @@ class SaveAttachments(Strategy):
             try:
                 if isinstance(attach, attachments.Url):
                     url_response = urllib.request.urlopen(attach.url)
-                    url_content = url_response.read().decode('ISO-8859-1')
+                    url_content = url_response.read().decode("ISO-8859-1")
                     url_attachment = self.package.attachments.new(
                         AttachmentTypes.URL, attach.url, attach.alias, attach.compression
                     )

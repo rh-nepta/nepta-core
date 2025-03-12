@@ -11,7 +11,7 @@ class GenericTag:
 
     def __repr__(self):
         if self.value:
-            return '{}-{}'.format(self.name, self.value)
+            return "{}-{}".format(self.name, self.value)
         else:
             return self.name
 
@@ -20,14 +20,14 @@ class GenericTag:
             raise NotImplementedError
         return self.name == other.name and self.value == other.value
 
-    def __lt__(self, other: 'GenericTag'):
+    def __lt__(self, other: "GenericTag"):
         return self.__repr__() < other.__repr__()
 
     def __str__(self):
         return self.__repr__()
 
     def __add__(self, other):
-        return self.__class__('{}-{}'.format(self.__repr__(), other.__repr__()))
+        return self.__class__("{}-{}".format(self.__repr__(), other.__repr__()))
 
 
 class HardwareInventoryTag(GenericTag):

@@ -14,7 +14,7 @@ class Strategy:
     on child classes of Strategy class.
     """
 
-    SCHEDULE_ATTR = '_scheduled'
+    SCHEDULE_ATTR = "_scheduled"
     METHOD_COUNTER = itertools.count()
     METHOD_INDEX: Dict[str, int] = {}
 
@@ -98,7 +98,7 @@ class CompoundStrategy:
             strategy()
 
     @classmethod
-    def sum(cls, strategies: Sequence[Strategy]) -> 'CompoundStrategy':
+    def sum(cls, strategies: Sequence[Strategy]) -> "CompoundStrategy":
         compound = cls()
         for s in strategies:
             compound += s

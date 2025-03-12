@@ -14,7 +14,7 @@ class PackagesStrategy(Strategy):
 
 
 class Save(PackagesStrategy):
-    SYMLINK_NAME = '/root/result'
+    SYMLINK_NAME = "/root/result"
 
     @Strategy.schedule
     def save(self):

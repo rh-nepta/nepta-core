@@ -44,7 +44,7 @@ class NetFormatter(ipaddress._BaseNetwork):
         self._ip_gen = self.hosts()
 
     def new_addr(self) -> IpInterface:
-        return ipaddress.ip_interface('{ip}/{prefix}'.format(ip=next(self._ip_gen), prefix=self.prefixlen))
+        return ipaddress.ip_interface("{ip}/{prefix}".format(ip=next(self._ip_gen), prefix=self.prefixlen))
 
     def new_addresses(self, n: int) -> List[IpInterface]:
         return [self.new_addr() for _ in range(n)]
@@ -68,14 +68,14 @@ class NetperfNet6(NetFormatter, ipaddress.IPv6Network):
 
 
 class Interface:
-    _UUID_NAMESPACE = UUID('139c4235-0719-4df9-9b24-851654118d38')
+    _UUID_NAMESPACE = UUID("139c4235-0719-4df9-9b24-851654118d38")
 
     def __init__(
         self,
         name: str,
         v4_conf: Optional[IPv4Configuration] = None,
         v6_conf: Optional[IPv6Configuration] = None,
-        master_bridge: Optional['LinuxBridge'] = None,
+        master_bridge: Optional["LinuxBridge"] = None,
         mtu: int = 1500,
     ):
         self.name = name
@@ -87,8 +87,8 @@ class Interface:
 
     def __str__(self):
         attrs = dict(self.__dict__)
-        v4 = attrs.pop('v4_conf')
-        v6 = attrs.pop('v6_conf')
+        v4 = attrs.pop("v4_conf")
+        v6 = attrs.pop("v6_conf")
         return f'{self.__class__.__name__} >> {attrs}\n\tv4_conf: {v4}\n\tv6_conf: {v6}'
 
     def __repr__(self):
@@ -101,21 +101,21 @@ class Interface:
     def uuid(self) -> UUID:
         return uuid5(self._UUID_NAMESPACE, str(self))
 
-    def add_route(self, route: 'RouteGeneric'):
+    def add_route(self, route: "RouteGeneric"):
         self._routes[route.__class__.__name__].append(route)
 
-    def del_route(self, route: 'RouteGeneric'):
+    def del_route(self, route: "RouteGeneric"):
         self._routes[route.__class__.__name__].remove(route)
 
 
 class EthernetInterface(Interface):
     class Duplex(Enum):
-        HALF = 'half'
-        FULL = 'full'
+        HALF = "half"
+        FULL = "full"
 
     class Negotiation(Enum):
-        ON = 'on'
-        OFF = 'off'
+        ON = "on"
+        OFF = "off"
 
     def __init__(
         self,
@@ -138,7 +138,7 @@ class EthernetInterface(Interface):
 
     @property
     def ethtool_opts(self) -> str:
-        result = ''
+        result = ""
         if self.duplex:
             result += f'duplex {self.duplex.value} '
         if self.speed:
@@ -154,9 +154,9 @@ class EthernetInterface(Interface):
     @property
     def nm_auto_neg(self) -> Optional[str]:
         if self.auto_neg == self.Negotiation.OFF:
-            return 'false'
+            return "false"
         elif self.auto_neg == self.Negotiation.ON:
-            return 'true'
+            return "true"
         else:
             return None
 
@@ -191,7 +191,7 @@ class GenericGuestTap:
 
 @dataclass(repr=False)
 class OVSGuestTap(GenericGuestTap):
-    switch: 'OVSwitch'
+    switch: "OVSwitch"
 
 
 @dataclass
@@ -204,7 +204,7 @@ class OVSGuestVlanTap(GenericGuestTap):
 
 @dataclass(repr=False)
 class BridgeGuestTap(GenericGuestTap):
-    switch: 'LinuxBridge'
+    switch: "LinuxBridge"
 
 
 class LinuxBridge(Interface):
@@ -230,14 +230,14 @@ class TeamMasterInterface(Interface):
         super().__init__(name, v4_conf, v6_conf)
         self.runner = runner
 
-    def add_interface(self, port: 'TeamChildInterface'):
+    def add_interface(self, port: "TeamChildInterface"):
         port.team = self.name
 
 
 class TeamChildInterface(EthernetInterface):
     def __init__(self, original_interface: EthernetInterface):
         super().__init__(original_interface.name, original_interface.mac)
-        self.team: str = ''
+        self.team: str = ""
 
 
 #
@@ -245,8 +245,8 @@ class TeamChildInterface(EthernetInterface):
 #
 class BondMasterInterface(Interface):
     class BondOpts(Enum):
-        LACP = 'mode=4 xmit_hash_policy=1'
-        ACT_BCKP = 'mode=1'
+        LACP = "mode=4 xmit_hash_policy=1"
+        ACT_BCKP = "mode=1"
 
     def __init__(
         self,
@@ -258,14 +258,14 @@ class BondMasterInterface(Interface):
         super().__init__(name, v4_conf, v6_conf)
         self.bond_opts = bond_opts
 
-    def add_interface(self, interface: 'BondChildInterface'):
+    def add_interface(self, interface: "BondChildInterface"):
         interface.master_bond = self.name
 
 
 class BondChildInterface(EthernetInterface):
     def __init__(self, original_interface: EthernetInterface):
         super().__init__(original_interface.name, original_interface.mac)
-        self.master_bond: str = ''
+        self.master_bond: str = ""
 
 
 class MACSecInterface(Interface):
@@ -277,7 +277,7 @@ class MACSecInterface(Interface):
         ckn: str,
         v4_conf: Optional[IPv4Configuration] = None,
         v6_conf: Optional[IPv6Configuration] = None,
-        master_bridge: Optional['LinuxBridge'] = None,
+        master_bridge: Optional["LinuxBridge"] = None,
         mtu: int = 1500,
     ):
         super().__init__(name, v4_conf, v6_conf, master_bridge, mtu)
@@ -331,7 +331,7 @@ class WireGuardTunnel:
     @property
     def tags(self):
         return [
-            SoftwareInventoryTag('WireGuard'),
+            SoftwareInventoryTag("WireGuard"),
             SoftwareInventoryTag(self.name),
         ]
 
@@ -339,26 +339,26 @@ class WireGuardTunnel:
 @dataclass
 class IPsecTunnel:
     class Mode(Enum):
-        TRANSPORT = 'transport'
-        TUNNEL = 'tunnel'
+        TRANSPORT = "transport"
+        TUNNEL = "tunnel"
 
     class Phase2(Enum):
-        ESP = 'esp'
-        AH = 'ah'
+        ESP = "esp"
+        AH = "ah"
 
     class Encapsulation(Enum):
-        YES = 'yes'
-        NO = 'no'
+        YES = "yes"
+        NO = "no"
 
     class Offload(Enum):
-        YES = 'yes'
-        NO = 'no'
-        AUTO = 'auto'
+        YES = "yes"
+        NO = "no"
+        AUTO = "auto"
 
     class Esn(Enum):
-        YES = 'yes'
-        EITHER = 'either'
-        NO = 'no'
+        YES = "yes"
+        EITHER = "either"
+        NO = "no"
 
     # IPsec tunnel attribute definition with type hints
     left_ip: IpInterface
@@ -380,7 +380,7 @@ class IPsecTunnel:
         return [cls(addr1, addr2, **prop) for addr1, addr2, prop in zip(addrs1, addrs2, properties)]
 
     def __str__(self):
-        replay_window_str = 'default' if self.replay_window is None else str(self.replay_window)
+        replay_window_str = "default" if self.replay_window is None else str(self.replay_window)
         return (
             f'IPSec {self.family} tunnel {self.left_ip} <=> {self.right_ip}, [{self.phase2.value}], '
             f'cipher: {self.cipher}, mode: {self.mode.value}, replay-window: {replay_window_str}, '
@@ -390,9 +390,9 @@ class IPsecTunnel:
     @property
     def family(self):
         if self.left_ip.version == 6:
-            return 'IPv6'
+            return "IPv6"
         else:
-            return 'IPv4'
+            return "IPv4"
 
     @property
     def name(self):
@@ -412,17 +412,17 @@ class IPsecTunnel:
     def tags(self):
         tags = [
             SoftwareInventoryTag(self.family),
-            SoftwareInventoryTag('IPsec'),
+            SoftwareInventoryTag("IPsec"),
             SoftwareInventoryTag(self.mode.value.capitalize()),
         ]
         if self.encapsulation == self.Encapsulation.YES:
-            tags.append(SoftwareInventoryTag('NatTraversal'))
+            tags.append(SoftwareInventoryTag("NatTraversal"))
         if self.replay_window:
-            tags.append(SoftwareInventoryTag('ReplayWindow', self.replay_window))
+            tags.append(SoftwareInventoryTag("ReplayWindow", self.replay_window))
         if self.nic_offload != self.Offload.NO:
-            tags.append(SoftwareInventoryTag('NicOffload-yes'))
+            tags.append(SoftwareInventoryTag("NicOffload-yes"))
         if self.esn:
-            tags.append(SoftwareInventoryTag('ESN', self.esn.value))
+            tags.append(SoftwareInventoryTag("ESN", self.esn.value))
         tags.append(SoftwareInventoryTag(self.cipher))
         return tags
 
@@ -454,12 +454,12 @@ class RouteGeneric(abc.ABC):
         pass
 
     def __str__(self):
-        return '{cls} {dest} {gw} dev {dev} metric {metric}'.format(
+        return "{cls} {dest} {gw} dev {dev} metric {metric}".format(
             cls=self.__class__.__name__,
             dev=self.interface.name,
             metric=self.metric,
             dest=self.destination,
-            gw='' if self.gw is None else f'dev {self.gw}',
+            gw="" if self.gw is None else f'dev {self.gw}',
         )
 
 
@@ -485,27 +485,27 @@ class Route6(RouteGeneric):
 class OVSwitch:
     name: str
     interfaces: List[Interface] = field(default_factory=list)
-    tunnels: List['OVSTunnel'] = field(default_factory=list)
+    tunnels: List["OVSTunnel"] = field(default_factory=list)
 
     def add_interface(self, iface: Interface):
         self.interfaces.append(iface)
 
-    def add_tunnel(self, tunnel: 'OVSTunnel'):
+    def add_tunnel(self, tunnel: "OVSTunnel"):
         self.tunnels.append(tunnel)
 
 
 @dataclass
 class OVSTunnel:
     class OVSTunnelTypes(Enum):
-        VXLAN = 'vxlan'
-        GRE = 'gre'
-        GENEVE = 'geneve'
-        GREoIPSEC = 'ipsec_gre'
+        VXLAN = "vxlan"
+        GRE = "gre"
+        GENEVE = "geneve"
+        GREoIPSEC = "ipsec_gre"
 
     name: str
     type: OVSTunnelTypes
     remote_ip: IpAddress
-    key: Any = ''
+    key: Any = ""
 
 
 class OVSIntPort(Interface):
