@@ -263,4 +263,4 @@ class Iperf3Perf(Iperf3Test):
         self.perun_output_file = perun_output_file
 
     def _make_cmd(self):
-        return f"perf record -e cpu-clock --call-graph fp -a -o {self.perun_output_file}  {super(Iperf3Perf, self)._make_cmd()}"
+        return f"perf record --call-graph fp -a -o {self.perun_output_file}  {super(Iperf3Perf, self)._make_cmd()}"
