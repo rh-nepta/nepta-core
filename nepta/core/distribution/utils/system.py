@@ -59,7 +59,7 @@ class RPMTool:
 
     @classmethod
     def get_package_version(cls, package) -> Optional[str]:
-        rpm_cmd = Command("%s -qa %s" % (cls.CMD_RPM, package))
+        rpm_cmd = Command("%s -q %s" % (cls.CMD_RPM, package))
         rpm_cmd.run()
         out, ret_code = rpm_cmd.watch_output()
         if ret_code == 0 and len(out):
