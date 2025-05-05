@@ -38,7 +38,7 @@ class Tuna:
 
     @staticmethod
     def get_version() -> version.Version:
-        rpm_cmd = Command("rpm -qa tuna")
+        rpm_cmd = Command("rpm -q tuna")
         rpm_cmd.run()
         out, ret_code = rpm_cmd.watch_output()
         nevra = split_nevra(out)
