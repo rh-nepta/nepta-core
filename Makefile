@@ -1,10 +1,16 @@
+CONTAINER_ENGINE := $(shell command -v docker >/dev/null 2>&1 && echo docker || (command -v podman >/dev/null 2>&1 && echo podman))
+
+ifeq ($(CONTAINER_ENGINE),)
+$(error Neither Docker nor Podman is installed)
+endif
+
 all:
 
 build-container:
-	podman build . -t nepta-env
+	$(CONTAINER_ENGINE) build . -t nepta-env
 
 push-container: build-container
-	podman push nepta-env images.paas.redhat.com/perfqe/nepta-env
+	$(CONTAINER_ENGINE) push nepta-env images.paas.redhat.com/perfqe/nepta-env
 
 test:
 	hatch run test
