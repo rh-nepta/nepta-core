@@ -1,9 +1,9 @@
 default:
-  image: quay.io/perfqe/nepta-env:latest
+  image: images.paas.redhat.com/perfqe/nepta-env:latest
   tags:
     - shared-podman
 
-include: 
+include:
   - project: kernel-performance/perfqe-gitlab-ci-templates
     file: pypi/nexus.yml
 
