@@ -1,7 +1,7 @@
 import logging
 import os.path
 
-from nepta.core.scenarios.perun.generic import PerunMixin
+from nepta.core.scenarios.perun.generic import PerunPerfMixin
 from nepta.core.scenarios.iperf3.tcp import Iperf3TCPStream, Iperf3TCPMultiStream
 
 from nepta.core.tests.iperf3 import Iperf3Perf
@@ -10,7 +10,7 @@ from nepta.dataformat import Section
 logger = logging.getLogger(__name__)
 
 
-class Iperf3TCPStreamPerun(PerunMixin, Iperf3TCPStream):
+class Iperf3TCPStreamPerun(PerunPerfMixin, Iperf3TCPStream):
 
     def init_test(self, path, size):
         iperf_test = Iperf3Perf(
@@ -39,7 +39,7 @@ class Iperf3TCPReversedPerun(Iperf3TCPStreamPerun):
         return iperf_test
 
 
-class Iperf3TCPMultiStreamPerun(PerunMixin, Iperf3TCPMultiStream):
+class Iperf3TCPMultiStreamPerun(PerunPerfMixin, Iperf3TCPMultiStream):
 
     def init_all_tests(self, path, size):
         tests = super().init_all_tests(path, size)
