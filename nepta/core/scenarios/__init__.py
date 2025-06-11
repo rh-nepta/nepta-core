@@ -43,11 +43,18 @@ from .ubench.generic import UBenchBest
 from .ubench.generic import UBenchNeighbour
 from .ubench.generic import UBenchUnpinned
 
-from .perun.iperf3 import (
-    Iperf3TCPStreamPerun,
-    Iperf3TCPReversedPerun,
-    Iperf3TCPMultiStreamPerun,
-    Iperf3TCPMultiStreamReversedPerun,
+from .perun.perf import (
+    Iperf3TCPStreamPerf,
+    Iperf3TCPReversedPerf,
+    Iperf3TCPMultiStreamPerf,
+    Iperf3TCPMultiStreamReversedPerf,
+)
+
+from .perun.bpf import (
+    Iperf3TCPStreamBpf,
+    Iperf3TCPReversedBpf,
+    Iperf3TCPMultiStreamBpf,
+    Iperf3TCPMultiStreamReversedBpf,
 )
 
 
