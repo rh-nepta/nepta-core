@@ -7,6 +7,7 @@ from nepta.core.distribution.utils.perf import Perf
 
 logger = logging.getLogger(__name__)
 
+
 class PerunBpfMixin(StreamGeneric):
     def __init__(self, *args, **kwargs):
         self.perun_directory = os.path.join(
@@ -27,6 +28,7 @@ class PerunBpfMixin(StreamGeneric):
         #     logger.debug(f'Deleting {perf_file}!')
         #     os.remove(perf_file)
         # return results
+
 
 class PerunPerfMixin(PerunBpfMixin):
 
