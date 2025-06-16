@@ -30,3 +30,10 @@ class BccProfile(CommandTool):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def store_output(self, output_file: str):
+        out, _ = self.watch_output()
+        if not self.success():
+            raise RuntimeError(f"Command {self._cmd} failed with exit code {self._exit_code}: {out}")
+        with open(output_file, "w") as f:
+            f.write(out)

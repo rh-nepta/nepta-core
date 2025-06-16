@@ -281,8 +281,8 @@ class Iperf3BPF(Iperf3Test):
             folded=True,
             delimited=True,
             duration=self.time,
-            # TODO: move stdout to file
-            output=self.perun_output_file,
         )
         self.bcc_profiler.run()
         super(Iperf3BPF, self).run()
+
+        self.bcc_profiler.store_output(self.perun_output_file)
