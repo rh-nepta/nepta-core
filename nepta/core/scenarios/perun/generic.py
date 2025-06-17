@@ -18,6 +18,23 @@ class PerunMixin(StreamGeneric):
 
     def run_scenario(self):
         pathlib.Path(self.perun_directory).mkdir(parents=True, exist_ok=True)
+        return super().run_scenario()
+
+
+class PerunBpfMixin(PerunMixin):
+    def run_scenario(self):
+        results = super().run_scenario()
+        # rename perf data files for compatibility with perf fold
+        logger.info('Renaming perf data')
+        for perf_file in pathlib.Path(self.perun_directory).rglob('*.perf.data'):
+            logger.debug(f'Renaming {perf_file}!')
+            os.rename(perf_file, f"{perf_file}.folded")
+        return results
+
+
+class PerunPerfMixin(PerunMixin):
+
+    def run_scenario(self):
         results = super().run_scenario()
 
         # fold perf data

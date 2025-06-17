@@ -9,6 +9,7 @@ from typing import Dict, Callable, Optional
 from nepta.core.distribution.command import Command
 from nepta.core.tests.cmd_tool import CommandTool, CommandArgument
 from nepta.core.tests.mpstat import MPStat
+from nepta.core.tests.bpf import BccProfile
 
 logger = logging.getLogger(__name__)
 
@@ -264,3 +265,24 @@ class Iperf3Perf(Iperf3Test):
 
     def _make_cmd(self):
         return f"perf record --call-graph fp -a -o {self.perun_output_file}  {super(Iperf3Perf, self)._make_cmd()}"
+
+
+class Iperf3BPF(Iperf3Test):
+
+    def __init__(self, perun_output_file: Optional[str] = None, **kwargs):
+        super().__init__(**kwargs)
+        self.bcc_profiler: BccProfile = None
+        self.perun_output_file = perun_output_file
+
+    def run(self):
+        self.bcc_profiler = BccProfile(
+            frequency=999,
+            annotations=True,
+            folded=True,
+            delimited=True,
+            duration=self.time,
+        )
+        self.bcc_profiler.run()
+        super(Iperf3BPF, self).run()
+
+        self.bcc_profiler.store_output(self.perun_output_file)
