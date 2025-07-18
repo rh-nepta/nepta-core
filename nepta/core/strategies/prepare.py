@@ -85,6 +85,11 @@ class Prepare(Strategy):
                 logger.error("Cannot start netperf server !!!")
 
     @Strategy.schedule
+    def start_sockperf_service(self):
+        # TODO: implement this method
+        raise NotImplementedError('start_sockperf_service is not implemented yet')
+
+    @Strategy.schedule
     def start_docker_container(self):
         logger.info("Starting containers")
         containers = self.conf.get_subset(m_class=model.docker.Container)
