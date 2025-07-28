@@ -45,7 +45,7 @@ class Prepare(Strategy):
 
         # spawn at least 100 iPerf3 instances due to laziness
         max_iperf3_instances = 100
-        base_port = 0
+        base_port = 5201
 
         for scenario in remote_scenarios:
             base_port = scenario.base_port
