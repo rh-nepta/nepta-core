@@ -1,7 +1,6 @@
+import re
 import logging
-import json
-from functools import reduce
-from typing import Dict, List
+from typing import Dict, Optional
 from subprocess import TimeoutExpired
 from nepta.core.tests.cmd_tool import CommandArgument, CommandTool
 
@@ -49,14 +48,34 @@ class SockPerfPingPong(SockPerf):
 
     MAPPING = SockPerf.MAPPING + [
         CommandArgument("time", "--time", argument_type=int, default_value=1),
-        CommandArgument("full_log", "--full-log", argument_type=bool),
+        CommandArgument("full_log", "--full-log"),
     ]
 
     def get_result(self) -> dict:
         if self.full_log:
             return self._parse_csv()
         else:
-            raise RuntimeError("Full log is not enabled, cannot parse results")
+            return self._parse_stdout()
+
+    def _parse_stdout(self) -> Optional[Dict[str, float]]:
+        out, code = self.watch_output()
+        # Regex to find all lines starting with '--->' and capture the
+        # percentile (or MAX/MIN) and its corresponding value.
+        if code != 0:
+            logger.error("Sockperf server failed with code: %d" % code)
+            logger.error("Sockperf server stdout:\n%s" % out)
+            raise RuntimeError(f"Sockperf server exited with code {code}")
+
+        percentile_matches = re.findall(
+            r"--->\s(?:percentile|<MAX>|<MIN>)\s+(?P<percentile>[\d\.]+|MAX|MIN)\s+=\s+(?P<value>[\d\.]+)", out
+        )
+
+        # Convert the list of (key, value) tuples into a dictionary
+        if percentile_matches:
+            return {p: float(v) for p, v in percentile_matches}
+        else:
+            logger.error(out)
+            ValueError('Cannot parse results')
 
     def _parse_csv(self) -> dict:
         raise NotImplementedError()
