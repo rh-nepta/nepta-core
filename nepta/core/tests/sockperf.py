@@ -58,7 +58,7 @@ class SockPerfPingPong(SockPerf):
         else:
             return self._parse_stdout()
 
-    def _parse_stdout(self) -> Optional[Dict[str, float]]:
+    def _parse_stdout(self) -> Dict[str, float]:
         out, code = self.watch_output()
         # Regex to find all lines starting with '--->' and capture the
         # percentile (or MAX/MIN) and its corresponding value.
@@ -76,7 +76,7 @@ class SockPerfPingPong(SockPerf):
             return {p: float(v) for p, v in percentile_matches}
         else:
             logger.error(out)
-            ValueError('Cannot parse results')
+            return {}
 
     def _parse_csv(self) -> dict:
         raise NotImplementedError()
