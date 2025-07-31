@@ -2,7 +2,13 @@ import inspect
 import sys
 from . import netperf
 
-from .generic.scenario import ScenarioGeneric, SingleStreamGeneric, MultiStreamsGeneric, DuplexStreamGeneric
+from .generic.scenario import (
+    ScenarioGeneric,
+    StreamGeneric,
+    SingleStreamGeneric,
+    MultiStreamsGeneric,
+    DuplexStreamGeneric,
+)
 from .generic.interrupts import IRQBalanceCheck
 
 # Standard streams
