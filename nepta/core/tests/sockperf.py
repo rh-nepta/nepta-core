@@ -48,6 +48,7 @@ class SockPerfPingPong(SockPerf):
 
     MAPPING = SockPerf.MAPPING + [
         CommandArgument("time", "--time", argument_type=int, default_value=1),
+        CommandArgument('message_size', '--msg-size', argument_type=int),
         CommandArgument("full_log", "--full-log"),
     ]
 
