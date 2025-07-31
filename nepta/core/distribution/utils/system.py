@@ -33,7 +33,7 @@ class Uname:
 
 
 class RPMTool:
-    CMD_RPM = "/bin/rpm"
+    CMD_RPM = "rpm"
 
     @classmethod
     def get_src_name(cls, pkg_nvr) -> Optional[str]:
