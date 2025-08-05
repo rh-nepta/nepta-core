@@ -7,6 +7,7 @@ from nepta.core.distribution.utils.virt import Docker
 from nepta.core.distribution.utils.system import SystemD
 from nepta.core.distribution.utils.network import IpCommand, TcpDump
 from nepta.core.tests.iperf3 import Iperf3Server
+from nepta.core.tests.sockperf import SockPerfServer
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
@@ -44,7 +45,7 @@ class Prepare(Strategy):
 
         # spawn at least 100 iPerf3 instances due to laziness
         max_iperf3_instances = 100
-        base_port = 0
+        base_port = 5201
 
         for scenario in remote_scenarios:
             base_port = scenario.base_port
@@ -83,6 +84,11 @@ class Prepare(Strategy):
             cmd.run()
             if cmd.get_output()[1] != 0:
                 logger.error("Cannot start netperf server !!!")
+
+    @Strategy.schedule
+    def start_sockperf_service(self):
+        sockperf_server = SockPerfServer(daemonize=True)
+        sockperf_server.start()
 
     @Strategy.schedule
     def start_docker_container(self):

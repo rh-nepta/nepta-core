@@ -271,7 +271,7 @@ class Iperf3BPF(Iperf3Test):
 
     def __init__(self, perun_output_file: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
-        self.bcc_profiler: BccProfile = None
+        self.bcc_profiler: Optional[BccProfile] = None
         self.perun_output_file = perun_output_file
 
     def run(self):

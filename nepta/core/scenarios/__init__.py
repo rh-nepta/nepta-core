@@ -63,6 +63,8 @@ from .perun.bpf import (
     Iperf3TCPMultiStreamReversedBpf,
 )
 
+from .sockperf.ping_pong import SockPerfUdpPingPong
+
 
 def get_scenario_by_name(scenario_name):
     scenario_class = None
