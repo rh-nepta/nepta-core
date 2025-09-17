@@ -34,7 +34,7 @@ class SockPerfUdpPingPong(SingleStreamGeneric, SockPerfGeneric):
             attempt_pause=attempt_pause,
             result=result,
         )
-        self.percentiles = percentiles or ['25.000', '50.000', '75.000', '99.999']
+        self.percentiles = percentiles or ['25.000', '50.000', '75.000', '99.000', '99.999']
 
     def init_test(self, path, size):
         sockperf_test = SockPerfPingPong(
