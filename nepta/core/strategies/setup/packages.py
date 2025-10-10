@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Packages(Setup):
-    _PKG_MANAGERS_CMD = "dnf -y --allowerasing install "
+    _PKG_MANAGERS_CMD = "dnf -y --allowerasing --skip-broken install "
 
     # Use yum pkg manager for RHEL7
     if env.RedhatRelease.version.startswith("7"):
