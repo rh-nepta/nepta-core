@@ -124,16 +124,18 @@ class Prepare(Strategy):
                 f'IPsec tunnel count mismatch: {len(tunnels) * 2} tunnels expected, {IpCommand.Xfrm.number_of_tunnel()} found.'
             )
             raise RuntimeError("IPsec tunnel count mismatch")
+        else:
+            logger.info(f"IPsec tunnel count matches, all tunnels are up. Number of tunnels: {len(tunnels)}")
 
     @Strategy.schedule
     def check_ipsec_encryption(self):
         tunnels = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tunnel in tunnels:
             logger.info(f'Checking encryption for tunnel {tunnel}')
-            Command(
+            left_ping = Command(
                 f'ping -c {self.IPSEC_PING_COUNT} -i {self.IPSEC_PING_INTERVAL} -I {tunnel.right_ip.ip} {tunnel.left_ip.ip}'
             ).run()
-            Command(
+            right_ping = Command(
                 f'ping -c {self.IPSEC_PING_COUNT} -i {self.IPSEC_PING_INTERVAL} -I {tunnel.left_ip.ip} {tunnel.right_ip.ip}'
             ).run()
 
@@ -152,6 +154,16 @@ class Prepare(Strategy):
             ):
                 logger.error(f'No ESP packets found for tunnel {tunnel}')
                 raise RuntimeError("No ESP packets found")
+
+            left_out, left_ping_result = left_ping.watch_output()
+            right_out, right_ping_result = right_ping.watch_output()
+            # Check ping results, exact one must succeed, others must fail
+            logger.info(f'Checking ping results for tunnel {tunnel}')
+            if not (bool(left_ping_result) ^ bool(right_ping_result)):
+                logger.error(f'Ping test failed for tunnel {tunnel}')
+                logger.error(f'Left ping return code: {left_ping_result}, output: {left_out}')
+                logger.error(f'Right ping return code: {right_ping_result}, output: {right_out}')
+                raise RuntimeError('Ping test failed')
 
     @Strategy.schedule
     def run_shell_commands(self):
