@@ -11,6 +11,7 @@ from nepta.core.tests.sockperf import SockPerfServer
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
+from nepta.core.scenarios.sockperf.generic import SockPerfGeneric
 from nepta.core.distribution.command import ShellCommand, Command
 
 logger = logging.getLogger(__name__)
@@ -87,8 +88,12 @@ class Prepare(Strategy):
 
     @Strategy.schedule
     def start_sockperf_service(self):
-        sockperf_server = SockPerfServer(daemonize=True)
-        sockperf_server.start()
+        if self.conf.get_subset(m_class=SockPerfGeneric):
+            logger.info("Starting sockperf server")
+            sockperf_server = SockPerfServer(daemonize=True)
+            sockperf_server.start()
+        else:
+            logger.info("No sockperf streams found, skipping sockperf server start")
 
     @Strategy.schedule
     def start_docker_container(self):
