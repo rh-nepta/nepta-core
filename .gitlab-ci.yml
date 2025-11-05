@@ -1,11 +1,14 @@
 default:
   image: images.paas.redhat.com/perfqe/nepta-env:latest
-  tags:
-    - shared-podman
 
 include:
   - project: kernel-performance/perfqe-gitlab-ci-templates
     file: pypi/nexus.yml
+
+  - project: kernel-performance/perfqe-gitlab-ci-templates
+    ref: feature/define-globals
+    file: defaults/common.yml
+
 
 stages:
   - pytest
