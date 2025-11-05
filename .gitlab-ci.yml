@@ -6,7 +6,6 @@ include:
     file: pypi/nexus.yml
 
   - project: kernel-performance/perfqe-gitlab-ci-templates
-    ref: feature/define-globals
     file: defaults/common.yml
 
 
