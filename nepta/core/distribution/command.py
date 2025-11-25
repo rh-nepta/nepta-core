@@ -56,6 +56,10 @@ class Command(object):
     def poll(self):
         return self._command_handle.poll()
 
+    def communicate(self, timeout=None):
+        self.log_debug(f'Communicating {self}')
+        return self._command_handle.communicate(timeout=timeout)
+
     def _read_line_from_pipe(self):
         self._command_handle.stdout.flush()
         return self._command_handle.stdout.readline().decode()

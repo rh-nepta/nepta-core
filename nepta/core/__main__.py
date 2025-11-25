@@ -14,6 +14,7 @@ from typing import Type
 from nepta.core import strategies, synchronization, model
 from nepta.core.strategies.generic import CompoundStrategy
 from nepta.core.distribution.env import Environment, Hardware
+from nepta.core.scenarios import StreamGeneric
 
 from nepta.dataformat import Section, DataPackage
 
@@ -279,6 +280,14 @@ def main():
         help="Enable PCP logging during testing on remote machines.",
         default=False,
     )
+    parser.add_argument(
+        "-m",
+        '--message-size',
+        type=int,
+        nargs="+",
+        action="append",
+        help="Specify custom message sizes for testing in all scenarios.",
+    )
 
     # Highest priority have arguments directly given from the commandline.
     # If no argument is given, we try to parse NETWORK_PERFTEST_ARGS environment
@@ -330,6 +339,15 @@ def main():
 
     if not (args.pcp or args.remote_pcp):
         conf.filter_components(lambda x: type(x) != model.system.PCPConfiguration)
+
+    if args.message_size:
+        message_sizes = sum(args.message_size, [])
+        message_sizes = sorted(set(message_sizes))
+        logger.info(f"Updating message sizes: {message_sizes}")
+
+        for scenario in conf.get_subset(m_class=StreamGeneric):
+            logger.info(f'Setting {scenario.__class__.__name__} to {message_sizes} message sizes.')
+            scenario.msg_sizes = message_sizes
 
     if args.print:
         print(conf.str_tree())

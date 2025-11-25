@@ -66,11 +66,13 @@ class CallFunctionTest(unittest.TestCase):
         MethCallLogger.infect(prepare, prepare.start_docker_container)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
         # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        MethCallLogger.infect(prepare, prepare.start_sockperf_service, mockup=True)
 
         prepare()
 
         self.assertTrue(prepare.start_docker_container.was_called)
         self.assertTrue(prepare.start_iperf3_services.was_called)
+        self.assertTrue(prepare.start_sockperf_service.was_called)
 
     def test_call_with_empty_conf_on_setup_strategy(self):
         empty_bundle = Bundle()
@@ -92,6 +94,7 @@ class CallFunctionTest(unittest.TestCase):
         MethCallLogger.infect(prepare, prepare.start_docker_container)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
         # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        MethCallLogger.infect(prepare, prepare.start_sockperf_service, mockup=True)
 
         MethCallLogger.infect_all_public(setup, True, ['run', 'setup_interfaces', '_instance'])
 
@@ -133,6 +136,7 @@ class CallFunctionTest(unittest.TestCase):
         MethCallLogger.infect(prepare, prepare.start_docker_container)
         MethCallLogger.infect(prepare, prepare.start_iperf3_services)
         # MethCallLogger.infect(prepare, prepare.restart_ipsec_service, mockup=True)
+        MethCallLogger.infect(prepare, prepare.start_sockperf_service, mockup=True)
         MethCallLogger.infect(run, run.run_scenarios, True)
         MethCallLogger.infect(save_attach, save_attach.save_attachments)
 

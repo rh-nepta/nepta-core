@@ -25,8 +25,12 @@ class SaveMeta(Strategy):
         root["Kernel"] = Environment.kernel
         root["Area"] = "net"
 
-        root["BenchmarkName"] = "iperf3"  # TODO : we might have more banchmarks (netperf, iPerf3, etc.)
-        root["BenchmarkVersion"] = RPMTool.get_package_version("iperf3")
+        if 'SockPerf' in self.conf.conf_name:
+            root["BenchmarkName"] = "sockperf"
+            root["BenchmarkVersion"] = RPMTool.get_package_version("sockperf")
+        else:
+            root["BenchmarkName"] = "iperf3"
+            root["BenchmarkVersion"] = RPMTool.get_package_version("iperf3")
         root["Arguments"] = "-v"
         root["HostName"] = Environment.fqdn
         root["OtherHostNames"] = [Environment.fqdn]

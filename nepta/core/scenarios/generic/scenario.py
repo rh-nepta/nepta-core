@@ -39,7 +39,6 @@ class StreamGeneric(ScenarioGeneric):
         test_runs: int,
         msg_sizes: List[int],
         cpu_pinning,
-        base_port: int,
         attempt_count: int,
         attempt_pause: int,
         result: bool = True,
@@ -49,7 +48,6 @@ class StreamGeneric(ScenarioGeneric):
         self.test_runs = test_runs
         self.msg_sizes = msg_sizes
         self.cpu_pinning = cpu_pinning
-        self.base_port = base_port
         self.attempt_count = attempt_count
         self.attempt_pause = attempt_pause
         self.result = result

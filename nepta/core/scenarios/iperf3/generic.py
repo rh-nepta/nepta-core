@@ -33,10 +33,11 @@ def catch_and_log_exception(f):
 
 
 class GenericIPerf3Stream(object):
-    def __init__(self, *args, interval=None, parallel=None, **kwargs):
+    def __init__(self, *args, base_port=5201, interval=None, parallel=None, **kwargs):
         super(GenericIPerf3Stream, self).__init__(*args, **kwargs)
         self.interval = interval
         self.parallel = parallel
+        self.base_port = base_port
 
     @staticmethod
     def log_iperf3_error(out_json):

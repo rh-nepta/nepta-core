@@ -7,9 +7,11 @@ from nepta.core.distribution.utils.virt import Docker
 from nepta.core.distribution.utils.system import SystemD
 from nepta.core.distribution.utils.network import IpCommand, TcpDump
 from nepta.core.tests.iperf3 import Iperf3Server
+from nepta.core.tests.sockperf import SockPerfServer
 from nepta.core.strategies.generic import Strategy
 from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
+from nepta.core.scenarios.sockperf.generic import SockPerfGeneric
 from nepta.core.distribution.command import ShellCommand, Command
 
 logger = logging.getLogger(__name__)
@@ -44,7 +46,7 @@ class Prepare(Strategy):
 
         # spawn at least 100 iPerf3 instances due to laziness
         max_iperf3_instances = 100
-        base_port = 0
+        base_port = 5201
 
         for scenario in remote_scenarios:
             base_port = scenario.base_port
@@ -85,6 +87,15 @@ class Prepare(Strategy):
                 logger.error("Cannot start netperf server !!!")
 
     @Strategy.schedule
+    def start_sockperf_service(self):
+        if self.conf.get_subset(m_class=SockPerfGeneric):
+            logger.info("Starting sockperf server")
+            sockperf_server = SockPerfServer(daemonize=True)
+            sockperf_server.start()
+        else:
+            logger.info("No sockperf streams found, skipping sockperf server start")
+
+    @Strategy.schedule
     def start_docker_container(self):
         logger.info("Starting containers")
         containers = self.conf.get_subset(m_class=model.docker.Container)
@@ -118,16 +129,18 @@ class Prepare(Strategy):
                 f'IPsec tunnel count mismatch: {len(tunnels) * 2} tunnels expected, {IpCommand.Xfrm.number_of_tunnel()} found.'
             )
             raise RuntimeError("IPsec tunnel count mismatch")
+        else:
+            logger.info(f"IPsec tunnel count matches, all tunnels are up. Number of tunnels: {len(tunnels)}")
 
     @Strategy.schedule
     def check_ipsec_encryption(self):
         tunnels = self.conf.get_subset(m_class=model.network.IPsecTunnel)
         for tunnel in tunnels:
             logger.info(f'Checking encryption for tunnel {tunnel}')
-            Command(
+            left_ping = Command(
                 f'ping -c {self.IPSEC_PING_COUNT} -i {self.IPSEC_PING_INTERVAL} -I {tunnel.right_ip.ip} {tunnel.left_ip.ip}'
             ).run()
-            Command(
+            right_ping = Command(
                 f'ping -c {self.IPSEC_PING_COUNT} -i {self.IPSEC_PING_INTERVAL} -I {tunnel.left_ip.ip} {tunnel.right_ip.ip}'
             ).run()
 
@@ -146,6 +159,16 @@ class Prepare(Strategy):
             ):
                 logger.error(f'No ESP packets found for tunnel {tunnel}')
                 raise RuntimeError("No ESP packets found")
+
+            left_out, left_ping_result = left_ping.watch_output()
+            right_out, right_ping_result = right_ping.watch_output()
+            # Check ping results, exact one must succeed, others must fail
+            logger.info(f'Checking ping results for tunnel {tunnel}')
+            if not (bool(left_ping_result) ^ bool(right_ping_result)):
+                logger.error(f'Ping test failed for tunnel {tunnel}')
+                logger.error(f'Left ping return code: {left_ping_result}, output: {left_out}')
+                logger.error(f'Right ping return code: {right_ping_result}, output: {right_out}')
+                raise RuntimeError('Ping test failed')
 
     @Strategy.schedule
     def run_shell_commands(self):

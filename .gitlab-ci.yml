@@ -4,6 +4,8 @@ default:
 include:
   - project: kernel-performance/perfqe-gitlab-ci-templates
     file: pypi/nexus.yml
+  - project: kernel-performance/perfqe-gitlab-ci-templates
+    file: llm/pr-agent.yml
 
   - project: kernel-performance/perfqe-gitlab-ci-templates
     file: defaults/common.yml
@@ -13,7 +15,21 @@ stages:
   - pytest
   - code-style
   - mypy
+  - review
   - publish
+
+workflow:
+  rules:
+    # 1. ALWAYS run a pipeline when a merge request event occurs.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    
+    # 2. DO NOT run a standard push pipeline if an MR is open for the branch.
+    #    This is how you prevent the duplicate pipeline when pushing to a feature branch.
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+      
+    # 3. Otherwise, run a pipeline (for pushes to branches with no MR, tags, etc.)
+    - when: always
 
 pytest:
   stage: pytest
