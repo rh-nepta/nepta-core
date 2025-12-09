@@ -20,14 +20,17 @@ class WireGuardTest(TestCase):
         self.rem_int = ia.IPv4Interface('8.8.8.10/27')
 
     def test_interface(self):
-        p0 = WireGuardPeer(self.local_pub, self.local_priv, [self.wg_net, self.local_net], self.rem_int)
+        p0 = WireGuardPeer(self.local_pub, self.local_priv, self.wg_net, self.rem_int)
         p1 = WireGuardPeer(
-            self.remote_pub, self.remote_priv, [self.wg_net, self.remote_net, self.wg_net], self.my_int, 12345
+            self.remote_pub,
+            self.remote_priv,
+            self.wg_net,
+            self.my_int,
         )
-        p2 = WireGuardPeer('public', 'private', [ia.IPv4Network('224.0.0.0/25')])
+        p2 = WireGuardPeer('public', 'private', self.local_net, self.my_int)
 
-        local_tunnel = WireGuardTunnel(self.wg_net.new_addr(), p0.private_key, peers=[p1, p2])
-        remote_tunnel = WireGuardTunnel(self.wg_net.new_addr(), p1.private_key, 12345, peers=[p0])
+        local_tunnel = WireGuardTunnel.from_peers(p0, [p1, p2])
+        remote_tunnel = WireGuardTunnel.from_peers(p1, [p0])
 
         # tunnel name must be unique
         self.assertNotEqual(local_tunnel.name, remote_tunnel.name)
@@ -44,12 +47,13 @@ ListenPort = 51820
 
 [Peer]
 PublicKey = {self.remote_pub}
-AllowedIPs = 10.0.0.0/16, 192.168.1.0/24, 10.0.0.0/16
-Endpoint = 8.8.8.8:12345
+AllowedIPs = 10.0.0.0/16
+Endpoint = 8.8.8.8:51821
 
 [Peer]
 PublicKey = {p2.public_key}
-AllowedIPs = {p2.allowed_ips[0]}
+AllowedIPs = {p2.network}
+Endpoint = 8.8.8.8:51822
 """,
         )
 
@@ -58,11 +62,11 @@ AllowedIPs = {p2.allowed_ips[0]}
             f"""[Interface]
 Address = 10.0.0.2/16
 PrivateKey = {self.remote_priv}
-ListenPort = 12345
+ListenPort = 51821
 
 [Peer]
 PublicKey = {self.local_pub}
-AllowedIPs = 10.0.0.0/16, 192.168.0.0/24
+AllowedIPs = 10.0.0.0/16
 Endpoint = 8.8.8.10:51820
 """,
         )

@@ -297,7 +297,7 @@ class WireGuardPeer:
     public_key: str
     private_key: str
     network: IpNetwork
-    endpoint_ip: Optional[IpInterface] = None
+    endpoint_ip: IpInterface
     endpoint_port: int = field(init=False, default_factory=lambda: next(WireGuardPeer._PORT_COUNTER))
 
     # this is used to assign unique port to each wireguard peer
