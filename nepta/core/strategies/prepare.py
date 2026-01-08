@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class Prepare(Strategy):
-    IPSEC_SLEEP = 60
+    IPSEC_SLEEP = 60 * 10  # 10 minutes to settle
     IPSEC_PING_INTERVAL = 0.1
     IPSEC_PING_COUNT = 50
 
@@ -112,8 +112,7 @@ class Prepare(Strategy):
           - https://issues.redhat.com/browse/RHEL-30796
         """
         if (not env.RedhatRelease.version.startswith("8")) and str(self.conf.conf_name).startswith("IPsec"):
-            logger.warning("WA: Restarting IPsec service and sleeping for 60 seconds!!!")
-            sleep(self.IPSEC_SLEEP)
+            logger.warning(f"WA: Restarting IPsec service and sleeping for {self.IPSEC_SLEEP} seconds!!!")
             SystemD.restart_service(model.system.SystemService("ipsec"))
             sleep(self.IPSEC_SLEEP)
         else:
