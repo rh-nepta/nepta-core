@@ -46,7 +46,9 @@ class Environment(metaclass=_MetaPrintedType):
     hostname = fqdn.split(".")[0]
     whiteboard = _env.get("BEAKER_JOB_WHITEBOARD")
     hub = _env.get("BEAKER_HUB_URL")
-    job_id = _env.get("RSTRNT_JOBID") or _env.get("TESTING_FARM_REQUEST_ID")
+    # Catalog does not support UUID, store dummy number
+    # job_id = _env.get("RSTRNT_JOBID") or _env.get("TESTING_FARM_REQUEST_ID")
+    job_id = _env.get("RSTRNT_JOBID") or 1234
     recipe_id = _env.get("RSTRNT_RECIPESETID")
     arch = _env.get("RSTRNT_OSARCH")
     lab_controler = _env.get("LAB_CONTROLLER")
