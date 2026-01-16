@@ -55,6 +55,7 @@ class Environment(metaclass=_MetaPrintedType):
     test_name = _env.get("TEST")
     in_rstrnt = test_name is not None
     in_tf = _env.get("TESTING_FARM_REQUEST_ID") is not None
+    tf_req_id = _env.get("TESTING_FARM_REQUEST_ID")
     tf_git_url = _env.get("TESTING_FARM_GIT_URL")
     tf_git_ref = _env.get("TESTING_FARM_GIT_REF")
 
