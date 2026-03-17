@@ -88,7 +88,9 @@ class Prepare(Strategy):
 
     @Strategy.schedule
     def start_sockperf_service(self):
-        if self.conf.get_subset(m_class=SockPerfGeneric):
+        logger.info("Start netserver for netperf test if necessary.")
+
+        if 'sockperf' in self.conf.conf_name.lower():
             logger.info("Starting sockperf server")
             sockperf_server = SockPerfServer(daemonize=True)
             sockperf_server.start()
