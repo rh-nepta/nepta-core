@@ -43,10 +43,21 @@ class SockPerfUdpPingPong(SingleStreamGeneric, SockPerfGeneric):
             message_size=size,
         )
         sockperf_test.msg_size = size
+
         if path.cpu_pinning:
-            sockperf_test.affinity = ",".join([str(x) for x in path.cpu_pinning[0]])
+            unique_cores = list(dict.fromkeys([str(x) for x in path.cpu_pinning[0]]))
+            core_string = ",".join(unique_cores)
+
+            sockperf_test.sender_affinity = core_string
+            sockperf_test.receiver_affinity = core_string
+
         elif self.cpu_pinning:
-            sockperf_test.affinity = ",".join([str(x) for x in self.cpu_pinning[0]])
+            unique_cores = list(dict.fromkeys([str(x) for x in self.cpu_pinning[0]]))
+            core_string = ",".join(unique_cores)
+
+            sockperf_test.sender_affinity = core_string
+            sockperf_test.receiver_affinity = core_string
+
         return sockperf_test
 
     def parse_results(self, test):
