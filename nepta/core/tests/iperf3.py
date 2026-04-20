@@ -139,9 +139,15 @@ class Iperf3TCPTestResult(Iperf3TestResult):
 
 
 class Iperf3UDPTestResult(Iperf3TCPTestResult):
+    """UDP test result contains more dimensions, because of packet loss and separate sender/receiver throughput.
+    The throughput is duplicated for compatibility with TCP test result, but it is calculated as sender throughput * (1 - loss_percent / 100).
+    """
+
     _DIMENSIONS = {
         name: order
-        for order, name in enumerate(["sender_throughput", "receiver_throughput", "local_cpu", "remote_cpu"])
+        for order, name in enumerate(
+            ["throughput", "sender_throughput", "receiver_throughput", "local_cpu", "remote_cpu"]
+        )
     }
 
     @classmethod
@@ -151,6 +157,7 @@ class Iperf3UDPTestResult(Iperf3TCPTestResult):
         return cls(
             np.array(
                 [
+                    end["sum"]["bits_per_second"] * (1 - end["sum"]["lost_percent"] / 100),
                     end["sum"]["bits_per_second"],
                     end["sum"]["bits_per_second"] * (1 - end["sum"]["lost_percent"] / 100),
                     end["cpu_utilization_percent"]["host_total"],
@@ -230,6 +237,7 @@ class Iperf3Test(Iperf3Server):
     def get_result(self, throughput_format=Iperf3TestResult.ThroughputFormat.MBPS) -> Iperf3TestResult:
         if self.udp:
             test = Iperf3UDPTestResult.from_json(self.get_json_out())
+            test["throughput"] /= throughput_format.value
             test["sender_throughput"] /= throughput_format.value
             test["receiver_throughput"] /= throughput_format.value
         else:
