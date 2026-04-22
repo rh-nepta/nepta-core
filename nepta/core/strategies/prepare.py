@@ -120,19 +120,28 @@ class Prepare(Strategy):
             if "SockPerf" in scenario.__class__.__name__:
                 for path in scenario.paths:
                     server_ip = path.their_ip.ip
-
-                    pinning_source = getattr(path, 'cpu_pinning', None)
-                    if not pinning_source:
-                        pinning_source = getattr(scenario, 'cpu_pinning', None)
-
                     core_string = None
 
-                    if pinning_source:
-                        server_cores = [str(flow[1]) for flow in pinning_source if len(flow) > 1]
-
+                    if getattr(path, 'server_affinities', None):
+                        server_cores = [str(core) for core in path.server_affinities]
+                        
                         if server_cores:
                             unique_cores = list(dict.fromkeys(server_cores))
                             core_string = ",".join(unique_cores)
+                            logger.info(f"Server cores (from server_affinities) are: {core_string}.")
+
+                    else:
+                        pinning_source = getattr(path, 'cpu_pinning', None)
+                        if not pinning_source:
+                            pinning_source = getattr(scenario, 'cpu_pinning', None)
+
+                        if pinning_source:
+                            server_cores = [str(flow[1]) for flow in pinning_source if len(flow) > 1]
+
+                            if server_cores:
+                                unique_cores = list(dict.fromkeys(server_cores))
+                                core_string = ",".join(unique_cores)
+                                logger.info(f"Server cores (from cpu_pinning) are: {core_string}.")
 
                     servers_to_start.add((server_ip, core_string))
 

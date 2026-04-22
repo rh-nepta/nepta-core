@@ -3,7 +3,7 @@ import uuid
 import logging
 import ipaddress as ia
 from collections import OrderedDict
-from typing import Union, List, Sequence, Optional, Any
+from typing import Union, List, Tuple, Sequence, Optional, Any
 from abc import ABC, abstractmethod
 
 from nepta.core.model.tag import HardwareInventoryTag, SoftwareInventoryTag
@@ -71,6 +71,26 @@ class Path(_PathInterface):
     def dict(self) -> dict:
         return OrderedDict(uuid=self.id, srcip=self.mine_ip, dstip=self.their_ip, desc=self.desc)
 
+class SockPerfPath(Path):
+    def __init__(
+        self, 
+        mine_ip: Union[ia.IPv4Interface, ia.IPv6Interface], 
+        their_ip: Union[ia.IPv4Interface, ia.IPv6Interface], 
+        tags: List[Union[HardwareInventoryTag, SoftwareInventoryTag]], 
+        client_affinities: Sequence[Tuple[int, int]],
+        server_affinities: Sequence[int]
+    ):
+        super().__init__(mine_ip, their_ip, tags, cpu_pinning=None)
+        
+        self.client_affinities = client_affinities
+        self.server_affinities = server_affinities
+
+    def dict(self) -> dict:
+        d = super().dict()
+        
+        d["client_affinities"] = self.client_affinities
+        d["server_affinities"] = self.server_affinities
+        return d
 
 class CongestedPath(Path):
     def __init__(self, mine_ip, their_ip, limit_bandwidth, delay, cca, tags, cpu_pinning=None):
