@@ -53,15 +53,13 @@ class SockPerfUdpPingPong(SingleStreamGeneric, SockPerfGeneric):
             sockperf_test.receiver_affinity = ",".join(str(c) for c in receiver_cores)
 
         elif getattr(path, 'cpu_pinning', None):
-            unique_cores = list(dict.fromkeys([str(x) for x in path.cpu_pinning[0]]))
-            core_string = ",".join(unique_cores)
+            core_string = str(path.cpu_pinning[0][0])
 
             sockperf_test.sender_affinity = core_string
             sockperf_test.receiver_affinity = core_string
 
         elif getattr(self, 'cpu_pinning', None):
-            unique_cores = list(dict.fromkeys([str(x) for x in self.cpu_pinning[0]]))
-            core_string = ",".join(unique_cores)
+            core_string = str(path.cpu_pinning[0][0])
 
             sockperf_test.sender_affinity = core_string
             sockperf_test.receiver_affinity = core_string
