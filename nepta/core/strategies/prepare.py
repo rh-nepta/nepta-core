@@ -124,7 +124,7 @@ class Prepare(Strategy):
 
                     if getattr(path, 'server_affinities', None):
                         server_cores = [str(core) for core in path.server_affinities]
-                        
+
                         if server_cores:
                             unique_cores = list(dict.fromkeys(server_cores))
                             core_string = ",".join(unique_cores)

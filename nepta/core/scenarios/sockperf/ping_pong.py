@@ -11,6 +11,7 @@ from nepta.core.tests.sockperf import SockPerfPingPong
 
 logger = logging.getLogger(__name__)
 
+
 class SockPerfUdpPingPong(SingleStreamGeneric, SockPerfGeneric):
 
     def __init__(
