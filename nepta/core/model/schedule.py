@@ -86,13 +86,6 @@ class SockPerfPath(Path):
         self.client_affinities = client_affinities
         self.server_affinities = server_affinities
 
-    def dict(self) -> dict:
-        d = super().dict()
-
-        d["client_affinities"] = self.client_affinities
-        d["server_affinities"] = self.server_affinities
-        return d
-
 
 class CongestedPath(Path):
     def __init__(self, mine_ip, their_ip, limit_bandwidth, delay, cca, tags, cpu_pinning=None):
