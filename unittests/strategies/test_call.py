@@ -1,3 +1,4 @@
+import sys
 import unittest
 import os
 import shutil
@@ -43,6 +44,7 @@ class MethCallLogger(object):
             cls.infect(obj, getattr(obj, meth), mockup)
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'Requires Linux system commands')
 class CallFunctionTest(unittest.TestCase):
     PACKAGE_PATH = '/tmp/test/test_call/libres-pacakge'
 

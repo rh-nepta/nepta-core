@@ -22,7 +22,7 @@ class CommandTest(TestCase):
 
     def test_bash(self):
         input_str = 'asdf | grep asdf'
-        cmd = ShellCommand(f'echo -n {input_str}')
+        cmd = ShellCommand(f'printf "%s\\n" {input_str}')
         cmd.run()
         out, ret = cmd.get_output()
         self.assertEqual(out.strip(), input_str.split()[-1])
