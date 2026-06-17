@@ -94,32 +94,29 @@ class SystemSetup(Setup):
     def configure_kernel_args(self):
         logger.info("Configuring kernel arguments")
         kernel_args = self.conf.get_subset(m_class=model.system.KernelArg)
-        
+
         if not kernel_args:
             logger.info("No kernel arguments to configure")
             return
-        
+
         # Build the args string from KeyValue objects
-        args_list = [f"{arg.key}={arg.value}" if arg.value else arg.key 
-                    for arg in kernel_args]
+        args_list = [f"{arg.key}={arg.value}" if arg.value else arg.key for arg in kernel_args]
         args_string = " ".join(args_list)
-        
+
         kernel_cmd = ShellCommand("uname -r")
         kernel_cmd.run()
         kernel_version, ret_code = kernel_cmd.watch_output()
-        
+
         if ret_code:
             logger.error("Failed to get kernel version")
             return
-        
+
         kernel_version = kernel_version.strip()
 
-        grubby_cmd = ShellCommand(
-            f'grubby --update-kernel=/boot/vmlinuz-{kernel_version} --args="{args_string}"'
-        )
+        grubby_cmd = ShellCommand(f'grubby --update-kernel=/boot/vmlinuz-{kernel_version} --args="{args_string}"')
         grubby_cmd.run()
         out, ret_code = grubby_cmd.watch_and_log_error()
-        
+
         if ret_code == 0:
             logger.info(f"Successfully configured kernel args: {args_string}")
         else:

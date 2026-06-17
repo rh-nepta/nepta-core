@@ -112,8 +112,10 @@ class _NamedOptions(_VariousOptions):
 class KernelModule(_NamedOptions):
     pass
 
+
 class KernelArg(KeyValue):
     pass
+
 
 @dataclass
 class PCPConfiguration:

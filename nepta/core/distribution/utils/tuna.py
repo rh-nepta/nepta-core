@@ -35,9 +35,7 @@ class Tuna:
 
         nevra = split_nevra(out)
 
-        ver = version.parse(
-            "%s-%s" % (nevra.version, nevra.release.split(".")[0])
-        )
+        ver = version.parse("%s-%s" % (nevra.version, nevra.release.split(".")[0]))
 
         return ver
 
