@@ -63,3 +63,35 @@ class Iperf3TCPMultiStreamReversedPerf(Iperf3TCPMultiStreamPerf):
         for t in tests:
             t.reverse = True
         return tests
+
+
+class Iperf3UDPStreamPerf(Iperf3TCPStreamPerf):
+    def init_test(self, path, size):
+        iperf_test = super().init_test(path, size)
+        iperf_test.udp = True
+        iperf_test.bitrate = 0
+        return iperf_test
+
+
+class Iperf3UDPReversedPerf(Iperf3UDPStreamPerf):
+    def init_test(self, path, size):
+        iperf_test = super().init_test(path, size)
+        iperf_test.reverse = True
+        return iperf_test
+
+
+class Iperf3UDPMultiStreamPerf(Iperf3TCPMultiStreamPerf):
+    def init_all_tests(self, path, size):
+        tests = super().init_all_tests(path, size)
+        for t in tests:
+            t.udp = True
+            t.bitrate = 0
+        return tests
+
+
+class Iperf3UDPMultiStreamReversedPerf(Iperf3UDPMultiStreamPerf):
+    def init_all_tests(self, path, size):
+        tests = super().init_all_tests(path, size)
+        for t in tests:
+            t.reverse = True
+        return tests
