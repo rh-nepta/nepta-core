@@ -1,17 +1,5 @@
-from nepta.core.scenarios.iperf3.tcp import (
-    Iperf3TCPStream,
-    Iperf3TCPReversed,
-    Iperf3TCPMultiStream,
-    Iperf3TCPDuplexStream,
-)
+from nepta.core.scenarios.iperf3.generic import Iperf3Stream
+from nepta.core.scenarios.iperf3.modifiers import make_alias, make_single_stream, sctp
 
-
-class Iperf3SCTPStream(Iperf3TCPStream):
-    def init_test(self, path, size):
-        iperf_test = super().init_test(path, size)
-        iperf_test.sctp = True
-        return iperf_test
-
-
-class Iperf3SCTPSanity(Iperf3SCTPStream):
-    pass
+Iperf3SCTPStream = make_single_stream('Iperf3SCTPStream', Iperf3Stream, [sctp])
+Iperf3SCTPSanity = make_alias('Iperf3SCTPSanity', Iperf3SCTPStream)
