@@ -54,6 +54,10 @@ from .perun.perf import (
     Iperf3TCPReversedPerf,
     Iperf3TCPMultiStreamPerf,
     Iperf3TCPMultiStreamReversedPerf,
+    Iperf3UDPStreamPerf,
+    Iperf3UDPReversedPerf,
+    Iperf3UDPMultiStreamPerf,
+    Iperf3UDPMultiStreamReversedPerf,
 )
 
 from .perun.bpf import (

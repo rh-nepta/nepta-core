@@ -113,6 +113,10 @@ class KernelModule(_NamedOptions):
     pass
 
 
+class KernelArg(KeyValue):
+    pass
+
+
 @dataclass
 class PCPConfiguration:
     config_path: str = "/root/config.default"

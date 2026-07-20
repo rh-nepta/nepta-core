@@ -9,6 +9,8 @@ from nepta.core.scenarios.generic.scenario import StreamGeneric, SingleStreamGen
 from nepta.core.model.schedule import PathList, Path
 from nepta.core.tests.sockperf import SockPerfPingPong
 
+logger = logging.getLogger(__name__)
+
 
 class SockPerfUdpPingPong(SingleStreamGeneric, SockPerfGeneric):
 
@@ -43,10 +45,26 @@ class SockPerfUdpPingPong(SingleStreamGeneric, SockPerfGeneric):
             message_size=size,
         )
         sockperf_test.msg_size = size
-        if path.cpu_pinning:
-            sockperf_test.affinity = ",".join([str(x) for x in path.cpu_pinning[0]])
-        elif self.cpu_pinning:
-            sockperf_test.affinity = ",".join([str(x) for x in self.cpu_pinning[0]])
+
+        if getattr(path, 'client_affinities', None):
+            sender_cores = list(path.client_affinities[0])
+            receiver_cores = list(path.client_affinities[1])
+
+            sockperf_test.sender_affinity = ",".join(str(c) for c in sender_cores)
+            sockperf_test.receiver_affinity = ",".join(str(c) for c in receiver_cores)
+
+        elif getattr(path, 'cpu_pinning', None):
+            core_string = str(path.cpu_pinning[0][0])
+
+            sockperf_test.sender_affinity = core_string
+            sockperf_test.receiver_affinity = core_string
+
+        elif getattr(self, 'cpu_pinning', None):
+            core_string = str(path.cpu_pinning[0][0])
+
+            sockperf_test.sender_affinity = core_string
+            sockperf_test.receiver_affinity = core_string
+
         return sockperf_test
 
     def parse_results(self, test):

@@ -3,7 +3,7 @@ import logging
 
 from nepta.core import model
 from nepta.core.distribution import conf_files, env
-from nepta.core.distribution.command import Command
+from nepta.core.distribution.command import Command, ShellCommand
 from nepta.core.strategies.setup.generic import _GenericSetup as Setup
 from nepta.core.distribution.utils.system import Tuned, KernelModuleUtils, TimeDateCtl, SystemD
 
@@ -89,6 +89,38 @@ class SystemSetup(Setup):
             conf_files.KernelModuleOptions(mod).apply()
             logger.info(f'Inserting module {mod}')
             KernelModuleUtils.modprobe(mod)
+
+    @Setup.schedule
+    def configure_kernel_args(self):
+        logger.info("Configuring kernel arguments")
+        kernel_args = self.conf.get_subset(m_class=model.system.KernelArg)
+
+        if not kernel_args:
+            logger.info("No kernel arguments to configure")
+            return
+
+        # Build the args string from KeyValue objects
+        args_list = [f"{arg.key}={arg.value}" if arg.value else arg.key for arg in kernel_args]
+        args_string = " ".join(args_list)
+
+        kernel_cmd = ShellCommand("uname -r")
+        kernel_cmd.run()
+        kernel_version, ret_code = kernel_cmd.watch_output()
+
+        if ret_code:
+            logger.error("Failed to get kernel version")
+            return
+
+        kernel_version = kernel_version.strip()
+
+        grubby_cmd = ShellCommand(f'grubby --update-kernel=/boot/vmlinuz-{kernel_version} --args="{args_string}"')
+        grubby_cmd.run()
+        out, ret_code = grubby_cmd.watch_and_log_error()
+
+        if ret_code == 0:
+            logger.info(f"Successfully configured kernel args: {args_string}")
+        else:
+            logger.error(f"Failed to configure kernel args")
 
     @Setup.schedule
     def generate_pcp_config(self):

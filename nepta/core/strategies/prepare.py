@@ -13,6 +13,7 @@ from nepta.core.scenarios.iperf3.generic import GenericIPerf3Stream
 from nepta.core.scenarios.generic.scenario import ScenarioGeneric
 from nepta.core.scenarios.sockperf.generic import SockPerfGeneric
 from nepta.core.distribution.command import ShellCommand, Command
+from nepta.core import scenarios
 
 logger = logging.getLogger(__name__)
 
@@ -88,12 +89,71 @@ class Prepare(Strategy):
 
     @Strategy.schedule
     def start_sockperf_service(self):
-        if self.conf.get_subset(m_class=SockPerfGeneric):
-            logger.info("Starting sockperf server")
-            sockperf_server = SockPerfServer(daemonize=True)
-            sockperf_server.start()
-        else:
+        logger.info("Starting necessary sockperf services")
+
+        if 'sockperf' not in self.conf.conf_name.lower():
             logger.info("No sockperf streams found, skipping sockperf server start")
+            return
+
+        sync_objs = self.conf.get_subset(m_class=model.bundles.SyncHost)
+        if not len(sync_objs):
+            logger.info("There is no host for synchronization")
+            return
+
+        remote_scenarios = []
+        for host in sync_objs:
+            host_conf = model.bundles.HostBundle.find(host.hostname, self.conf.conf_name)
+
+            if host_conf:
+                if hasattr(host_conf, 'scenarios'):
+                    remote_scenarios.extend(host_conf.scenarios)
+            else:
+                logger.error(f'Synchronized host {host} does not have configuration for current testcase.')
+
+        logger.info(f"Found {len(remote_scenarios)} total scenarios on remote hosts.")
+
+        servers_to_start = set()
+
+        for scenario in remote_scenarios:
+
+            logger.info(f"Scenario name is {scenario.__class__.__name__}")
+            if "SockPerf" in scenario.__class__.__name__:
+                for path in scenario.paths:
+                    server_ip = path.their_ip.ip
+                    core_string = None
+
+                    if getattr(path, 'server_affinities', None):
+                        server_cores = [str(core) for core in path.server_affinities]
+
+                        if server_cores:
+                            unique_cores = list(dict.fromkeys(server_cores))
+                            core_string = ",".join(unique_cores)
+                            logger.info(f"Server cores (from server_affinities) are: {core_string}.")
+
+                    else:
+                        pinning_source = getattr(path, 'cpu_pinning', None)
+                        if not pinning_source:
+                            pinning_source = getattr(scenario, 'cpu_pinning', None)
+
+                        if pinning_source:
+                            server_cores = [str(flow[1]) for flow in pinning_source if len(flow) > 1]
+
+                            if server_cores:
+                                unique_cores = list(dict.fromkeys(server_cores))
+                                core_string = ",".join(unique_cores)
+                                logger.info(f"Server cores (from cpu_pinning) are: {core_string}.")
+
+                    servers_to_start.add((server_ip, core_string))
+
+        for ip, core in servers_to_start:
+            if core:
+                logger.info(f"Starting sockperf server on IP {ip} pinned to core(s) {core}")
+                srv = SockPerfServer(ip=ip, daemonize=True, cpu_affinity=core)
+            else:
+                logger.info(f"Starting unpinned sockperf server on IP {ip}")
+                srv = SockPerfServer(ip=ip, daemonize=True)
+
+            srv.start()
 
     @Strategy.schedule
     def start_docker_container(self):

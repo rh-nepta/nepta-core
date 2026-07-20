@@ -1,33 +1,7 @@
-from nepta.core.scenarios.iperf3.tcp import (
-    Iperf3TCPStream,
-    Iperf3TCPReversed,
-    Iperf3TCPMultiStream,
-    Iperf3TCPDuplexStream,
-)
+from nepta.core.scenarios.iperf3.generic import Iperf3Stream, Iperf3MultiStream, Iperf3DuplexStream
+from nepta.core.scenarios.iperf3.modifiers import make_single_stream, make_multi_stream, zerocopy_mod, reversed_dir
 
-
-class Iperf3TCPStreamZeroCopy(Iperf3TCPStream):
-    def init_test(self, path, size):
-        iperf_test = super().init_test(path, size)
-        iperf_test.zerocopy = True
-        return iperf_test
-
-
-class Iperf3TCPReversedZeroCopy(Iperf3TCPStreamZeroCopy, Iperf3TCPReversed):
-    pass
-
-
-class Iperf3TCPDuplexStreamZeroCopy(Iperf3TCPDuplexStream):
-    def init_all_tests(self, path, size):
-        tests = super().init_all_tests(path, size)
-        for test in tests:
-            test.zerocopy = True
-        return tests
-
-
-class Iperf3TCPMultiStreamZeroCopy(Iperf3TCPMultiStream):
-    def init_all_tests(self, path, size):
-        tests = super().init_all_tests(path, size)
-        for test in tests:
-            test.zerocopy = True
-        return tests
+Iperf3TCPStreamZeroCopy = make_single_stream('Iperf3TCPStreamZeroCopy', Iperf3Stream, [zerocopy_mod])
+Iperf3TCPReversedZeroCopy = make_single_stream('Iperf3TCPReversedZeroCopy', Iperf3Stream, [zerocopy_mod, reversed_dir])
+Iperf3TCPMultiStreamZeroCopy = make_multi_stream('Iperf3TCPMultiStreamZeroCopy', Iperf3MultiStream, [zerocopy_mod])
+Iperf3TCPDuplexStreamZeroCopy = make_multi_stream('Iperf3TCPDuplexStreamZeroCopy', Iperf3DuplexStream, [zerocopy_mod])

@@ -25,7 +25,7 @@ class SaveMeta(Strategy):
         root["Kernel"] = Environment.kernel
         root["Area"] = "net"
 
-        if 'SockPerf' in self.conf.conf_name:
+        if "SockPerf" in self.conf.conf_name:
             root["BenchmarkName"] = "sockperf"
             root["BenchmarkVersion"] = RPMTool.get_package_version("sockperf")
         else:
@@ -47,6 +47,10 @@ class SaveMeta(Strategy):
         if Environment.in_tf:
             root["TfGitUrl"] = Environment.tf_git_url
             root["TfGitRef"] = Environment.tf_git_ref
+
+            # TODO: Replace with a real job identifier once Testing Farm provides one.
+            # PerfQE Catalog requires BeakerJobID to be set; use a dummy value for TF runs.
+            root["BeakerJobID"] = "1"
 
         # In some special cases, tuned profile is not set (e.g.: Docker) or tuned-adm is not installed
         try:

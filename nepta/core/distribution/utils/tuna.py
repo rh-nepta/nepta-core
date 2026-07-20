@@ -28,42 +28,61 @@ class Tuna:
     NEW_CLI_VERSION = version.parse("0.18-2")
 
     @staticmethod
-    def list_all_irqs():
-        cmd_line = "tuna --show_irqs"
+    def get_version() -> version.Version:
+        rpm_cmd = Command("rpm -q tuna")
+        rpm_cmd.run()
+        out, ret_code = rpm_cmd.watch_output()
+
+        nevra = split_nevra(out)
+
+        ver = version.parse("%s-%s" % (nevra.version, nevra.release.split(".")[0]))
+
+        return ver
+
+    @classmethod
+    def is_new_cli(cls) -> bool:
+        return cls.get_version() >= cls.NEW_CLI_VERSION
+
+    @classmethod
+    def list_all_irqs(cls):
+        if cls.is_new_cli():
+            cmd_line = "tuna show_irqs"
+        else:
+            cmd_line = "tuna --show_irqs"
+
         cmd = Command(cmd_line)
         cmd.run()
         output, _ = cmd.get_output()
 
         return output
 
-    @staticmethod
-    def get_version() -> version.Version:
-        rpm_cmd = Command("rpm -q tuna")
-        rpm_cmd.run()
-        out, ret_code = rpm_cmd.watch_output()
-        nevra = split_nevra(out)
-        ver = version.parse("%s-%s" % (nevra.version, nevra.release.split(".")[0]))
-        return ver
-
-    @staticmethod
-    def get_irq_of_interface(interface):
-        cmd_line = "tuna --show_irqs | grep %s" % interface
-        cmd = Command(cmd_line)
-        cmd.run()
-        all_irq, _ = cmd.get_output()
+    @classmethod
+    def get_irq_of_interface(cls, interface):
+        all_irq = cls.list_all_irqs()
 
         output = []
-        for i in all_irq.split("\n"):
-            if len(i):
-                output.append(i.split()[0])
+        for line in all_irq.splitlines():
+            if interface in line:
+                parts = line.split()
+                if parts:
+                    output.append(parts[0])
+
         return output
 
     @classmethod
     def set_irq_cpu_binding(cls, interface, cpu):
         interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ", ".join(interface_irq)
 
-        cmd_line = "tuna --irqs=%s --cpu=%s --move" % (irqs, cpu)
+        if not interface_irq:
+            raise RuntimeError(f"No IRQs found for interface/pattern: {interface}")
+
+        irqs = ",".join(interface_irq)
+
+        if cls.is_new_cli():
+            cmd_line = f"tuna move --irqs={irqs} --cpus={cpu}"
+        else:
+            cmd_line = f"tuna --irqs={irqs} --cpus={cpu} --move"
+
         cmd = Command(cmd_line)
         cmd.run()
         cmd.get_output()
@@ -71,17 +90,30 @@ class Tuna:
     @classmethod
     def set_irq_socket_binding(cls, interface, socket):
         interface_irq = cls.get_irq_of_interface(interface)
-        irqs = ", ".join(interface_irq)
 
-        cmd_line = "tuna --irqs=%s --sockets=%s --move" % (irqs, socket)
+        if not interface_irq:
+            raise RuntimeError(f"No IRQs found for interface/pattern: {interface}")
+
+        irqs = ",".join(interface_irq)
+
+        if cls.is_new_cli():
+            cmd_line = f"tuna move --irqs={irqs} --sockets={socket}"
+        else:
+            cmd_line = f"tuna --irqs={irqs} --sockets={socket} --move"
+
         cmd = Command(cmd_line)
         cmd.run()
         cmd.get_output()
 
     @classmethod
     def set_irq_spread_over_cpu_list(cls, interface: str, spread: str, host=None) -> None:
-        spread_argument = "spread" if cls.get_version() >= cls.NEW_CLI_VERSION else "--spread"
-        cmd_line = f'tuna {spread_argument} --irqs={interface}\\* --cpus={spread}'
+        irq_pattern = f"{interface}*"
+
+        if cls.is_new_cli():
+            cmd_line = f"tuna spread --irqs='{irq_pattern}' --cpus={spread}"
+        else:
+            cmd_line = f"tuna --irqs='{irq_pattern}' --cpus={spread} --move --spread"
+
         cmd = ShellCommand(cmd_line, host=host)
         cmd.run()
         cmd.watch_and_log_error()
@@ -89,5 +121,5 @@ class Tuna:
     @classmethod
     def reset_irq_binding(cls, interface):
         # default socket is 0 , we have to use reset if we want to test TCP, because irq binding fuck it up
-        # TODO : using lstopo fin default socket
+        # TODO: use lstopo to find default socket
         cls.set_irq_socket_binding(interface, 0)

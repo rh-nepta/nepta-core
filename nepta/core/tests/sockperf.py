@@ -21,6 +21,7 @@ class SockPerfServer(SockPerf):
 
     MAPPING = SockPerf.MAPPING + [
         CommandArgument("daemonize", "--daemonize", argument_type=bool),
+        CommandArgument("cpu_affinity", "--cpu-affinity", argument_type=str),
     ]
 
     def start(self):
@@ -50,6 +51,8 @@ class SockPerfPingPong(SockPerf):
         CommandArgument("time", "--time", argument_type=int, default_value=1),
         CommandArgument('message_size', '--msg-size', argument_type=int),
         CommandArgument("full_log", "--full-log"),
+        CommandArgument("sender_affinity", "--sender-affinity", argument_type=str),
+        CommandArgument("receiver_affinity", "--receiver-affinity", argument_type=str),
     ]
 
     def get_result(self) -> dict:
